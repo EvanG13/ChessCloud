@@ -8,7 +8,22 @@
     <artifactId>chess-cloud</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- Import the AWS SDK for Java BOM -->
+    <!-- https://github.com/aws/aws-sdk-java-v2/tree/master?tab=readme-ov-file#using-the-sdk -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.25.23</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!-- JUnit 5 dependencies -->
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -25,6 +40,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito dependencies -->
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -33,6 +49,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Parameterized Tests dependencies -->
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-params -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -41,6 +58,30 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- AWS Java SDK dependencies -->
+        <!-- AWS Lambda -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>lambda</artifactId>
+        </dependency>
+
+        <!-- Amazon API Gateway -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>apigateway</artifactId>
+        </dependency>
+
+        <!-- Amazon S3 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+
+        <!-- Amazon DynamoDB -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
