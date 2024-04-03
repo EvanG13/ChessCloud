@@ -1,5 +1,6 @@
 package org.example;
 
+import org.junit.jupiter.api.Tag;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -15,7 +16,8 @@ import org.bson.Document;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MongoDBTest {
+@Tag("dependency-check")
+public class MongoDBDependencyTest {
 
     @DisplayName("Test dotenv")
     @Test

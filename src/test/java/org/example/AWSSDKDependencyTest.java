@@ -1,6 +1,7 @@
 package org.example;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -12,7 +13,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AWSSDKTest {
+@Tag("dependency-check")
+public class AWSSDKDependencyTest {
 
     AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create();
 
