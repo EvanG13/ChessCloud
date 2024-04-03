@@ -8,6 +8,19 @@
     <artifactId>chess-cloud</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- https://maven.apache.org/surefire/maven-surefire-plugin/usage.html -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <!-- Import the AWS SDK for Java BOM -->
     <!-- https://github.com/aws/aws-sdk-java-v2/tree/master?tab=readme-ov-file#using-the-sdk -->
     <dependencyManagement>
