@@ -1,15 +1,20 @@
 # ChessCloud
 
-# Apache Maven
-This project utilizes [Apache Maven](https://maven.apache.org/) for managing `Java` dependencies
+------------
 
-### Install Apache Maven Dependencies
-``mvn clean install``
+# Project Setup
+
+--------------
+This project utilizes **[Apache Maven](https://maven.apache.org/)** for managing `Java` dependencies
+
+### Install Dependencies
+with tests: ``mvn clean install``\
+skip tests: ``mvn clean install -DskipTests``
 
 ### Steps for adding a dependency
 1. Search for and select your desired package within [MVN Repository](https://mvnrepository.com/)
 2. Copy the package's `Dependecy Declaration`:
-   ```
+   ```xml
    <dependency>
       <groupId>foo.id</groupId>
       <artifactId>foo-artifact-id</artifactId>
@@ -24,22 +29,27 @@ This project utilizes [Apache Maven](https://maven.apache.org/) for managing `Ja
 8. Enjoy :sunglasses:
 
 ### Environment Variables
-In order for MongoDB to work, you **must** create a `.env` file within your root directory. It then must include your connection id. Example below:
-```
+In order for MongoDB to work, you **must** create a `.env` file within your root directory. It then must include your connection id and port number. Example below:
+```text
 MONGODB_CONNECTION_STRING=fakeconnectionstring
+PORT=00000
 ```
 
-### Check Dependencies installed correctly
+### Check that dependencies are installed correctly
 `` mvn test -Dgroups=dependency-check``
 
-## Run Tests
-There are two options for running tests 
+## Testing
 
-#### Command line
+------------
+This project utilizes **[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for Unit and Integration tests
+
+
+### Running Tests
+#### 1. Command line
 - all tests - ``mvn test``
 - target tag - ``mvn test -Dgroups=foo-tag-name``
 
-#### IDE
+#### 2. IDE
 1. Open up `Project` view in your IDE and expand the `Test` directory (it will be identical to the `src` file structure)
 2. `Right click` on the `Java` directory inside it
 3. Selection the option, `Run 'tests' in Java`
