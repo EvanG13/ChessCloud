@@ -1,10 +1,6 @@
 # ChessCloud
 
-------------
-
 # Project Setup
-
---------------
 This project utilizes **[Apache Maven](https://maven.apache.org/)** for managing `Java` dependencies
 
 ### Install Dependencies
@@ -39,8 +35,6 @@ PORT=00000
 `` mvn test -Dgroups=dependency-check``
 
 ## Testing
-
-------------
 This project utilizes **[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for Unit and Integration tests
 
 
