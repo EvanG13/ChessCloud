@@ -18,10 +18,10 @@ variable "lambda_runtime" {
   default = "java17"
 }
 
-variable "handlers_source_path" {
-  default = "main/java/"
-}
-
-variable "handlers_output_path" {
-  default = "target/zip"
+# function_name = handler_location
+variable "lambdas" {
+  type = map(string)
+  default = {
+    login = "org.example.handlers.LoginHandler::handleRequest"
+  }
 }

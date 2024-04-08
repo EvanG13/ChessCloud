@@ -22,8 +22,10 @@ resource "aws_iam_role_policy_attachment" "invoke_lambda_policy" {
   role       = aws_iam_role.iam_role_for_lambda.name
 }
 
-resource "aws_lambda_function" "login" {
-  function_name = "login"
+resource "aws_lambda_function" "lambda_functions" {
+  for_each = var.lambdas
+
+  function_name = each.key
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.project_jar.key
@@ -31,7 +33,7 @@ resource "aws_lambda_function" "login" {
   source_code_hash = filebase64sha256("../../${path.module}/target/chess-cloud-1.0-SNAPSHOT.jar")
 
   runtime = var.lambda_runtime
-  handler = "org.example.handlers.LoginHandler::handleRequest"
+  handler = each.value
 
   role = aws_iam_role.iam_role_for_lambda.arn
 }
