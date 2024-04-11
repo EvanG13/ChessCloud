@@ -8,27 +8,30 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 @Tag("dependency-check")
 public class AWSSDKDependencyTest {
 
     AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create();
 
-    @DisplayName("Checks if Lambda Client Dependency is installed")
+    @DisplayName("Checks if Lambda Runtime Dependency is installed")
     @Test
     void testLambdaClientDependency() {
-        final LambdaClient lambdaClient = LambdaClient.builder()
-                .region(Region.US_EAST_1)
-                .credentialsProvider(credentialsProvider)
-                .build();
+        try {
+            Class.forName("com.amazonaws.services.lambda.runtime.Context");
 
-        assertNotNull(lambdaClient);
 
-        lambdaClient.close();
+            assertTrue(true, "Lambda runtime dependency is available");
+        } catch (ClassNotFoundException e) {
+            // If the import fails, the dependency is not available
+            fail("Dependency not installed");
+        }
     }
 
     @DisplayName("Checks if S3 Client Dependency is installed")
