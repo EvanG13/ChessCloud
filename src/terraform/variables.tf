@@ -18,10 +18,16 @@ variable "lambda_runtime" {
   default = "java17"
 }
 
-# function_name = handler_location
+/**
+ * key = handler
+ *
+ * Key = lambda function name
+ * handler = the handler function that will be invoked for that lambda, package.Class::method
+ */
 variable "lambdas" {
   type = map(string)
   default = {
-    login = "org.example.handlers.LoginHandler::handleRequest"
+    login  = "org.example.handlers.LoginHandler::handleRequest",
+    logout = "org.example.handlers.LogoutHandler::handleRequest",
   }
 }
