@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Chess Cloud API
+  description: API for our React-Nave mobile app
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /login:
+    post:
+      summary: Login to the system
+      description: Logs a user into the system, providing a session token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestBody'
+        required: true
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:login/invocations
+  /logout:
+    post:
+      summary: Logout
+      description: Logout of the app
+      responses:
+        200:
+          description: Logout Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations
+components:
+  schemas:
+    LoginRequestBody:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          format: email
+        password:
+          type: string
+          description: The user's password
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login successful
+    BadRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Bad Request
+    OKResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: OK

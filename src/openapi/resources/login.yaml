@@ -1,0 +1,26 @@
+post:
+  summary: Login to the system
+  description: Logs a user into the system, providing a session token.
+  x-amazon-apigateway-integration:
+    type: "aws_proxy"
+    httpMethod: "POST"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:login/invocations"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/requests/LoginRequestBody.yaml'
+  responses:
+    200:
+      description: Login successful
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/LoginResponse.yaml'
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/BadRequest.yaml'
