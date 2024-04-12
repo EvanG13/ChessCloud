@@ -13,15 +13,15 @@ import org.example.statusCodes.StatusCodes;
 public class LoginHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
 
     @Override
-    public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent input, Context context) {
-        if (input == null) {
+    public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
+        if (event == null) {
             return APIGatewayV2HTTPResponse.builder()
                     .withBody("Bad Request")
                     .withStatusCode(StatusCodes.BAD_REQUEST)
                     .build();
         }
 
-        String requestBody = input.getBody();
+        String requestBody = event.getBody();
 
         LoginRequest request = new Gson().fromJson(requestBody, LoginRequest.class);
 
