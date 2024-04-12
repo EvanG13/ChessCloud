@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.login;
 
 public class LoginService {
 
@@ -11,6 +11,6 @@ public class LoginService {
     }
 
     public String getResponseMessage() {
-        return "Email : " + email + "\nPassword : " + password;
+        return "New Input email : " + email + "\nNew Input Password : " + password;
     }
 }
