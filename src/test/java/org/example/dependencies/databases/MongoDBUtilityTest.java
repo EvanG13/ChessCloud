@@ -43,7 +43,6 @@ public class MongoDBUtilityTest {
     @DisplayName("Can get a document from MongoDB \uD83E\uDD8D")
     @Test
     public void getDocument() {
-
         try {
             Document actual = service.get(newUser.getObjectId("_id").toString());
             assertNotNull(actual);
@@ -56,8 +55,6 @@ public class MongoDBUtilityTest {
             e.printStackTrace();
             fail("fail");
         }
-
-        assertTrue(true);
     }
 
     @DisplayName("Can delete a document from MongoDB \uD83E\uDD8D")
@@ -73,11 +70,9 @@ public class MongoDBUtilityTest {
             e.printStackTrace();
             fail("fail");
         }
-
-        assertTrue(true);
     }
 
-    @DisplayName("Can delete a document from MongoDB \uD83E\uDD8D")
+    @DisplayName("Can update a document from MongoDB \uD83E\uDD8D")
     @Test
     public void patchDocument() {
 
@@ -92,8 +87,6 @@ public class MongoDBUtilityTest {
             e.printStackTrace();
             fail("fail");
         }
-
-        assertTrue(true);
     }
 
     @DisplayName("Can list documents from MongoDB \uD83E\uDD8D")
@@ -111,17 +104,13 @@ public class MongoDBUtilityTest {
             service.post(document1);
             service.post(document2);
 
-            // Call the method being tested
             List<Document> actualDocs = service.list(Filters.eq("password", "list"));
 
-            // Perform assertions
             assertNotNull(actualDocs);
             assertEquals(2, actualDocs.size());
         } catch (MongoException e) {
             e.printStackTrace();
             fail("fail");
         }
-
-        assertTrue(true);
     }
 }
