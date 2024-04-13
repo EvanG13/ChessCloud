@@ -1,4 +1,4 @@
-package org.example.entities.DataTransferObject;
+package org.example.entities;
 
 import org.bson.Document;
 
@@ -9,9 +9,13 @@ public abstract class DataTransferObject {
         this.id = id;
     }
 
+    public String getId() {
+        return id;
+    }
+
     /**
-     * Convert object to a BSON Object
-     * @return BSON Object
+     * Convert object to a BSON Document
+     * @return BSON Document
      */
     public abstract Document toDocument();
 }

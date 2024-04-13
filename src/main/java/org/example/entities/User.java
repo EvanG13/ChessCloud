@@ -1,4 +1,4 @@
-package org.example.entities.DataTransferObject;
+package org.example.entities;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -7,7 +7,7 @@ public class User extends DataTransferObject {
     private final String email;
     private final String password;
 
-    public User(String email, String password, String id) {
+    public User(String id, String email, String password) {
         super(id);
         this.email = email;
         this.password = password;
@@ -27,11 +27,11 @@ public class User extends DataTransferObject {
                 .append("password", password);
     }
 
-    public static User toObject(Document user) {
+    public static User fromDocument(Document userDocument) {
         return new User(
-                user.getString("email"),
-                user.getString("password"),
-                String.valueOf(user.getObjectId("_id"))
+                String.valueOf(userDocument.getObjectId("_id")),
+                userDocument.getString("email"),
+                userDocument.getString("password")
         );
     }
 }
