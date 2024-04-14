@@ -1,6 +1,8 @@
 package org.example.dependencies.databases.mongoDB;
 
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
 import org.example.databases.mongoDB.UsersMongoDBUtility;
@@ -55,5 +57,16 @@ public class UsersMongoDBUtilityTest {
         when(mockedUtility.get(anyString())).thenReturn(null);
         User user = utility.get(objectId.toString());
         assertNull(user);
+    }
+
+    @Test
+    public void canPatchUser() {
+        User newUser = new User("brother", "hello@gmail.com", "world");
+
+        doNothing().when(mockedUtility).post(any(Document.class));
+
+        doNothing().when(mockedUtility).patch(anyString(), any(Bson.class));
+
+        utility.patch("brother", Updates.set("email", "another@gmail.com"));
     }
 }

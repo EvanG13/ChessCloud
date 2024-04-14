@@ -1,6 +1,7 @@
 package org.example.databases.mongoDB;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
@@ -45,5 +46,14 @@ public class UsersMongoDBUtility {
      */
     public void delete(String id) {
         utility.delete(id);
+    }
+
+    /**
+     * Update a user with the given id
+     * @param id object id
+     * @param filter filter
+     */
+    public void patch(String id, Bson filter) {
+        utility.patch(id, filter);
     }
 }

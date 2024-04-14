@@ -25,10 +25,10 @@ public interface DatabaseUtility<T, G> {
 
     /**
      * Update a DB entry
-     * @param id id
-     * @param entry item
+     * @param id id for item to be updated
+     * @param filter filter used for updating the item
      */
-    void patch(G id, T entry);
+    void patch(String id, G filter);
 
     /**
      * Delete DB entry
