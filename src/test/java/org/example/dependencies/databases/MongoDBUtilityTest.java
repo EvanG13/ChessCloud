@@ -77,12 +77,14 @@ public class MongoDBUtilityTest {
     public void patchDocument() {
 
         try {
-            service.patch(Updates.set("email", "new-fake-email@gmail.com"), newUser);
+            service.patch(newUser.getObjectId("_id").toString(), Updates.set("email", "new-fake-email@gmail.com"));
 
             Document actual = service.get(newUser.getObjectId("_id").toString());
             assertNotNull(actual);
 
             assertEquals(actual.get("email"), "new-fake-email@gmail.com");
+
+            System.out.println(actual);
         } catch (MongoException e) {
             e.printStackTrace();
             fail("fail");

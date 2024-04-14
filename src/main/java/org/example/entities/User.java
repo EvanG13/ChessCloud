@@ -34,4 +34,9 @@ public class User extends DataTransferObject {
                 userDocument.getString("password")
         );
     }
+
+    @Override
+    public String toString() {
+        return "email " + email + " - " + "Password " + password + "\n";
+    }
 }
