@@ -1,4 +1,4 @@
-package org.example.dependencies.databases.mongoDB;
+package org.example.databases.mongoDB;
 
 import com.mongodb.client.model.Updates;
 import org.bson.Document;

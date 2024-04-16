@@ -1,4 +1,4 @@
-package org.example.dependencies.databases;
+package org.example.databases;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.model.Filters;

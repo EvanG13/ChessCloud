@@ -31,6 +31,7 @@
                                 <exclude>META-INF/*</exclude>
                                 <exclude>META-INF/versions/**</exclude>
                                 <exclude>META-INF/services/**</exclude>
+                                <exclude>**/org/example/databases/DynamoDBUtilityTest.java</exclude>
                             </excludes>
                         </filter>
                     </filters>

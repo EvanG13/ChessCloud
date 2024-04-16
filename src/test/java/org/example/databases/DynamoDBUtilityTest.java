@@ -1,79 +1,76 @@
-package org.example.dependencies.databases;
+package org.example.databases;
 
-import org.example.databases.DynamoDBUtility;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+import org.junit.jupiter.api.Tag;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Disables from automatic run")
+@Tag("Manual")
 public class DynamoDBUtilityTest {
-    private static final String COLLECTION_NAME = "testCollection";
 
    static DynamoDBUtility utility = new DynamoDBUtility("user");
    static HashMap<String, AttributeValue> newUser = new HashMap<>();
+
     static String userId = "194e4010-d49b-496e-bed8-b96c713e2110";
+
     @BeforeAll
     public static void setUp() {
 
         //create the user table
-        DynamoDbWaiter dbWaiter = utility.getDdb().waiter();
-        CreateTableRequest request = CreateTableRequest.builder()
-                .attributeDefinitions(AttributeDefinition.builder()
-                        .attributeName("id")
-                        .attributeType(ScalarAttributeType.S)
-                        .attributeName("email")
-                        .attributeType(ScalarAttributeType.S)
-                        .attributeName("password")
-                        .attributeType(ScalarAttributeType.S)
-                        .build())
-                .keySchema(KeySchemaElement.builder()
-                        .attributeName("id")
-                        .keyType(KeyType.HASH)
-                        .build())
-                .provisionedThroughput(ProvisionedThroughput.builder()
-                        .readCapacityUnits(10L)
-                        .writeCapacityUnits(10L)
-                        .build())
-                .tableName("user")
-                .build();
-
-        String newTable;
-        try {
-            CreateTableResponse response = utility.getDdb().createTable(request);
-            DescribeTableRequest tableRequest = DescribeTableRequest.builder()
+        try (DynamoDbWaiter dbWaiter = utility.getClient().waiter()) {
+            CreateTableRequest request = CreateTableRequest.builder()
+                    .attributeDefinitions(AttributeDefinition.builder()
+                            .attributeName("id")
+                            .attributeType(ScalarAttributeType.S)
+                            .attributeName("email")
+                            .attributeType(ScalarAttributeType.S)
+                            .attributeName("password")
+                            .attributeType(ScalarAttributeType.S)
+                            .build())
+                    .keySchema(KeySchemaElement.builder()
+                            .attributeName("id")
+                            .keyType(KeyType.HASH)
+                            .build())
+                    .provisionedThroughput(ProvisionedThroughput.builder()
+                            .readCapacityUnits(10L)
+                            .writeCapacityUnits(10L)
+                            .build())
                     .tableName("user")
                     .build();
 
-            // Wait until the Amazon DynamoDB table is created.
-            WaiterResponse<DescribeTableResponse> waiterResponse = dbWaiter.waitUntilTableExists(tableRequest);
-            waiterResponse.matched().response().ifPresent(System.out::println);
-            newTable = response.tableDescription().tableName();
+            try {
+                CreateTableResponse response = utility.getClient().createTable(request);
+                DescribeTableRequest tableRequest = DescribeTableRequest.builder()
+                        .tableName("user")
+                        .build();
 
-        } catch (DynamoDbException e) {
-            System.err.println(e.getMessage());
+                // Wait until the Amazon DynamoDB table is created.
+                WaiterResponse<DescribeTableResponse> waiterResponse = dbWaiter.waitUntilTableExists(tableRequest);
+                waiterResponse.matched().response().ifPresent(System.out::println);
 
+            } catch (DynamoDbException e) {
+                System.err.println(e.getMessage());
+
+            }
         }
         newUser.put("id", AttributeValue.builder()
                 .s(userId)
                 .build());
-       newUser.put("email", AttributeValue.builder()
+        newUser.put("email", AttributeValue.builder()
                .s("cleve@gmail.com")
                .build());
-       newUser.put("password", AttributeValue.builder()
+        newUser.put("password", AttributeValue.builder()
                .s("1234")
                .build());
-
         utility.post(newUser);
 
         newUser.put("id", AttributeValue.builder()
@@ -85,7 +82,6 @@ public class DynamoDBUtilityTest {
         newUser.put("password", AttributeValue.builder()
                 .s("1234")
                 .build());
-
         utility.post(newUser);
     }
 
@@ -106,9 +102,9 @@ public class DynamoDBUtilityTest {
         }
     }
 
-    @DisplayName("Can delete a document from DynamoDB \uD83E\uDD8D")
+    @DisplayName("Can delete an item from DynamoDB \uD83E\uDD8D")
     @Test
-    public void deleteDocument() {
+    public void deleteItem() {
 
         try {
             utility.delete(userId);
@@ -121,9 +117,9 @@ public class DynamoDBUtilityTest {
         }
     }
 
-    @DisplayName("Can update a document from MongoDB \uD83E\uDD8D")
+    @DisplayName("Can update an item from DynamoDB \uD83E\uDD8D")
     @Test
-    public void patchDocument() {
+    public void patchItem() {
         Map<String, AttributeValueUpdate> newEmail = new HashMap<>();
         newEmail.put("email", AttributeValueUpdate.builder()
                 .value(AttributeValue.builder().s("new-fake-email@gmail.com").build())
@@ -131,7 +127,7 @@ public class DynamoDBUtilityTest {
                 .build());
 
         try {
-            utility.patch(newEmail, userId);
+            utility.patch(userId, newEmail);
 
             Map<String, AttributeValue> actual = utility.get(userId);
             assertNotNull(actual);
@@ -143,13 +139,14 @@ public class DynamoDBUtilityTest {
         }
     }
 
-    @DisplayName("Can list documents from DynamoDB \uD83E\uDD8D")
+    @DisplayName("Can list items from DynamoDB \uD83E\uDD8D")
     @Test
-    public void listDocuments() {
+    public void listItems() {
         HashMap<String, AttributeValue> user2 = new HashMap<>();
         HashMap<String, AttributeValue> user3 = new HashMap<>();
-        String user2Id = "e3c9ef65-a29c-4366-b54d-2c89d9e4ffdf";
-        String user3Id = "ff3c1a53-fade-4328-82ad-66ec7f89fde8";
+        final String user2Id = "e3c9ef65-a29c-4366-b54d-2c89d9e4ffdf";
+        final String user3Id = "ff3c1a53-fade-4328-82ad-66ec7f89fde8";
+
         user2.put("id", AttributeValue.builder()
                 .s(user2Id)
                 .build());
@@ -169,8 +166,10 @@ public class DynamoDBUtilityTest {
         user3.put("password", AttributeValue.builder()
                 .s("123")
                 .build());
+
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":passwordVal", AttributeValue.builder().s("123").build());
+
         ScanRequest scanRequest = ScanRequest.builder()
             .tableName("user")
             .filterExpression("password = :passwordVal")
