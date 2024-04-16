@@ -2,33 +2,33 @@ package org.example.databases;
 
 
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
 
-
 public class DynamoDBUtility {
     private final String PRIMARY_KEY_ATTRIBUTE_NAME = "id";
 
-    private Region region;
-    private String tableName;
-    private DynamoDbClient ddb;
+    private final DynamoDbClient client;
+
+    private final String tableName;
+
     public DynamoDBUtility(String tableName) {
         this.tableName = tableName;
-        this.region = Region.US_EAST_1;
-        this.ddb = DynamoDbClient.builder().region(this.region)
-          .credentialsProvider(DefaultCredentialsProvider.create())
+
+        this.client = DynamoDbClient.builder()
+                .region(Region.US_EAST_1)
+                .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
-
     }
 
-    public DynamoDbClient getDdb() {
-        return ddb;
-    }
-
+    /**
+     * Get a DynamoDB item by its ID
+     * @param id id
+     * @return DynamoDB item
+     */
     public Map<String, AttributeValue> get(String id) {
 
         HashMap<String, AttributeValue> keyToGet = new HashMap<>();
@@ -42,48 +42,27 @@ public class DynamoDBUtility {
                 .build();
 
         try {
-            Map<String, AttributeValue> returnedItem = this.ddb.getItem(request).item();
+            Map<String, AttributeValue> returnedItem = this.client.getItem(request).item();
 
             if (returnedItem != null) {
                 Set<String> keys = returnedItem.keySet();
-                System.out.println("Amazon DynamoDB table attributes: \n");
 
                 for (String key1 : keys) {
                     System.out.format("%s: %s\n", key1, returnedItem.get(key1).toString());
                 }
-            } else {
-                System.out.format("No item found with the key %s!\n", "year");
             }
+
             return returnedItem;
-
         } catch (DynamoDbException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             throw e;
         }
     }
 
-
-
-    public void delete(String id) {
-        HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-        keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder()
-                .s(id)
-                .build());
-
-        DeleteItemRequest deleteReq = DeleteItemRequest.builder()
-                .tableName(this.tableName)
-                .key(keyToGet)
-                .build();
-
-        try {
-            ddb.deleteItem(deleteReq);
-        } catch (DynamoDbException e) {
-            System.err.println(e.getMessage());
-            throw e;
-        }
-    }
-
-
+    /**
+     * Create new DynamoDB item
+     * @param newItem item request data
+     */
     public void post(Map<String, AttributeValue> newItem) {
         PutItemRequest request = PutItemRequest.builder()
                 .tableName(this.tableName)
@@ -91,7 +70,7 @@ public class DynamoDBUtility {
                 .build();
 
         try {
-            PutItemResponse response = this.ddb.putItem(request);
+            PutItemResponse response = this.client.putItem(request);
             System.out.println(this.tableName + " was successfully updated. The request id is "
                     + response.responseMetadata().requestId());
 
@@ -105,7 +84,7 @@ public class DynamoDBUtility {
         }
     }
 
-    public void patch(Map<String, AttributeValueUpdate> updatedValues, String id) {
+    public void patch(String id, Map<String, AttributeValueUpdate> updatedValues) {
 
         HashMap<String, AttributeValue> keyToGet = new HashMap<>();
         keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder()
@@ -119,32 +98,44 @@ public class DynamoDBUtility {
                 .build();
 
         try {
-            ddb.updateItem(request);
+            client.updateItem(request);
         } catch (DynamoDbException e) {
             System.err.println(e.getMessage());
             throw e;
         }
-        System.out.println("The Amazon DynamoDB table was updated!");
     }
 
-
-
-//    ScanRequest scanRequest = ScanRequest.builder()
-//            .tableName(tableName)
-//            .filterExpression("password = :passwordVal")
-//            .expressionAttributeValues(expressionAttributeValues)
-//            .projectionExpression("email, password, id") // Specify the attributes you want to retrieve
-//            .build();
     public List<Map<String, AttributeValue>> list(ScanRequest req) {
         try {
-            ScanResponse scanResponse = ddb.scan(req);
+            ScanResponse scanResponse = client.scan(req);
 
-            List<Map<String, AttributeValue>> items = scanResponse.items();
-            return items;
+            return scanResponse.items();
         } catch (DynamoDbException e){
-            System.err.println(e);
+            System.err.println(e.getMessage());
             throw e;
         }
     }
 
+    public void delete(String id) {
+        HashMap<String, AttributeValue> keyToGet = new HashMap<>();
+        keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder()
+                .s(id)
+                .build());
+
+        DeleteItemRequest deleteReq = DeleteItemRequest.builder()
+                .tableName(this.tableName)
+                .key(keyToGet)
+                .build();
+
+        try {
+            client.deleteItem(deleteReq);
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            throw e;
+        }
+    }
+
+    public DynamoDbClient getClient() {
+        return client;
+    }
 }
