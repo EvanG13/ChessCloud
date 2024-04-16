@@ -78,6 +78,12 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
 
         collection.updateOne(new Document("_id", new ObjectId(id)), filter);
     }
+//    @Override
+//    public void patch(String id, Bson filter) {
+//        collection = database.getCollection(collectionName);
+//
+//        collection.updateOne(new Document("_id", new ObjectId(id)), filter);
+//    }
 
     @Override
     public void delete(String id) {
