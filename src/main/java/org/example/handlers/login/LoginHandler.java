@@ -26,13 +26,13 @@ public class LoginHandler
     Gson gson = new Gson();
     LoginRequest loginRequest = gson.fromJson(requestBody, LoginRequest.class);
 
-    // Check if loginRequest is null or any required field is missing
-    if (loginRequest == null || loginRequest.email() == null || loginRequest.password() == null) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withBody("GSON not working for whatever reason")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
-    }
+        // Check if loginRequest is null or any required field is missing
+        if (loginRequest == null || loginRequest.email() == null || loginRequest.password() == null) {
+            return APIGatewayV2HTTPResponse.builder()
+                    .withBody("GSON not working for whatever reason")
+                    .withStatusCode(StatusCodes.BAD_REQUEST)
+                    .build();
+        }
 
     LoginService service = new LoginService(loginRequest.email(), loginRequest.password());
 
