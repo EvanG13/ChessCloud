@@ -13,8 +13,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Disables from automatic run")
-@Tag("Manual")
 public class DynamoDBUtilityTest {
 
    static DynamoDBUtility utility = new DynamoDBUtility("user");
