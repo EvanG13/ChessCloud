@@ -5,7 +5,6 @@ resource "aws_dynamodb_table" "user_table" {
   write_capacity = 20
   hash_key       = "id"
 
-
   attribute {
     name = "id"
     type = "S"
@@ -25,8 +24,6 @@ resource "aws_dynamodb_table" "user_table" {
     name = "username"
     type = "S"
   }
-
-
 
   ttl {
     attribute_name = "TimeToExist"
