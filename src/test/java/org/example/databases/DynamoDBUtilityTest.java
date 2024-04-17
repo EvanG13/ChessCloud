@@ -12,15 +12,13 @@ import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 public class DynamoDBUtilityTest {
 
-  static DynamoDBUtility utility = new DynamoDBUtility("user");
+  static DynamoDBUtility utility = new DynamoDBUtility("users");
   static HashMap<String, AttributeValue> newUser = new HashMap<>();
 
   static String userId = "194e4010-d49b-496e-bed8-b96c713e2110";
 
   @BeforeAll
   public static void setUp() {
-
-    // create the user table
     try (DynamoDbWaiter dbWaiter = utility.getClient().waiter()) {
       CreateTableRequest request =
           CreateTableRequest.builder()
@@ -70,7 +68,7 @@ public class DynamoDBUtilityTest {
 
   @DisplayName("Can get an item from dynamoDB \uD83E\uDD8D")
   @Test
-  public void getItem() {
+  public void getItemById() {
     try {
       Map<String, AttributeValue> actual = utility.get("foo");
       assertNotNull(actual);
@@ -79,6 +77,25 @@ public class DynamoDBUtilityTest {
       assertEquals("cleve@gmail.com", actual.get("email").s());
       assertEquals("1234", actual.get("password").s());
 
+    } catch (DynamoDbException e) {
+      e.printStackTrace();
+      fail("fail");
+    }
+  }
+
+  @DisplayName("Can get an item from dynamoDB \uD83E\uDD8D")
+  @Test
+  public void getItemByMap() {
+    try {
+      Map<String, AttributeValue> requestMap = new HashMap<>();
+      requestMap.put("email", AttributeValue.builder().s("cleve@gmail.com").build());
+      requestMap.put("password", AttributeValue.builder().s("1234").build());
+
+      Map<String, AttributeValue> actual = utility.get(requestMap);
+
+      assertEquals(newUser.get("id").s(), actual.get("id").s());
+      assertEquals(newUser.get("email").s(), actual.get("email").s());
+      assertEquals(newUser.get("password").s(), actual.get("password").s());
     } catch (DynamoDbException e) {
       e.printStackTrace();
       fail("fail");
@@ -129,6 +146,7 @@ public class DynamoDBUtilityTest {
   public void listItems() {
     HashMap<String, AttributeValue> user2 = new HashMap<>();
     HashMap<String, AttributeValue> user3 = new HashMap<>();
+
     final String user2Id = "e3c9ef65-a29c-4366-b54d-2c89d9e4ffdf";
     final String user3Id = "ff3c1a53-fade-4328-82ad-66ec7f89fde8";
 
@@ -145,7 +163,7 @@ public class DynamoDBUtilityTest {
 
     ScanRequest scanRequest =
         ScanRequest.builder()
-            .tableName("user")
+            .tableName("users")
             .filterExpression("password = :passwordVal")
             .expressionAttributeValues(expressionAttributeValues)
             .projectionExpression(

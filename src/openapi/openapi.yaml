@@ -29,6 +29,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -66,15 +72,21 @@ components:
     LoginResponse:
       type: object
       properties:
-        message:
+        jwt:
           type: string
-          example: Login successful
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     BadRequest:
       type: object
       properties:
         message:
           type: string
           example: Bad Request
+    Unauthorized:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthorized
     OKResponse:
       type: object
       properties:

@@ -60,5 +60,7 @@ resource "aws_lambda_function" "lambda_functions" {
   runtime = var.lambda_runtime
   handler = each.value
 
+  timeout = 15
+
   role = aws_iam_role.iam_role_for_lambda.arn
 }

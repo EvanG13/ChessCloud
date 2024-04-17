@@ -38,17 +38,18 @@ public class DynamoDBUtility {
         GetItemRequest.builder().key(keyToGet).tableName(this.tableName).build();
 
     try {
-      Map<String, AttributeValue> returnedItem = this.client.getItem(request).item();
+      return this.client.getItem(request).item();
+    } catch (DynamoDbException e) {
+      e.printStackTrace();
+      throw e;
+    }
+  }
 
-      if (returnedItem != null) {
-        Set<String> keys = returnedItem.keySet();
+  public Map<String, AttributeValue> get(Map<String, AttributeValue> map) {
+    GetItemRequest request = GetItemRequest.builder().key(map).tableName(this.tableName).build();
 
-        for (String key1 : keys) {
-          System.out.format("%s: %s\n", key1, returnedItem.get(key1).toString());
-        }
-      }
-
-      return returnedItem;
+    try {
+      return this.client.getItem(request).item();
     } catch (DynamoDbException e) {
       e.printStackTrace();
       throw e;
