@@ -1,9 +1,8 @@
 package org.example.handlers.login;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.example.databases.DynamoDBUtility;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.entities.User;
 
 public class LoginService {
 
@@ -16,14 +15,10 @@ public class LoginService {
   }
 
   public boolean authenticateUser() {
-    DynamoDBUtility dbu = new DynamoDBUtility("users");
+    UsersDynamoDBUtility ddb = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
 
-    Map<String, AttributeValue> requestMap = new HashMap<>();
-    requestMap.put("email", AttributeValue.builder().s(email).build());
-    requestMap.put("password", AttributeValue.builder().s(password).build());
+    User user = ddb.getByEmailAndPassword(email, password);
 
-    Map<String, AttributeValue> map = dbu.get(requestMap);
-
-    return map != null && !map.isEmpty();
+    return user != null;
   }
 }

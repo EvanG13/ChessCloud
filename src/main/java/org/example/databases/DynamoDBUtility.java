@@ -2,6 +2,7 @@ package org.example.databases;
 
 import java.util.*;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -13,14 +14,20 @@ public class DynamoDBUtility {
 
   private final String tableName;
 
-  public DynamoDBUtility(String tableName) {
+  private DynamoDBUtility(String tableName, DynamoDbClient client) {
     this.tableName = tableName;
+    this.client = client;
+  }
 
-    this.client =
+  public static DynamoDBUtility create(String tableName) {
+    DynamoDbClient client =
         DynamoDbClient.builder()
             .region(Region.US_EAST_1)
+            .httpClient(ApacheHttpClient.builder().build())
             .credentialsProvider(DefaultCredentialsProvider.create())
             .build();
+
+    return new DynamoDBUtility(tableName, client);
   }
 
   /**
@@ -45,11 +52,9 @@ public class DynamoDBUtility {
     }
   }
 
-  public Map<String, AttributeValue> get(Map<String, AttributeValue> map) {
-    GetItemRequest request = GetItemRequest.builder().key(map).tableName(this.tableName).build();
-
+  public Map<String, AttributeValue> get(QueryRequest queryRequest) {
     try {
-      return this.client.getItem(request).item();
+      return client.query(queryRequest).items().get(0);
     } catch (DynamoDbException e) {
       e.printStackTrace();
       throw e;
@@ -66,18 +71,10 @@ public class DynamoDBUtility {
         PutItemRequest.builder().tableName(this.tableName).item(newItem).build();
 
     try {
-      PutItemResponse response = this.client.putItem(request);
-      System.out.println(
-          this.tableName
-              + " was successfully updated. The request id is "
-              + response.responseMetadata().requestId());
-
+      client.putItem(request);
     } catch (ResourceNotFoundException e) {
-      System.err.format("Error: The Amazon DynamoDB table \"%s\" can't be found.\n", tableName);
-      System.err.println("Be sure that it exists and that you've typed its name correctly!");
-      System.exit(1);
+      throw e;
     } catch (DynamoDbException e) {
-      System.err.println(e.getMessage());
       throw e;
     }
   }
@@ -126,9 +123,5 @@ public class DynamoDBUtility {
       System.err.println(e.getMessage());
       throw e;
     }
-  }
-
-  public DynamoDbClient getClient() {
-    return client;
   }
 }

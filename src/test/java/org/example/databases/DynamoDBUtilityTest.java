@@ -6,55 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
-import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 public class DynamoDBUtilityTest {
 
-  static DynamoDBUtility utility = new DynamoDBUtility("users");
+  static DynamoDBUtility utility = DynamoDBUtility.create("users");
   static HashMap<String, AttributeValue> newUser = new HashMap<>();
 
   static String userId = "194e4010-d49b-496e-bed8-b96c713e2110";
 
   @BeforeAll
   public static void setUp() {
-    try (DynamoDbWaiter dbWaiter = utility.getClient().waiter()) {
-      CreateTableRequest request =
-          CreateTableRequest.builder()
-              .attributeDefinitions(
-                  AttributeDefinition.builder()
-                      .attributeName("id")
-                      .attributeType(ScalarAttributeType.S)
-                      .attributeName("email")
-                      .attributeType(ScalarAttributeType.S)
-                      .attributeName("password")
-                      .attributeType(ScalarAttributeType.S)
-                      .build())
-              .keySchema(
-                  KeySchemaElement.builder().attributeName("id").keyType(KeyType.HASH).build())
-              .provisionedThroughput(
-                  ProvisionedThroughput.builder()
-                      .readCapacityUnits(10L)
-                      .writeCapacityUnits(10L)
-                      .build())
-              .tableName("user")
-              .build();
-
-      try {
-        CreateTableResponse response = utility.getClient().createTable(request);
-        DescribeTableRequest tableRequest =
-            DescribeTableRequest.builder().tableName("user").build();
-
-        // Wait until the Amazon DynamoDB table is created.
-        WaiterResponse<DescribeTableResponse> waiterResponse =
-            dbWaiter.waitUntilTableExists(tableRequest);
-        waiterResponse.matched().response().ifPresent(System.out::println);
-
-      } catch (DynamoDbException e) {
-        System.err.println(e.getMessage());
-      }
-    }
     newUser.put("id", AttributeValue.builder().s(userId).build());
     newUser.put("email", AttributeValue.builder().s("cleve@gmail.com").build());
     newUser.put("password", AttributeValue.builder().s("1234").build());
@@ -87,11 +49,22 @@ public class DynamoDBUtilityTest {
   @Test
   public void getItemByMap() {
     try {
-      Map<String, AttributeValue> requestMap = new HashMap<>();
-      requestMap.put("email", AttributeValue.builder().s("cleve@gmail.com").build());
-      requestMap.put("password", AttributeValue.builder().s("1234").build());
 
-      Map<String, AttributeValue> actual = utility.get(requestMap);
+      Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+      expressionAttributeValues.put(
+          ":emailVal", AttributeValue.builder().s(newUser.get("email").s()).build());
+      expressionAttributeValues.put(
+          ":passwordVal", AttributeValue.builder().s(newUser.get("password").s()).build());
+
+      QueryRequest queryRequest =
+          QueryRequest.builder()
+              .tableName("users")
+              .indexName("emailPasswordIndex")
+              .keyConditionExpression("email = :emailVal AND password = :passwordVal")
+              .expressionAttributeValues(expressionAttributeValues)
+              .build();
+
+      Map<String, AttributeValue> actual = utility.get(queryRequest);
 
       assertEquals(newUser.get("id").s(), actual.get("id").s());
       assertEquals(newUser.get("email").s(), actual.get("email").s());

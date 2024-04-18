@@ -20,20 +20,10 @@ resource "aws_dynamodb_table" "user_table" {
     type = "S"
   }
 
-  attribute {
-    name = "username"
-    type = "S"
-  }
-
-  ttl {
-    attribute_name = "TimeToExist"
-    enabled        = false
-  }
-
   global_secondary_index {
-    name               = "emailPassword"
-    hash_key           = "password"
-    range_key          = "email"
+    name               = "emailPasswordIndex"
+    hash_key           = "email"
+    range_key          = "password"
     write_capacity     = 10
     read_capacity      = 10
     projection_type    = "INCLUDE"

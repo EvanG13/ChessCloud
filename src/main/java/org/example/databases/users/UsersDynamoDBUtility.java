@@ -1,11 +1,13 @@
 package org.example.databases.users;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.example.databases.DynamoDBUtility;
-import org.example.entities.DynamoUser;
+import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 
 public class UsersDynamoDBUtility {
   private final DynamoDBUtility utility;
@@ -20,13 +22,31 @@ public class UsersDynamoDBUtility {
    * @param id id
    * @return user
    */
-  public DynamoUser get(String id) {
+  public User get(String id) {
     Map<String, AttributeValue> item = utility.get(id);
     if (item == null) {
       return null;
     }
 
-    return DynamoUser.fromMap(item);
+    return User.fromMap(item);
+  }
+
+  public User getByEmailAndPassword(String email, String password) {
+    Map<String, AttributeValue> values = new HashMap<>();
+    values.put(":emailVal", AttributeValue.builder().s(email).build());
+    values.put(":passwordVal", AttributeValue.builder().s(password).build());
+
+    QueryRequest queryRequest =
+        QueryRequest.builder()
+            .tableName("users")
+            .indexName("emailPasswordIndex")
+            .keyConditionExpression("email = :emailVal AND password = :passwordVal")
+            .expressionAttributeValues(values)
+            .build();
+
+    Map<String, AttributeValue> item = utility.get(queryRequest);
+
+    return User.fromMap(item);
   }
 
   /**
@@ -35,12 +55,12 @@ public class UsersDynamoDBUtility {
    * @param userData user request data object
    */
   public void post(UserRequest userData) {
-    DynamoUser duser =
-        new DynamoUser(
+    User duser =
+        new User(
             UUID.randomUUID().toString(),
             userData.email(),
-            userData.username(),
-            userData.password());
+            userData.password(),
+            userData.username());
     Map<String, AttributeValue> userMap = duser.toMap();
 
     utility.post(userMap);

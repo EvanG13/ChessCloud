@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;
@@ -26,13 +25,7 @@ public class LoginHandler
 
     // Deserialize the request body into a LoginRequest object
     Gson gson = new Gson();
-    LoginRequest loginRequest;
-    try {
-      loginRequest = gson.fromJson(event.getBody(), LoginRequest.class);
-    } catch (JsonSyntaxException e) {
-      logger.log("Error deserializing JSON: " + e.getMessage());
-      throw e;
-    }
+    LoginRequest loginRequest = gson.fromJson(event.getBody(), LoginRequest.class);
 
     String encryptedPassword = EncryptPassword.encrypt(loginRequest.password());
 
@@ -44,6 +37,8 @@ public class LoginHandler
           .withStatusCode(StatusCodes.UNAUTHORIZED)
           .build();
     }
+
+    logger.log("dont with auth");
 
     APIGatewayV2HTTPEvent.RequestContext.Authorizer.JWT jwt =
         new APIGatewayV2HTTPEvent.RequestContext.Authorizer.JWT();

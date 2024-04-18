@@ -61,7 +61,7 @@ public class UsersMongoDBUtilityTest {
 
   @Test
   public void canPatchUser() {
-    User newUser = new User("brother", "hello@gmail.com", "world");
+    User newUser = new User("brother", "hello@gmail.com", "world", "username");
 
     doNothing().when(mockedUtility).post(any(Document.class));
 
