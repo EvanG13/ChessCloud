@@ -29,7 +29,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
       "Action": [
         "dynamodb:*"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:dynamodb:${var.region}:*:table/*"
     }
   ]
 }
@@ -59,6 +59,9 @@ resource "aws_lambda_function" "lambda_functions" {
 
   runtime = var.lambda_runtime
   handler = each.value
+
+  memory_size = 512
+  timeout     = 30
 
   role = aws_iam_role.iam_role_for_lambda.arn
 }
