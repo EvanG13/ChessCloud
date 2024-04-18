@@ -31,20 +31,23 @@ public class UsersDynamoDBUtility {
     return User.fromMap(item);
   }
 
-  public User getByEmailAndPassword(String email, String password) {
+  public User getByEmail(String email) {
     Map<String, AttributeValue> values = new HashMap<>();
     values.put(":emailVal", AttributeValue.builder().s(email).build());
-    values.put(":passwordVal", AttributeValue.builder().s(password).build());
+    //    values.put(":passwordVal", AttributeValue.builder().s(password).build());
 
     QueryRequest queryRequest =
         QueryRequest.builder()
             .tableName("users")
             .indexName("emailPasswordIndex")
-            .keyConditionExpression("email = :emailVal AND password = :passwordVal")
+            .keyConditionExpression("email = :emailVal")
             .expressionAttributeValues(values)
             .build();
 
     Map<String, AttributeValue> item = utility.get(queryRequest);
+    if (item == null) {
+      return null;
+    }
 
     return User.fromMap(item);
   }

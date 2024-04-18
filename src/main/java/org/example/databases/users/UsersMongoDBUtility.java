@@ -1,5 +1,6 @@
 package org.example.databases.users;
 
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -30,6 +31,21 @@ public class UsersMongoDBUtility {
     return User.fromDocument(doc);
   }
 
+  public User getByEmail(String email) {
+    Document user = utility.get(Filters.eq("email", email));
+
+    if (user == null) {
+      return null;
+    }
+
+    return User.fromDocument(user);
+  }
+
+  public void deleteAllDocuments() {
+    // Delete all documents from the collection
+    utility.delete();
+  }
+
   /**
    * Create a new User
    *
@@ -39,7 +55,8 @@ public class UsersMongoDBUtility {
     utility.post(
         new Document("_id", new ObjectId())
             .append("email", userData.email())
-            .append("password", userData.password()));
+            .append("password", userData.password())
+            .append("username", userData.username()));
   }
 
   /**

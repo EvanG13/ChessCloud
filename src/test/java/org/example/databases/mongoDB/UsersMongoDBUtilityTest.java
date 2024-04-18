@@ -36,6 +36,24 @@ public class UsersMongoDBUtilityTest {
   }
 
   @Test
+  public void canGetUserByEmailAndPassword() {
+    Document document =
+        new Document("_id", objectId)
+            .append("email", email)
+            .append("password", password)
+            .append("username", "test");
+
+    when(mockedUtility.get(any(Bson.class))).thenReturn(document);
+
+    User user = utility.getByEmail(email);
+    assertNotNull(user);
+    assertEquals(user.getEmail(), document.get("email"));
+    assertEquals(user.getPassword(), document.get("password"));
+    assertEquals(user.getUsername(), document.get("username"));
+    assertEquals(user.getId(), document.getObjectId("_id").toString());
+  }
+
+  @Test
   public void canGetUser() {
     Document document =
         new Document("_id", objectId).append("email", email).append("password", password);

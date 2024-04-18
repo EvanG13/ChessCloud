@@ -6,8 +6,8 @@ public class EncryptPassword {
   public static String encrypt(String input) {
     return BCrypt.withDefaults().hashToString(12, input.toCharArray());
   }
-}
 
-// throws NoSuchPaddingException, NoSuchAlgorithmException,
-//            InvalidAlgorithmParameterException, InvalidKeyException,
-//            BadPaddingException, IllegalBlockSizeException
+  public static boolean verify(String plain, String hashed) {
+    return BCrypt.verifyer().verify(plain.toCharArray(), hashed).verified;
+  }
+}

@@ -26,6 +26,10 @@ public class User extends DataTransferObject {
     return this.password;
   }
 
+  public String getUsername() {
+    return this.username;
+  }
+
   public Document toDocument() {
     return new Document("_id", new ObjectId(id))
         .append("email", email)
@@ -46,6 +50,7 @@ public class User extends DataTransferObject {
     String email = item.get("email").s();
     String username = item.get("username").s();
     String password = item.get("password").s();
+
     return new User(id, email, username, password);
   }
 
@@ -61,6 +66,6 @@ public class User extends DataTransferObject {
 
   @Override
   public String toString() {
-    return "email " + email + " - " + "Password " + password + "\n";
+    return "email " + email + " - " + "Password " + password + " - Username " + username + "\n";
   }
 }

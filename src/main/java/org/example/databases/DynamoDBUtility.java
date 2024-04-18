@@ -47,14 +47,24 @@ public class DynamoDBUtility {
     try {
       return this.client.getItem(request).item();
     } catch (DynamoDbException e) {
-      e.printStackTrace();
+      System.out.println(e.getMessage());
+      if (e.statusCode() == 403) {
+        System.out.println("unauthorized");
+      }
       throw e;
     }
   }
 
   public Map<String, AttributeValue> get(QueryRequest queryRequest) {
     try {
-      return client.query(queryRequest).items().get(0);
+
+      List<Map<String, AttributeValue>> items = client.query(queryRequest).items();
+
+      if (items.isEmpty()) {
+        return null;
+      } else {
+        return items.get(0);
+      }
     } catch (DynamoDbException e) {
       e.printStackTrace();
       throw e;
