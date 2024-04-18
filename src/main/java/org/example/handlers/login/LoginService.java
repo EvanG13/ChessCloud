@@ -1,16 +1,29 @@
 package org.example.handlers.login;
 
+import org.example.databases.DynamoDBUtility;
+import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.entities.User;
+import org.example.utils.EncryptPassword;
+
 public class LoginService {
 
-  private final String email;
-  private final String password;
+  private final UsersDynamoDBUtility utility;
 
-  public LoginService(String email, String password) {
-    this.email = email;
-    this.password = password;
+  public LoginService(UsersDynamoDBUtility dbUtility) {
+    this.utility = dbUtility;
   }
 
-  public String getResponseMessage() {
-    return "New Input email : " + email + "\nNew Input Password : " + password;
+  public LoginService() {
+    this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
+  }
+
+  public boolean authenticateUser(String email, String plainTextPassword) {
+
+    User user = utility.getByEmail(email);
+    if (user == null) {
+      return false;
+    }
+
+    return EncryptPassword.verify(plainTextPassword, user.getPassword());
   }
 }

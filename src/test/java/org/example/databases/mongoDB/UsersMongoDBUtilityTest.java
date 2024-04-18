@@ -1,6 +1,7 @@
 package org.example.databases.mongoDB;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.mongodb.client.model.Updates;
@@ -8,6 +9,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +31,26 @@ public class UsersMongoDBUtilityTest {
 
     doNothing().when(mockedUtility).post(any(Document.class));
 
-    UserRequest userData = new UserRequest(email, password);
+    UserRequest userData = new UserRequest(email, "evan", password);
     utility.post(userData);
+  }
+
+  @Test
+  public void canGetUserByEmailAndPassword() {
+    Document document =
+        new Document("_id", objectId)
+            .append("email", email)
+            .append("password", password)
+            .append("username", "test");
+
+    when(mockedUtility.get(any(Bson.class))).thenReturn(document);
+
+    User user = utility.getByEmail(email);
+    assertNotNull(user);
+    assertEquals(user.getEmail(), document.get("email"));
+    assertEquals(user.getPassword(), document.get("password"));
+    assertEquals(user.getUsername(), document.get("username"));
+    assertEquals(user.getId(), document.getObjectId("_id").toString());
   }
 
   @Test
@@ -59,7 +79,7 @@ public class UsersMongoDBUtilityTest {
 
   @Test
   public void canPatchUser() {
-    User newUser = new User("brother", "hello@gmail.com", "world");
+    User newUser = new User("brother", "hello@gmail.com", "world", "username");
 
     doNothing().when(mockedUtility).post(any(Document.class));
 
