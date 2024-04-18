@@ -1,6 +1,8 @@
 package org.example.databases.mongoDB;
 
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.mongodb.client.model.Updates;
@@ -8,6 +10,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +32,7 @@ public class UsersMongoDBUtilityTest {
 
     doNothing().when(mockedUtility).post(any(Document.class));
 
-    UserRequest userData = new UserRequest(email, password);
+    UserRequest userData = new UserRequest(email, "evan", password);
     utility.post(userData);
   }
 
