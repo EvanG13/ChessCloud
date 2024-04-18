@@ -59,6 +59,12 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
     return collection.find(eq("_id", new ObjectId(id))).first();
   }
 
+  public Document get(Bson filter) {
+    collection = database.getCollection(collectionName);
+
+    return collection.find(filter).first();
+  }
+
   @Override
   public void post(Document document) {
     collection = database.getCollection(collectionName);
@@ -83,5 +89,9 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
     collection = database.getCollection(collectionName);
 
     collection.findOneAndDelete(eq("_id", new ObjectId(id)));
+  }
+
+  public void delete() {
+    collection.deleteMany(new Document());
   }
 }

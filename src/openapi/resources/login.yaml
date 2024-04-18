@@ -24,3 +24,9 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/BadRequest.yaml'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/Unauthorized.yaml'

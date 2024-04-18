@@ -1,3 +1,3 @@
 package org.example.requestRecords;
 
-public record UserRequest(String email, String password) {}
+public record UserRequest(String email, String username, String password) {}

@@ -2,6 +2,7 @@ package org.example.databases;
 
 import java.util.*;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -13,14 +14,20 @@ public class DynamoDBUtility {
 
   private final String tableName;
 
-  public DynamoDBUtility(String tableName) {
+  private DynamoDBUtility(String tableName, DynamoDbClient client) {
     this.tableName = tableName;
+    this.client = client;
+  }
 
-    this.client =
+  public static DynamoDBUtility create(String tableName) {
+    DynamoDbClient client =
         DynamoDbClient.builder()
             .region(Region.US_EAST_1)
+            .httpClient(ApacheHttpClient.builder().build())
             .credentialsProvider(DefaultCredentialsProvider.create())
             .build();
+
+    return new DynamoDBUtility(tableName, client);
   }
 
   /**
@@ -38,17 +45,26 @@ public class DynamoDBUtility {
         GetItemRequest.builder().key(keyToGet).tableName(this.tableName).build();
 
     try {
-      Map<String, AttributeValue> returnedItem = this.client.getItem(request).item();
-
-      if (returnedItem != null) {
-        Set<String> keys = returnedItem.keySet();
-
-        for (String key1 : keys) {
-          System.out.format("%s: %s\n", key1, returnedItem.get(key1).toString());
-        }
+      return this.client.getItem(request).item();
+    } catch (DynamoDbException e) {
+      System.out.println(e.getMessage());
+      if (e.statusCode() == 403) {
+        System.out.println("unauthorized");
       }
+      throw e;
+    }
+  }
 
-      return returnedItem;
+  public Map<String, AttributeValue> get(QueryRequest queryRequest) {
+    try {
+
+      List<Map<String, AttributeValue>> items = client.query(queryRequest).items();
+
+      if (items.isEmpty()) {
+        return null;
+      } else {
+        return items.get(0);
+      }
     } catch (DynamoDbException e) {
       e.printStackTrace();
       throw e;
@@ -65,18 +81,10 @@ public class DynamoDBUtility {
         PutItemRequest.builder().tableName(this.tableName).item(newItem).build();
 
     try {
-      PutItemResponse response = this.client.putItem(request);
-      System.out.println(
-          this.tableName
-              + " was successfully updated. The request id is "
-              + response.responseMetadata().requestId());
-
+      client.putItem(request);
     } catch (ResourceNotFoundException e) {
-      System.err.format("Error: The Amazon DynamoDB table \"%s\" can't be found.\n", tableName);
-      System.err.println("Be sure that it exists and that you've typed its name correctly!");
-      System.exit(1);
+      throw e;
     } catch (DynamoDbException e) {
-      System.err.println(e.getMessage());
       throw e;
     }
   }
@@ -125,9 +133,5 @@ public class DynamoDBUtility {
       System.err.println(e.getMessage());
       throw e;
     }
-  }
-
-  public DynamoDbClient getClient() {
-    return client;
   }
 }

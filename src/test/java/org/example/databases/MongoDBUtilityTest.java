@@ -34,7 +34,6 @@ public class MongoDBUtilityTest {
 
   @AfterEach
   public void tearDown() {
-    // Delete all documents in the collection
     service.list(new Document()).forEach(doc -> service.delete(doc.getObjectId("_id").toString()));
   }
 
