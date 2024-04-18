@@ -1,9 +1,8 @@
 package org.example.entities;
 
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-
 import java.util.HashMap;
 import java.util.Map;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class DynamoUser {
   private String id;
