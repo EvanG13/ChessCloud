@@ -8,3 +8,5 @@ paths:
     $ref: '../resources/login.yaml'
   /logout:
     $ref: '../resources/logout.yaml'
+  /register:
+    $ref: '../resources/register.yaml'

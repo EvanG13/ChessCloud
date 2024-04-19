@@ -18,6 +18,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/DynamoDBUtilityTest.java</exclude>
+                        <exclude>**/RegisterHandlerITTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

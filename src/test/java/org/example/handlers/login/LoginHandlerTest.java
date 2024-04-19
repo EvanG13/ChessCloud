@@ -1,4 +1,4 @@
-package org.example.handlers;
+package org.example.handlers.login;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -10,6 +10,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import org.example.databases.users.UsersDynamoDBUtility;
 import org.example.entities.User;
+import org.example.handlers.TestContext;
 import org.example.handlers.login.LoginHandler;
 import org.example.handlers.login.LoginService;
 import org.example.statusCodes.StatusCodes;
