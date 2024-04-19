@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag("Integration Test")
+@Tag("Integration")
 public class RegisterHandlerITTest {
     private static RegisterHandler registerHandler;
     private static UsersDynamoDBUtility dbUtility;

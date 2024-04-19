@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-@Tag("Integration Test")
+@Tag("Integration")
 public class DynamoDBUtilityTest {
 
   static DynamoDBUtility utility = DynamoDBUtility.create("users");
