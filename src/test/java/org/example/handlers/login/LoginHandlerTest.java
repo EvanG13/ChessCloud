@@ -11,8 +11,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import org.example.databases.users.UsersDynamoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
-import org.example.handlers.login.LoginHandler;
-import org.example.handlers.login.LoginService;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;
 import org.junit.jupiter.api.BeforeEach;

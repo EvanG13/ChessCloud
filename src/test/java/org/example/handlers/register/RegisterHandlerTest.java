@@ -17,65 +17,68 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class RegisterHandlerTest {
-    private RegisterHandler registerHandler;
-    private UsersDynamoDBUtility dbUtility;
-    @BeforeEach
-    void setUp(){
-        dbUtility = mock(UsersDynamoDBUtility.class);
+  private RegisterHandler registerHandler;
+  private UsersDynamoDBUtility dbUtility;
 
-        RegisterService service = new RegisterService(dbUtility);
+  @BeforeEach
+  void setUp() {
+    dbUtility = mock(UsersDynamoDBUtility.class);
 
-        registerHandler = new RegisterHandler(service);
-    }
+    RegisterService service = new RegisterService(dbUtility);
 
-    @DisplayName("OK 👍")
-    @Test
-    void returnSuccess(){
-        APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    registerHandler = new RegisterHandler(service);
+  }
 
-        event.setBody( """
+  @DisplayName("OK 👍")
+  @Test
+  void returnSuccess() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    event.setBody(
+        """
          {
                   "email": "test@gmail.com",
                   "username": "testuser",
                   "password": "test"
          }""");
 
-        Context context = new TestContext();
+    Context context = new TestContext();
 
-        when(dbUtility.getByEmail(anyString()))
-                .thenReturn(null);
-        doNothing().when(dbUtility).post(any(UserRequest.class));
-        APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    when(dbUtility.getByEmail(anyString())).thenReturn(null);
+    doNothing().when(dbUtility).post(any(UserRequest.class));
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
-        assertEquals(StatusCodes.OK, response.getStatusCode());
-    }
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+  }
 
-    @DisplayName("Bad Request 😠")
-    @Test
-    void returnBadRequest(){
-        Context context = new TestContext();
+  @DisplayName("Bad Request 😠")
+  @Test
+  void returnBadRequest() {
+    Context context = new TestContext();
 
-        when(dbUtility.getByEmail(anyString())).thenReturn(null);
-        APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
+    when(dbUtility.getByEmail(anyString())).thenReturn(null);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
-        assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    }
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+  }
 
-    @DisplayName("Conflict 🔀")
-    @Test
-    void returnConflict(){
-        Context context = new TestContext();
-        APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-        event.setBody( """
+  @DisplayName("Conflict 🔀")
+  @Test
+  void returnConflict() {
+    Context context = new TestContext();
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setBody(
+        """
          {
                   "email": "test@gmail.com",
                   "username": "testuser",
                   "password": "test"
          }""");
 
-        when(dbUtility.getByEmail(anyString())).thenReturn(new User("1","test@gmail.com", "test","testuser"));
-        APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    when(dbUtility.getByEmail(anyString()))
+        .thenReturn(new User("1", "test@gmail.com", "test", "testuser"));
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
-        assertEquals(StatusCodes.CONFLICT, response.getStatusCode());
-    }
+    assertEquals(StatusCodes.CONFLICT, response.getStatusCode());
+  }
 }
