@@ -1,7 +1,6 @@
 package org.example.handlers.login;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
@@ -30,8 +29,6 @@ public class LoginHandler
           .withStatusCode(StatusCodes.BAD_REQUEST)
           .build();
     }
-
-    LambdaLogger logger = context.getLogger();
 
     // Deserialize the request body into a LoginRequest object
     Gson gson = new Gson();

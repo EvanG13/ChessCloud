@@ -34,7 +34,6 @@ public class UsersDynamoDBUtility {
   public User getByEmail(String email) {
     Map<String, AttributeValue> values = new HashMap<>();
     values.put(":emailVal", AttributeValue.builder().s(email).build());
-    //    values.put(":passwordVal", AttributeValue.builder().s(password).build());
 
     QueryRequest queryRequest =
         QueryRequest.builder()
