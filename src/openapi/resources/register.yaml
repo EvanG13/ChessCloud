@@ -17,7 +17,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: '../schemas/responses/RegisterResponse.yaml'
+            $ref: '../schemas/responses/OKResponse.yaml'
     400:
       description: Bad Request
       content:
