@@ -17,13 +17,17 @@ public class LoginService {
     this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
   }
 
-  public boolean authenticateUser(String email, String plainTextPassword) {
+  public User authenticateUser(String email, String plainTextPassword) {
 
     User user = utility.getByEmail(email);
     if (user == null) {
-      return false;
+      return null;
     }
 
-    return EncryptPassword.verify(plainTextPassword, user.getPassword());
+    if (!EncryptPassword.verify(plainTextPassword, user.getPassword())) {
+      return null;
+    }
+
+    return user;
   }
 }

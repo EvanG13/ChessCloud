@@ -5,6 +5,9 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
 
@@ -30,22 +33,27 @@ public class LoginHandler
           .build();
     }
 
-    // Deserialize the request body into a LoginRequest object
     Gson gson = new Gson();
     LoginRequest loginRequest = gson.fromJson(event.getBody(), LoginRequest.class);
 
-    if (!service.authenticateUser(loginRequest.email(), loginRequest.password())) {
+    User user = service.authenticateUser(loginRequest.email(), loginRequest.password());
+    if (user == null) {
       return APIGatewayV2HTTPResponse.builder()
           .withBody("Email or Password is incorrect")
           .withStatusCode(StatusCodes.UNAUTHORIZED)
           .build();
     }
 
-    APIGatewayV2HTTPEvent.RequestContext.Authorizer.JWT jwt =
-        new APIGatewayV2HTTPEvent.RequestContext.Authorizer.JWT();
+    JsonObject responseBody = new JsonObject();
+
+    // TODO: https://github.com/EvanG13/ChessCloud/issues/21
+    responseBody.addProperty("jwt", "TODO");
+
+    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    responseBody.addProperty("user", gsonBuilder.toJson(user, User.class));
 
     return APIGatewayV2HTTPResponse.builder()
-        .withBody(jwt.toString())
+        .withBody(responseBody.toString())
         .withStatusCode(StatusCodes.OK)
         .build();
   }
