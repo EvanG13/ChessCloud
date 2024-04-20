@@ -14,7 +14,7 @@ public class RegisterService {
   }
 
   public RegisterService() {
-    this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
+    this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
   }
 
   public boolean doesEmailExist(String email) {
