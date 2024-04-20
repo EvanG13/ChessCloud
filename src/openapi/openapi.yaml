@@ -54,6 +54,45 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations
+  /register:
+    post:
+      summary: Register to the system
+      description: Registers a user into the system, providing a session token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequestBody'
+        required: true
+      responses:
+        200:
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conflict'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:register/invocations
 components:
   schemas:
     LoginRequestBody:
@@ -75,6 +114,9 @@ components:
         jwt:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        user:
+          type: string
+          example: '{id=foo-id, email=fake@gamil.com, username=foo-username}'
     BadRequest:
       type: object
       properties:
@@ -93,3 +135,26 @@ components:
         message:
           type: string
           example: OK
+    RegisterRequestBody:
+      required:
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          format: email
+        username:
+          type: string
+          description: User's username(non-unique)
+        password:
+          type: string
+          description: The user's password
+    Conflict:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Conflict

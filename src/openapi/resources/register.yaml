@@ -1,0 +1,38 @@
+post:
+  summary: Register to the system
+  description: Registers a user into the system, providing a session token.
+  x-amazon-apigateway-integration:
+    type: "aws_proxy"
+    httpMethod: "POST"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:register/invocations"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/requests/RegisterRequestBody.yaml'
+  responses:
+    200:
+      description: Registration successful
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/OKResponse.yaml'
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/BadRequest.yaml'
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/Unauthorized.yaml'
+    409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/Conflict.yaml'

@@ -1,5 +1,6 @@
 package org.example.entities;
 
+import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
@@ -7,9 +8,9 @@ import org.bson.types.ObjectId;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class User extends DataTransferObject {
-  private final String email;
+  @Expose private final String email;
   private final String password;
-  private final String username;
+  @Expose private final String username;
 
   public User(String id, String email, String password, String username) {
     super(id);
@@ -66,6 +67,15 @@ public class User extends DataTransferObject {
 
   @Override
   public String toString() {
-    return "email " + email + " - " + "Password " + password + " - Username " + username + "\n";
+    return id
+        + " "
+        + "email "
+        + email
+        + " - "
+        + "Password "
+        + password
+        + " - Username "
+        + username
+        + "\n";
   }
 }

@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
+@Tag("Integration")
 public class DynamoDBUtilityTest {
 
   static DynamoDBUtility utility = DynamoDBUtility.create("users");

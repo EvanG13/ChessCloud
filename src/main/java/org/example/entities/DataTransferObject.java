@@ -1,9 +1,10 @@
 package org.example.entities;
 
+import com.google.gson.annotations.Expose;
 import org.bson.Document;
 
 public abstract class DataTransferObject {
-  protected String id;
+  @Expose protected String id;
 
   public DataTransferObject(String id) {
     this.id = id;
