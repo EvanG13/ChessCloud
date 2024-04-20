@@ -1,5 +1,9 @@
 package org.example.handlers.register;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
@@ -11,10 +15,6 @@ import org.example.statusCodes.StatusCodes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class RegisterHandlerTest {
     private RegisterHandler registerHandler;
@@ -47,7 +47,6 @@ public class RegisterHandlerTest {
         doNothing().when(dbUtility).post(any(UserRequest.class));
         APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
-        //assertTrue(response.getBody().contains("JWT"));
         assertEquals(StatusCodes.OK, response.getStatusCode());
     }
 

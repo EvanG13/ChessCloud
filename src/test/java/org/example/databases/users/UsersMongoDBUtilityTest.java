@@ -1,4 +1,4 @@
-package org.example.databases.mongoDB;
+package org.example.databases.users;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +9,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
-import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.BeforeEach;
