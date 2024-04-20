@@ -37,3 +37,17 @@ resource "aws_lambda_permission" "lambda_permission" {
   # within API Gateway.
   source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
 }
+
+resource "aws_api_gateway_usage_plan" "usage_plan" {
+  name = "usage-plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.rest_api.id
+    stage  = aws_api_gateway_stage.dev.stage_name
+  }
+
+  throttle_settings {
+    burst_limit = 5
+    rate_limit  = 5
+  }
+}

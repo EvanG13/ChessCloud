@@ -16,9 +16,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <excludes>
-                        <exclude>**/DynamoDBUtilityTest.java</exclude>
-                    </excludes>
+                    <excludedGroups>Integration</excludedGroups>
                 </configuration>
             </plugin>
 
@@ -36,7 +34,6 @@
                                 <exclude>META-INF/*</exclude>
                                 <exclude>META-INF/versions/**</exclude>
                                 <exclude>META-INF/services/**</exclude>
-                                <exclude>**/org/example/databases/DynamoDBUtilityTest.java</exclude>
                             </excludes>
                         </filter>
                     </filters>
