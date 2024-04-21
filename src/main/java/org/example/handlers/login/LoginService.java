@@ -7,19 +7,19 @@ import org.example.utils.EncryptPassword;
 
 public class LoginService {
 
-  private final UsersDynamoDBUtility utility;
+  private final UsersDynamoDBUtility dbUtility;
 
   public LoginService(UsersDynamoDBUtility dbUtility) {
-    this.utility = dbUtility;
+    this.dbUtility = dbUtility;
   }
 
   public LoginService() {
-    this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
+    this.dbUtility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
   }
 
   public User authenticateUser(String email, String plainTextPassword) {
 
-    User user = utility.getByEmail(email);
+    User user = dbUtility.getByEmail(email);
     if (user == null) {
       return null;
     }

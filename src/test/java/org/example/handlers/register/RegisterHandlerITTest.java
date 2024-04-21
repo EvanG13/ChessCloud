@@ -19,7 +19,7 @@ public class RegisterHandlerITTest {
 
   @BeforeAll
   public static void setUp() {
-    dbUtility = new UsersDynamoDBUtility(DynamoDBUtility.create("users"));
+    dbUtility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
 
     RegisterService service = new RegisterService(dbUtility);
 
@@ -71,7 +71,7 @@ public class RegisterHandlerITTest {
     event.setBody(
         """
          {
-                  "email": "test@gmail.com",
+                  "email": "it-test@gmail.com",
                   "username": "testuser",
                   "password": "test"
          }""");

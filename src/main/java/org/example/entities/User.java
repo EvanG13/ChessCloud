@@ -1,41 +1,30 @@
 package org.example.entities;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import java.util.HashMap;
-import java.util.Map;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
+@DynamoDbBean
 public class User extends DataTransferObject {
-  @Expose private final String email;
-  private final String password;
-  @Expose private final String username;
+  @Expose private String email;
+  private String password;
+  @Expose private String username;
+
+  /**
+   * !Please do NOT remove this. The DynamoDB enhanced client requires having a default constructor
+   */
+  public User() {}
 
   public User(String id, String email, String password, String username) {
     super(id);
     this.email = email;
     this.password = password;
     this.username = username;
-  }
-
-  public String getEmail() {
-    return this.email;
-  }
-
-  public String getPassword() {
-    return this.password;
-  }
-
-  public String getUsername() {
-    return this.username;
-  }
-
-  public Document toDocument() {
-    return new Document("_id", new ObjectId(id))
-        .append("email", email)
-        .append("password", password)
-        .append("username", username);
   }
 
   public static User fromDocument(Document userDocument) {
@@ -46,36 +35,46 @@ public class User extends DataTransferObject {
         userDocument.getString("username"));
   }
 
-  public static User fromMap(Map<String, AttributeValue> item) {
-    String id = item.get("id").s();
-    String email = item.get("email").s();
-    String username = item.get("username").s();
-    String password = item.get("password").s();
-
-    return new User(id, email, username, password);
+  @DynamoDbAttribute(value = "email")
+  @DynamoDbSecondaryPartitionKey(indexNames = "emailPasswordIndex")
+  public String getEmail() {
+    return this.email;
   }
 
-  public Map<String, AttributeValue> toMap() {
-    Map<String, AttributeValue> itemMap = new HashMap<>();
-    itemMap.put("id", AttributeValue.builder().s(this.id).build());
-    itemMap.put("email", AttributeValue.builder().s(this.email).build());
-    itemMap.put("username", AttributeValue.builder().s(this.username).build());
-    itemMap.put("password", AttributeValue.builder().s(this.password).build());
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    return itemMap;
+  @DynamoDbAttribute(value = "password")
+  public String getPassword() {
+    return this.password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  @DynamoDbAttribute(value = "username")
+  public String getUsername() {
+    return this.username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   @Override
-  public String toString() {
-    return id
-        + " "
-        + "email "
-        + email
-        + " - "
-        + "Password "
-        + password
-        + " - Username "
-        + username
-        + "\n";
+  public Document toDocument() {
+    return new Document("_id", new ObjectId(id))
+        .append("email", email)
+        .append("password", password)
+        .append("username", username);
+  }
+
+  @Override
+  public String toResponseJson() {
+    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+    return gsonBuilder.toJson(this, User.class);
   }
 }

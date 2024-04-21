@@ -2,24 +2,28 @@ package org.example.databases;
 
 import java.util.*;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
+import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-public class DynamoDBUtility {
-  private final String PRIMARY_KEY_ATTRIBUTE_NAME = "id";
+public class DynamoDBUtility<T> {
 
-  private final DynamoDbClient client;
+  private final DynamoDbTable<T> table;
 
-  private final String tableName;
+  private final Class<T> type;
 
-  private DynamoDBUtility(String tableName, DynamoDbClient client) {
-    this.tableName = tableName;
-    this.client = client;
+  public DynamoDBUtility(DynamoDbTable<T> table, Class<T> type) {
+
+    this.type = type;
+
+    this.table = table;
   }
 
-  public static DynamoDBUtility create(String tableName) {
+  public static <T> DynamoDBUtility<T> create(String tableName, Class<T> type) {
     DynamoDbClient client =
         DynamoDbClient.builder()
             .region(Region.US_EAST_1)
@@ -27,7 +31,12 @@ public class DynamoDBUtility {
             .credentialsProvider(DefaultCredentialsProvider.create())
             .build();
 
-    return new DynamoDBUtility(tableName, client);
+    DynamoDbEnhancedClient enhancedClient =
+        DynamoDbEnhancedClient.builder().dynamoDbClient(client).build();
+
+    DynamoDbTable<T> table = enhancedClient.table(tableName, TableSchema.fromBean(type));
+
+    return new DynamoDBUtility<>(table, type);
   }
 
   /**
@@ -36,16 +45,9 @@ public class DynamoDBUtility {
    * @param id id
    * @return DynamoDB item
    */
-  public Map<String, AttributeValue> get(String id) {
-
-    HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder().s(id).build());
-
-    GetItemRequest request =
-        GetItemRequest.builder().key(keyToGet).tableName(this.tableName).build();
-
+  public T get(String id) {
     try {
-      return this.client.getItem(request).item();
+      return this.table.getItem(Key.builder().partitionValue(id).build());
     } catch (DynamoDbException e) {
       System.out.println(e.getMessage());
       if (e.statusCode() == 403) {
@@ -55,16 +57,34 @@ public class DynamoDBUtility {
     }
   }
 
-  public Map<String, AttributeValue> get(QueryRequest queryRequest) {
+  public T get(ScanEnhancedRequest scanRequest) {
+    try {
+      PageIterable<T> items = table.scan(scanRequest);
+      Iterator<T> iterator = items.items().iterator();
+
+      if (iterator.hasNext()) {
+        return iterator.next();
+      }
+
+      return null;
+    } catch (DynamoDbException e) {
+      e.printStackTrace();
+      throw e;
+    }
+  }
+
+  public T get(QueryConditional queryConditional, String indexName) {
     try {
 
-      List<Map<String, AttributeValue>> items = client.query(queryRequest).items();
+      DynamoDbIndex<T> index = table.index(indexName);
 
-      if (items.isEmpty()) {
-        return null;
-      } else {
-        return items.get(0);
-      }
+      SdkIterable<Page<T>> pagedResult = index.query(q -> q.queryConditional(queryConditional));
+
+      List<T> queriedItems = new ArrayList<>();
+
+      pagedResult.stream().forEach(page -> queriedItems.addAll(page.items()));
+
+      return queriedItems.isEmpty() ? null : queriedItems.get(0);
     } catch (DynamoDbException e) {
       e.printStackTrace();
       throw e;
@@ -74,46 +94,32 @@ public class DynamoDBUtility {
   /**
    * Create new DynamoDB item
    *
-   * @param newItem item request data
+   * @param item item request data
    */
-  public void post(Map<String, AttributeValue> newItem) {
-    PutItemRequest request =
-        PutItemRequest.builder().tableName(this.tableName).item(newItem).build();
-
+  public void post(T item) {
     try {
-      client.putItem(request);
-    } catch (ResourceNotFoundException e) {
-      throw e;
+      PutItemEnhancedRequest<T> request = PutItemEnhancedRequest.builder(type).item(item).build();
+
+      table.putItem(request);
     } catch (DynamoDbException e) {
+      System.out.println(e.getMessage());
       throw e;
     }
   }
 
-  public void patch(String id, Map<String, AttributeValueUpdate> updatedValues) {
-
-    HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder().s(id).build());
-
-    UpdateItemRequest request =
-        UpdateItemRequest.builder()
-            .tableName(this.tableName)
-            .key(keyToGet)
-            .attributeUpdates(updatedValues)
-            .build();
-
+  public void patch(T updateItem) {
     try {
-      client.updateItem(request);
+      table.updateItem(a -> a.item(updateItem).ignoreNulls(Boolean.TRUE));
     } catch (DynamoDbException e) {
       System.err.println(e.getMessage());
       throw e;
     }
   }
 
-  public List<Map<String, AttributeValue>> list(ScanRequest req) {
+  public List<T> list(ScanEnhancedRequest scanRequest) {
     try {
-      ScanResponse scanResponse = client.scan(req);
-
-      return scanResponse.items();
+      PageIterable<T> items = table.scan(scanRequest);
+      return items.items().stream().toList();
     } catch (DynamoDbException e) {
       System.err.println(e.getMessage());
       throw e;
@@ -121,14 +127,8 @@ public class DynamoDBUtility {
   }
 
   public void delete(String id) {
-    HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put(PRIMARY_KEY_ATTRIBUTE_NAME, AttributeValue.builder().s(id).build());
-
-    DeleteItemRequest deleteReq =
-        DeleteItemRequest.builder().tableName(this.tableName).key(keyToGet).build();
-
     try {
-      client.deleteItem(deleteReq);
+      table.deleteItem(Key.builder().partitionValue(id).build());
     } catch (DynamoDbException e) {
       System.err.println(e.getMessage());
       throw e;
