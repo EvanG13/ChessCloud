@@ -16,7 +16,7 @@ public class DynamoDBUtility<T> {
 
   private final Class<T> type;
 
-  public DynamoDBUtility(String tableName, DynamoDbTable<T> table, Class<T> type) {
+  public DynamoDBUtility(DynamoDbTable<T> table, Class<T> type) {
 
     this.type = type;
 
@@ -36,7 +36,7 @@ public class DynamoDBUtility<T> {
 
     DynamoDbTable<T> table = enhancedClient.table(tableName, TableSchema.fromBean(type));
 
-    return new DynamoDBUtility<>(tableName, table, type);
+    return new DynamoDBUtility<>(table, type);
   }
 
   /**
