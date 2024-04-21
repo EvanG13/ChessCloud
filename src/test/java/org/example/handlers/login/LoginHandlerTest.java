@@ -52,8 +52,6 @@ public class LoginHandlerTest {
                 "foo", "nonexistingemail@example.com", EncryptPassword.encrypt("test"), "fake"));
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
-    System.out.println(response.getBody());
-
     // The response Body contains the expected fields
     assertTrue(response.getBody().contains("jwt"));
     assertTrue(response.getBody().contains("user"));

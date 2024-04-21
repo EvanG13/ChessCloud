@@ -35,9 +35,9 @@ resource "aws_dynamodb_table_item" "default_user" {
 
   item = <<ITEM
 {
-  "id": {"S": "test_user_id"},
-  "email": {"S": "test@gmail.com"},
-  "password": {"S": "testPassword"},
+  "id": {"S": "it-test_user_id"},
+  "email": {"S": "it-test@gmail.com"},
+  "password": {"S": "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"},
   "username": {"S": "TestUsername"}
 }
 ITEM

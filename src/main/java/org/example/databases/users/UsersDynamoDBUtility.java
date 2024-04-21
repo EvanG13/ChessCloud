@@ -1,19 +1,19 @@
 package org.example.databases.users;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import org.example.databases.DynamoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 
 public class UsersDynamoDBUtility {
-  private final DynamoDBUtility utility;
 
-  public UsersDynamoDBUtility(DynamoDBUtility utility) {
-    this.utility = utility;
+  private final DynamoDBUtility<User> dbUtility;
+
+  public UsersDynamoDBUtility(DynamoDBUtility<User> dbUtility) {
+    this.dbUtility = dbUtility;
   }
 
   /**
@@ -23,32 +23,17 @@ public class UsersDynamoDBUtility {
    * @return user
    */
   public User get(String id) {
-    Map<String, AttributeValue> item = utility.get(id);
-    if (item == null) {
-      return null;
-    }
-
-    return User.fromMap(item);
+    return dbUtility.get(id);
   }
 
   public User getByEmail(String email) {
-    Map<String, AttributeValue> values = new HashMap<>();
-    values.put(":emailVal", AttributeValue.builder().s(email).build());
+    QueryConditional queryConditional =
+        QueryConditional.keyEqualTo(
+            Key.builder().partitionValue(AttributeValue.builder().s(email).build()).build());
 
-    QueryRequest queryRequest =
-        QueryRequest.builder()
-            .tableName("users")
-            .indexName("emailPasswordIndex")
-            .keyConditionExpression("email = :emailVal")
-            .expressionAttributeValues(values)
-            .build();
+    final String INDEX_NAME = "emailPasswordIndex";
 
-    Map<String, AttributeValue> item = utility.get(queryRequest);
-    if (item == null) {
-      return null;
-    }
-
-    return User.fromMap(item);
+    return dbUtility.get(queryConditional, INDEX_NAME);
   }
 
   /**
@@ -57,15 +42,14 @@ public class UsersDynamoDBUtility {
    * @param userData user request data object
    */
   public void post(UserRequest userData) {
-    User duser =
+    User user =
         new User(
             UUID.randomUUID().toString(),
             userData.email(),
             userData.password(),
             userData.username());
-    Map<String, AttributeValue> userMap = duser.toMap();
 
-    utility.post(userMap);
+    dbUtility.post(user);
   }
 
   /**
@@ -74,16 +58,21 @@ public class UsersDynamoDBUtility {
    * @param id id
    */
   public void delete(String id) {
-    utility.delete(id);
+    dbUtility.delete(id);
   }
 
   /**
-   * Update a user with the given id
+   * Patches a given user. The passed in user data must at MINIMUM include the user's primary key
+   * (id) All other attributes are optional. Only the id and the attributes you want update must be
+   * included
    *
-   * @param id object id
-   * @param filter filter
+   * @param userdata user data
    */
-  //    public void patch(String id, Bson filter) {
-  //        utility.patch(id, filter);
-  //    }
+  public void patch(User userdata) throws IllegalAccessException {
+    if (userdata.getId() == null) {
+      throw new IllegalAccessException("Valid User id must be included within the user");
+    }
+
+    dbUtility.patch(userdata);
+  }
 }

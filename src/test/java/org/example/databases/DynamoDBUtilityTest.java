@@ -5,72 +5,85 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.example.entities.User;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 @Tag("Integration")
 public class DynamoDBUtilityTest {
 
-  static DynamoDBUtility utility = DynamoDBUtility.create("users");
-  static HashMap<String, AttributeValue> newUser = new HashMap<>();
+  static DynamoDBUtility<User> utility = DynamoDBUtility.create("users", User.class);
 
-  static String userId = "194e4010-d49b-496e-bed8-b96c713e2110";
+  static User user;
+  static final String userId = "194e4010-d49b-496e-bed8-b96c713e2110";
+  static final String email = "cleve@gmail.com";
+  static final String password = "1234";
+  static final String username = "cleve";
+
+  static final String listUser1Id = "e3c9ef65-a29c-4366-b54d-2c89d9e4ffdf";
+  static User listUser1;
+
+  static final String listUser2Id = "ff3c1a53-fade-4328-82ad-66ec7f89fde8";
+  static User listUser2;
 
   @BeforeAll
   public static void setUp() {
-    newUser.put("id", AttributeValue.builder().s(userId).build());
-    newUser.put("email", AttributeValue.builder().s("cleve@gmail.com").build());
-    newUser.put("password", AttributeValue.builder().s("1234").build());
-    utility.post(newUser);
+    user = new User(userId, email, password, username);
+    utility.post(user);
 
-    newUser.put("id", AttributeValue.builder().s("foo").build());
-    newUser.put("email", AttributeValue.builder().s("cleve@gmail.com").build());
-    newUser.put("password", AttributeValue.builder().s("1234").build());
-    utility.post(newUser);
+    listUser1 = new User(listUser1Id, "listuser1@gmail.com", "matching", "alsodoesnt");
+    listUser2 = new User(listUser2Id, "listuser1@gmail.com", "matching", "alsodoesnt");
+
+    utility.post(listUser1);
+    utility.post(listUser2);
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    utility.delete(userId);
+    utility.delete(listUser1Id);
+    utility.delete(listUser2Id);
   }
 
   @DisplayName("Can get an item from dynamoDB \uD83E\uDD8D")
   @Test
   public void getItemById() {
     try {
-      Map<String, AttributeValue> actual = utility.get("foo");
+      User actual = utility.get(userId);
       assertNotNull(actual);
 
-      assertEquals("foo", actual.get("id").s());
-      assertEquals("cleve@gmail.com", actual.get("email").s());
-      assertEquals("1234", actual.get("password").s());
-
+      assertEquals(userId, actual.getId());
+      assertEquals(email, actual.getEmail());
+      assertEquals(password, actual.getPassword());
+      assertEquals(username, actual.getUsername());
     } catch (DynamoDbException e) {
       e.printStackTrace();
       fail("fail");
     }
   }
 
-  @DisplayName("Can get an item from dynamoDB \uD83E\uDD8D")
+  @DisplayName("Can get an item from dynamoDB by querying \uD83E\uDD8D")
   @Test
-  public void getItemByMap() {
+  public void getItemByQuery() {
     try {
-
       Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
       expressionAttributeValues.put(
-          ":emailVal", AttributeValue.builder().s(newUser.get("email").s()).build());
-      expressionAttributeValues.put(
-          ":passwordVal", AttributeValue.builder().s(newUser.get("password").s()).build());
+          ":emailVal", AttributeValue.builder().s(user.getEmail()).build());
 
-      QueryRequest queryRequest =
-          QueryRequest.builder()
-              .tableName("users")
-              .indexName("emailPasswordIndex")
-              .keyConditionExpression("email = :emailVal AND password = :passwordVal")
-              .expressionAttributeValues(expressionAttributeValues)
+      Expression filterExpression =
+          Expression.builder()
+              .expression("email = :emailVal")
+              .expressionValues(expressionAttributeValues)
               .build();
 
-      Map<String, AttributeValue> actual = utility.get(queryRequest);
+      ScanEnhancedRequest scanRequest =
+          ScanEnhancedRequest.builder().filterExpression(filterExpression).build();
 
-      assertEquals(newUser.get("id").s(), actual.get("id").s());
-      assertEquals(newUser.get("email").s(), actual.get("email").s());
-      assertEquals(newUser.get("password").s(), actual.get("password").s());
+      User actual = utility.get(scanRequest);
+
     } catch (DynamoDbException e) {
       e.printStackTrace();
       fail("fail");
@@ -82,10 +95,14 @@ public class DynamoDBUtilityTest {
   public void deleteItem() {
 
     try {
-      utility.delete(userId);
+      final String localId = "willbedeleted";
 
-      Map<String, AttributeValue> actual = utility.get(userId);
-      assertEquals(0, actual.size());
+      User newUser = new User(localId, "email@gmail.com", "aa", "foo");
+      utility.post(newUser);
+      utility.delete(localId);
+
+      User actual = utility.get(localId);
+      assertNull(actual);
     } catch (DynamoDbException e) {
       e.printStackTrace();
       fail("fail");
@@ -95,21 +112,15 @@ public class DynamoDBUtilityTest {
   @DisplayName("Can update an item from DynamoDB \uD83E\uDD8D")
   @Test
   public void patchItem() {
-    Map<String, AttributeValueUpdate> newEmail = new HashMap<>();
-    newEmail.put(
-        "email",
-        AttributeValueUpdate.builder()
-            .value(AttributeValue.builder().s("new-fake-email@gmail.com").build())
-            .action(AttributeAction.PUT)
-            .build());
+    User updateValues = new User(userId, null, "newfakePassword", null);
 
     try {
-      utility.patch(userId, newEmail);
+      utility.patch(updateValues);
 
-      Map<String, AttributeValue> actual = utility.get(userId);
+      User actual = utility.get(userId);
       assertNotNull(actual);
 
-      assertEquals(actual.get("email").s(), "new-fake-email@gmail.com");
+      assertEquals(actual.getPassword(), "newfakePassword");
     } catch (DynamoDbException e) {
       e.printStackTrace();
       fail("fail");
@@ -119,37 +130,20 @@ public class DynamoDBUtilityTest {
   @DisplayName("Can list items from DynamoDB \uD83E\uDD8D")
   @Test
   public void listItems() {
-    HashMap<String, AttributeValue> user2 = new HashMap<>();
-    HashMap<String, AttributeValue> user3 = new HashMap<>();
-
-    final String user2Id = "e3c9ef65-a29c-4366-b54d-2c89d9e4ffdf";
-    final String user3Id = "ff3c1a53-fade-4328-82ad-66ec7f89fde8";
-
-    user2.put("id", AttributeValue.builder().s(user2Id).build());
-    user2.put("email", AttributeValue.builder().s("cleve2@gmail.com").build());
-    user2.put("password", AttributeValue.builder().s("123").build());
-
-    user3.put("id", AttributeValue.builder().s(user3Id).build());
-    user3.put("email", AttributeValue.builder().s("cleve3@gmail.com").build());
-    user3.put("password", AttributeValue.builder().s("123").build());
-
     HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(":passwordVal", AttributeValue.builder().s("123").build());
+    expressionAttributeValues.put(":passwordVal", AttributeValue.builder().s("matching").build());
 
-    ScanRequest scanRequest =
-        ScanRequest.builder()
-            .tableName("users")
-            .filterExpression("password = :passwordVal")
-            .expressionAttributeValues(expressionAttributeValues)
-            .projectionExpression(
-                "email, password, id") // Specify the attributes you want to retrieve
+    Expression filterExpression =
+        Expression.builder()
+            .expression("password = :passwordVal")
+            .expressionValues(expressionAttributeValues)
             .build();
 
-    try {
-      utility.post(user2);
-      utility.post(user3);
+    ScanEnhancedRequest scanRequest =
+        ScanEnhancedRequest.builder().filterExpression(filterExpression).build();
 
-      List<Map<String, AttributeValue>> actualItems = utility.list(scanRequest);
+    try {
+      List<User> actualItems = utility.list(scanRequest);
 
       assertNotNull(actualItems);
       assertTrue(actualItems.size() >= 2);

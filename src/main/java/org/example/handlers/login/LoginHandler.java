@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
@@ -48,9 +47,7 @@ public class LoginHandler
 
     // TODO: https://github.com/EvanG13/ChessCloud/issues/21
     responseBody.addProperty("jwt", "TODO");
-
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    responseBody.addProperty("user", gsonBuilder.toJson(user, User.class));
+    responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()
         .withBody(responseBody.toString())
