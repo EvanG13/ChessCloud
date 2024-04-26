@@ -208,6 +208,15 @@
             <artifactId>bcrypt</artifactId>
             <version>0.10.2</version>
         </dependency>
+
+        <!-- JWT -->
+        <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
