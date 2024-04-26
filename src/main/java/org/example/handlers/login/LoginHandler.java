@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.JWTUtils;
 
 public class LoginHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -45,8 +46,9 @@ public class LoginHandler
 
     JsonObject responseBody = new JsonObject();
 
-    // TODO: https://github.com/EvanG13/ChessCloud/issues/21
-    responseBody.addProperty("jwt", "TODO");
+    JWTUtils jwtUtils = new JWTUtils();
+
+    responseBody.addProperty("jwt", jwtUtils.generateJWT(user.getEmail()));
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()
