@@ -4,7 +4,7 @@ info:
   description: API for our React-Nave mobile app
   version: 1.0.0
 servers:
-  - url: /
+- url: /
 paths:
   /login:
     post:
@@ -97,8 +97,8 @@ components:
   schemas:
     LoginRequestBody:
       required:
-        - email
-        - password
+      - email
+      - password
       type: object
       properties:
         email:
@@ -137,9 +137,9 @@ components:
           example: OK
     RegisterRequestBody:
       required:
-        - email
-        - password
-        - username
+      - email
+      - password
+      - username
       type: object
       properties:
         email:
