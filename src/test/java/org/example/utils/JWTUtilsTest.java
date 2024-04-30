@@ -18,7 +18,7 @@ public class JWTUtilsTest {
   @BeforeEach
   public void setUp() {
     jwtUtils = new JWTUtils();
-    dotenv = Dotenv.configure().filename(".env.prod").load();
+    dotenv = Dotenv.load();
 
     secreteKey = dotenv.get("SECRETE_KEY");
   }
