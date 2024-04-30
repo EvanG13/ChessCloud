@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
 import org.example.requestRecords.UserRequest;
@@ -18,11 +18,11 @@ import org.junit.jupiter.api.Test;
 
 public class RegisterHandlerTest {
   private RegisterHandler registerHandler;
-  private UsersDynamoDBUtility dbUtility;
+  private UsersMongoDBUtility dbUtility;
 
   @BeforeEach
   void setUp() {
-    dbUtility = mock(UsersDynamoDBUtility.class);
+    dbUtility = mock(UsersMongoDBUtility.class);
 
     RegisterService service = new RegisterService(dbUtility);
 

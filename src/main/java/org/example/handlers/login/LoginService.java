@@ -1,20 +1,20 @@
 package org.example.handlers.login;
 
-import org.example.databases.DynamoDBUtility;
-import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.databases.MongoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.utils.EncryptPassword;
 
 public class LoginService {
 
-  private final UsersDynamoDBUtility dbUtility;
+  private final UsersMongoDBUtility dbUtility;
 
-  public LoginService(UsersDynamoDBUtility dbUtility) {
+  public LoginService(UsersMongoDBUtility dbUtility) {
     this.dbUtility = dbUtility;
   }
 
   public LoginService() {
-    this.dbUtility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
+    this.dbUtility = new UsersMongoDBUtility(MongoDBUtility.getInstance("users"));
   }
 
   public User authenticateUser(String email, String plainTextPassword) {

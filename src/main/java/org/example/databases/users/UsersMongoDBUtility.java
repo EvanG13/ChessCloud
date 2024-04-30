@@ -11,7 +11,10 @@ import org.example.requestRecords.UserRequest;
 public class UsersMongoDBUtility {
   private final MongoDBUtility utility;
 
-  // TODO : https://github.com/EvanG13/ChessCloud/issues/10
+  public UsersMongoDBUtility() {
+    utility = MongoDBUtility.getInstance("users");
+  }
+
   public UsersMongoDBUtility(MongoDBUtility utility) {
     this.utility = utility;
   }
@@ -42,7 +45,6 @@ public class UsersMongoDBUtility {
   }
 
   public void deleteAllDocuments() {
-    // Delete all documents from the collection
     utility.delete();
   }
 

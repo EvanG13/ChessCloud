@@ -6,9 +6,9 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
+import com.mongodb.MongoException;
 import org.example.requestRecords.RegisterRequest;
 import org.example.statusCodes.StatusCodes;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 public class RegisterHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -48,7 +48,7 @@ public class RegisterHandler
     try {
       service.registerUser(
           registerRequest.email(), registerRequest.username(), registerRequest.password());
-    } catch (DynamoDbException e) {
+    } catch (MongoException e) {
       LambdaLogger logger = context.getLogger();
       logger.log(e.getMessage());
       throw e;

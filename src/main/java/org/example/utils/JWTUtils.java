@@ -15,7 +15,7 @@ public class JWTUtils {
   private final String secreteKey;
 
   public JWTUtils() {
-    Dotenv dotenv = Dotenv.configure().filename(".env.prod").load();
+    Dotenv dotenv = Dotenv.load();
 
     secreteKey = dotenv.get("SECRETE_KEY");
   }
