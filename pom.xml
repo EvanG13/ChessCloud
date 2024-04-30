@@ -15,9 +15,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
-                <configuration>
-                    <excludedGroups>Integration</excludedGroups>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -151,12 +148,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-        </dependency>
-
-        <!-- Amazon DynamoDB -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>dynamodb-enhanced</artifactId>
         </dependency>
 
         <dependency>
