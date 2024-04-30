@@ -7,8 +7,10 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
+import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
 import org.junit.jupiter.api.*;
 
@@ -18,8 +20,17 @@ public class LoginHandlerITTest {
 
   private static Context context;
 
+  private static UsersMongoDBUtility dbUtility;
+
   @BeforeAll
   public static void setUp() {
+
+    dbUtility = new UsersMongoDBUtility();
+    dbUtility.post(
+        new UserRequest(
+            "it-test@gmail.com",
+            "TestUsername",
+            "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"));
 
     loginHandler = new LoginHandler();
 
@@ -27,18 +38,16 @@ public class LoginHandlerITTest {
   }
 
   @AfterAll
-  public static void tearDown() {}
+  public static void tearDown() {
+    User tempUser = dbUtility.getByEmail("it-test@gmail.com");
+    dbUtility.delete(tempUser.getId());
+  }
 
   @DisplayName("OK")
   @Test
   public void canLogin() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    // * important the email and password below are valid, and match the user created within
-    // dynamo.tf.
-    // please DO NOT change this username and password unless you have the intention to update
-    // dynamo.tf
-    // or uploading the credentials a different way
     event.setBody(
         """
              {

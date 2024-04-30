@@ -7,7 +7,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import java.util.List;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class MongoDBUtilityTest {
   private static final String COLLECTION_NAME = "testCollection";
 
-  DatabaseUtility<Document, Bson> service;
+  MongoDBUtility service;
   Document newUser;
 
   @BeforeEach
@@ -35,6 +34,12 @@ public class MongoDBUtilityTest {
   @AfterEach
   public void tearDown() {
     service.list(new Document()).forEach(doc -> service.delete(doc.getObjectId("_id").toString()));
+  }
+
+  @DisplayName("Can create an index")
+  @Test
+  public void createIndex() {
+    service.createIndex("email");
   }
 
   @DisplayName("Can get a document from MongoDB \uD83E\uDD8D")
@@ -99,7 +104,7 @@ public class MongoDBUtilityTest {
             .append("password", "list");
     Document document2 =
         new Document("_id", new ObjectId())
-            .append("email", "twosecond-email@test.com")
+            .append("email", "third-email@test.com")
             .append("password", "list");
 
     try {
