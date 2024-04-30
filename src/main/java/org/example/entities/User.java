@@ -5,20 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
-@DynamoDbBean
 public class User extends DataTransferObject {
   @Expose private String email;
   private String password;
   @Expose private String username;
-
-  /**
-   * !Please do NOT remove this. The DynamoDB enhanced client requires having a default constructor
-   */
-  public User() {}
 
   public User(String id, String email, String password, String username) {
     super(id);
@@ -35,8 +26,6 @@ public class User extends DataTransferObject {
         userDocument.getString("username"));
   }
 
-  @DynamoDbAttribute(value = "email")
-  @DynamoDbSecondaryPartitionKey(indexNames = "emailPasswordIndex")
   public String getEmail() {
     return this.email;
   }
@@ -45,7 +34,6 @@ public class User extends DataTransferObject {
     this.email = email;
   }
 
-  @DynamoDbAttribute(value = "password")
   public String getPassword() {
     return this.password;
   }
@@ -54,7 +42,6 @@ public class User extends DataTransferObject {
     this.password = password;
   }
 
-  @DynamoDbAttribute(value = "username")
   public String getUsername() {
     return this.username;
   }
@@ -69,6 +56,11 @@ public class User extends DataTransferObject {
         .append("email", email)
         .append("password", password)
         .append("username", username);
+  }
+
+  @Override
+  public String toString() {
+    return email + " " + username + " " + id;
   }
 
   @Override
