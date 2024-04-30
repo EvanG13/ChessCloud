@@ -10,7 +10,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
 import org.example.statusCodes.StatusCodes;
@@ -21,11 +21,11 @@ import org.junit.jupiter.api.Test;
 
 public class LoginHandlerTest {
   private LoginHandler loginHandler;
-  private UsersDynamoDBUtility dbUtility;
+  private UsersMongoDBUtility dbUtility;
 
   @BeforeEach
   public void setUp() {
-    dbUtility = mock(UsersDynamoDBUtility.class);
+    dbUtility = mock(UsersMongoDBUtility.class);
 
     LoginService service = new LoginService(dbUtility);
 

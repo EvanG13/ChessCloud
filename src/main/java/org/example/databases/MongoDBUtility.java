@@ -7,6 +7,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,10 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
     }
 
     return instance;
+  }
+
+  public void createIndex(String field) {
+    collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
   }
 
   @Override

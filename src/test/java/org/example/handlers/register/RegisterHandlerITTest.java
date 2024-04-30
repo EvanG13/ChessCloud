@@ -5,21 +5,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import org.example.databases.DynamoDBUtility;
-import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
+import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
 import org.junit.jupiter.api.*;
 
 @Tag("Integration")
 public class RegisterHandlerITTest {
   private static RegisterHandler registerHandler;
-  private static UsersDynamoDBUtility dbUtility;
+  private static UsersMongoDBUtility dbUtility;
 
   @BeforeAll
   public static void setUp() {
-    dbUtility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
+    dbUtility = new UsersMongoDBUtility();
+
+    dbUtility.post(
+        new UserRequest(
+            "reg-it-test@gmail.com",
+            "TestUsername",
+            "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"));
 
     RegisterService service = new RegisterService(dbUtility);
 
@@ -29,8 +35,10 @@ public class RegisterHandlerITTest {
   @AfterAll
   public static void tearDown() {
     User user = dbUtility.getByEmail("test3@gmail.com");
-
     dbUtility.delete(user.getId());
+
+    User tempUser = dbUtility.getByEmail("reg-it-test@gmail.com");
+    dbUtility.delete(tempUser.getId());
   }
 
   @DisplayName("OK 👍")
@@ -71,7 +79,7 @@ public class RegisterHandlerITTest {
     event.setBody(
         """
          {
-                  "email": "it-test@gmail.com",
+                  "email": "reg-it-test@gmail.com",
                   "username": "testuser",
                   "password": "test"
          }""");

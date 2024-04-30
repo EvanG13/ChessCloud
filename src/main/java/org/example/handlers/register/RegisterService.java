@@ -1,20 +1,20 @@
 package org.example.handlers.register;
 
-import org.example.databases.DynamoDBUtility;
-import org.example.databases.users.UsersDynamoDBUtility;
+import org.example.databases.MongoDBUtility;
+import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.example.utils.EncryptPassword;
 
 public class RegisterService {
-  private final UsersDynamoDBUtility utility;
+  private final UsersMongoDBUtility utility;
 
-  public RegisterService(UsersDynamoDBUtility dbUtility) {
+  public RegisterService(UsersMongoDBUtility dbUtility) {
     this.utility = dbUtility;
   }
 
   public RegisterService() {
-    this.utility = new UsersDynamoDBUtility(DynamoDBUtility.create("users", User.class));
+    this.utility = new UsersMongoDBUtility(MongoDBUtility.getInstance("users"));
   }
 
   public boolean doesEmailExist(String email) {
