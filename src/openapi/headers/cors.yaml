@@ -1,0 +1,10 @@
+#cors headers
+Access-Control-Allow-Origin:
+  schema:
+    type: "string"
+Access-Control-Allow-Methods:
+  schema:
+    type: "string"
+Access-Control-Allow-Headers:
+  schema:
+    type: "string"
