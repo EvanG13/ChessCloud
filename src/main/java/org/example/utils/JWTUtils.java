@@ -12,17 +12,17 @@ import java.util.Date;
 public class JWTUtils {
 
   private final String ISSUER = "chess";
-  private final String secreteKey;
+  private final String secretKey;
 
   public JWTUtils() {
     Dotenv dotenv = Dotenv.load();
 
-    secreteKey = dotenv.get("SECRETE_KEY");
+    secretKey = dotenv.get("SECRET_KEY");
   }
 
   public String generateJWT(String email) throws JWTCreationException {
 
-    Algorithm algorithm = Algorithm.HMAC256(secreteKey);
+    Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     // 1 hour from the current time
     Date expirationTime = new Date(System.currentTimeMillis() + 3600 * 1000);
@@ -38,7 +38,7 @@ public class JWTUtils {
   public boolean verifyJWT(String token) {
 
     try {
-      Algorithm algorithm = Algorithm.HMAC256(secreteKey);
+      Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
       JWTVerifier verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
 
