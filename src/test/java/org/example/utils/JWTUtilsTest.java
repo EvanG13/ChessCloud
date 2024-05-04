@@ -13,14 +13,14 @@ public class JWTUtilsTest {
 
   Dotenv dotenv;
   JWTUtils jwtUtils;
-  String secreteKey;
+  String secretKey;
 
   @BeforeEach
   public void setUp() {
     jwtUtils = new JWTUtils();
     dotenv = Dotenv.load();
 
-    secreteKey = dotenv.get("SECRETE_KEY");
+    secretKey = dotenv.get("SECRET_KEY");
   }
 
   @Test
@@ -38,7 +38,7 @@ public class JWTUtilsTest {
 
     assertFalse(jwtUtils.verifyJWT(invalidJWT), "Not a valid jwt");
 
-    Algorithm algorithm = Algorithm.HMAC256(secreteKey);
+    Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     Date expirationTime = new Date();
     String token =
@@ -53,7 +53,7 @@ public class JWTUtilsTest {
 
   @Test
   public void canDetectOutOfDatedJWT() {
-    Algorithm algorithm = Algorithm.HMAC256(secreteKey);
+    Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     Date expirationTime = new Date();
     String token =
@@ -68,7 +68,7 @@ public class JWTUtilsTest {
 
   @Test
   public void canDetectInvalidJWTIssuer() {
-    Algorithm algorithm = Algorithm.HMAC256(secreteKey);
+    Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
     Date expirationTime = new Date(System.currentTimeMillis() + 3600 * 1000);
     String token =
