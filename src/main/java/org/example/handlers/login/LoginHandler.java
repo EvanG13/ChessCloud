@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.AuthHeaders;
 import org.example.utils.JWTUtils;
 
 public class LoginHandler
@@ -28,7 +29,6 @@ public class LoginHandler
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     if (event == null || event.getBody() == null) {
       return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(new User().getCorsHeaders())
           .withBody("no event/event.body")
           .withStatusCode(StatusCodes.BAD_REQUEST)
           .build();
@@ -40,7 +40,6 @@ public class LoginHandler
     User user = service.authenticateUser(loginRequest.email(), loginRequest.password());
     if (user == null) {
       return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(user.getCorsHeaders())
           .withBody("Email or Password is incorrect")
           .withStatusCode(StatusCodes.UNAUTHORIZED)
           .build();
@@ -54,7 +53,7 @@ public class LoginHandler
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()
-        .withHeaders(user.getCorsHeaders())
+        .withHeaders(AuthHeaders.getCorsHeaders())
         .withBody(responseBody.toString())
         .withStatusCode(StatusCodes.OK)
         .build();

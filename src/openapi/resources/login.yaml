@@ -8,10 +8,11 @@ post:
     default:
       statusCode: "200"
       responseParameters:
-        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-        method.response.header.Access-Control-Allow-Methods: "'POST'"
+        method.response.header.Access-Control-Allow-Headers: "'Content-Type'"
+        method.response.header.Access-Control-Allow-Methods: "'*'"
         method.response.header.Access-Control-Allow-Origin: "'*'"
-  #        http://localhost:8081/
+      responseTemplates:
+        application/json: { }
   requestBody:
     required: true
     content:
@@ -47,3 +48,38 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/Unauthorized.yaml'
+options:
+  x-amazon-apigateway-integration:
+    type: "aws_proxy"
+    httpMethod: "POST"
+    default:
+      statusCode: "200"
+      responseParameters:
+        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        method.response.header.Access-Control-Allow-Methods: "'*'"
+        method.response.header.Access-Control-Allow-Origin: "'*'"
+      responseTemplates:
+        application/json: { }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/requests/LoginRequestBody.yaml'
+  responses:
+    "200":
+      description: "200 response"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content:
+        application/json:
+          schema:
+            type: "object"
