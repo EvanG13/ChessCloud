@@ -50,13 +50,12 @@ post:
             $ref: '../schemas/responses/Unauthorized.yaml'
 options:
   x-amazon-apigateway-integration:
-    type: "aws_proxy"
-    httpMethod: "POST"
+    type: "mock"
     default:
-      statusCode: "200"
+      statusCode: 200
       responseParameters:
         method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-        method.response.header.Access-Control-Allow-Methods: "'*'"
+        method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
         method.response.header.Access-Control-Allow-Origin: "'*'"
       responseTemplates:
         application/json: { }

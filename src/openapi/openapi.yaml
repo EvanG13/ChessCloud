@@ -82,13 +82,12 @@ paths:
               schema:
                 type: object
       x-amazon-apigateway-integration:
-        type: aws_proxy
-        httpMethod: POST
+        type: mock
         default:
-          statusCode: "200"
+          statusCode: 200
           responseParameters:
-            method.response.header.Access-Control-Allow-Headers: '''Content-Type'''
-            method.response.header.Access-Control-Allow-Methods: '''*'''
+            method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+            method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
             method.response.header.Access-Control-Allow-Origin: '''*'''
           responseTemplates:
             application/json: {}
@@ -168,8 +167,7 @@ components:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         user:
-          type: string
-          example: '{id=foo-id, email=fake@gamil.com, username=foo-username}'
+          $ref: '#/components/schemas/User'
     BadRequest:
       type: object
       properties:
@@ -211,3 +209,15 @@ components:
         message:
           type: string
           example: Conflict
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: foo-id
+        email:
+          type: string
+          example: fake@gamil.com
+        username:
+          type: string
+          example: foo-username

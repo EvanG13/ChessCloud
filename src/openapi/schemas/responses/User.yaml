@@ -1,0 +1,11 @@
+type: object
+properties:
+  id:
+    type: string
+    example: "foo-id"
+  email:
+    type: string
+    example: "fake@gamil.com"
+  username:
+    type: string
+    example: "foo-username"
