@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.mongodb.MongoException;
 import org.example.requestRecords.RegisterRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.AuthHeaders;
 
 public class RegisterHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -55,6 +56,7 @@ public class RegisterHandler
     }
 
     return APIGatewayV2HTTPResponse.builder()
+        .withHeaders(AuthHeaders.getCorsHeaders())
         .withBody("Successfully registered")
         .withStatusCode(StatusCodes.OK)
         .build();
