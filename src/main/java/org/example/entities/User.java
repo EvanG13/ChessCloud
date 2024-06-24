@@ -3,9 +3,13 @@ package org.example.entities;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+@Setter
+@Getter
 public class User extends DataTransferObject {
   @Expose private String email;
   private String password;
@@ -24,30 +28,6 @@ public class User extends DataTransferObject {
         userDocument.getString("email"),
         userDocument.getString("password"),
         userDocument.getString("username"));
-  }
-
-  public String getEmail() {
-    return this.email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPassword() {
-    return this.password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
   }
 
   @Override

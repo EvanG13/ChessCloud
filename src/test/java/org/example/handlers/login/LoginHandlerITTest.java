@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
@@ -60,6 +61,11 @@ public class LoginHandlerITTest {
     // The response Body contains the expected fields
     assertTrue(response.getBody().contains("jwt"));
     assertTrue(response.getBody().contains("user"));
+
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "http://localhost:8081");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "OPTIONS,POST,GET");
+    assertEquals(headers.get("Access-Control-Allow-Headers"), "Content-Type");
 
     String body = response.getBody();
     Gson gson = new Gson();
