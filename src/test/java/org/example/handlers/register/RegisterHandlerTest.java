@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
@@ -47,6 +48,11 @@ public class RegisterHandlerTest {
     when(dbUtility.getByEmail(anyString())).thenReturn(null);
     doNothing().when(dbUtility).post(any(UserRequest.class));
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "http://localhost:8081");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "OPTIONS,POST,GET");
+    assertEquals(headers.get("Access-Control-Allow-Headers"), "Content-Type");
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }

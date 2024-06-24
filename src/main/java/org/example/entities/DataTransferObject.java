@@ -1,21 +1,17 @@
 package org.example.entities;
 
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
 
+@Setter
+@Getter
 public abstract class DataTransferObject {
 
   @Expose protected String id;
 
   public DataTransferObject(String id) {
-    this.id = id;
-  }
-
-  public String getId() {
-    return this.id;
-  }
-
-  public void setId(String id) {
     this.id = id;
   }
 

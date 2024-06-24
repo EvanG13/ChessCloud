@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.AuthHeaders;
 import org.example.utils.JWTUtils;
 
 public class LoginHandler
@@ -52,6 +53,7 @@ public class LoginHandler
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()
+        .withHeaders(AuthHeaders.getCorsHeaders())
         .withBody(responseBody.toString())
         .withStatusCode(StatusCodes.OK)
         .build();

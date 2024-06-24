@@ -51,3 +51,4 @@ resource "aws_api_gateway_usage_plan" "usage_plan" {
     rate_limit  = 5
   }
 }
+

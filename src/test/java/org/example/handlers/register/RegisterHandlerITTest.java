@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.handlers.TestContext;
@@ -57,6 +58,11 @@ public class RegisterHandlerITTest {
     Context context = new TestContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "http://localhost:8081");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "OPTIONS,POST,GET");
+    assertEquals(headers.get("Access-Control-Allow-Headers"), "Content-Type");
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }

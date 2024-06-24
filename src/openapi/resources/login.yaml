@@ -5,6 +5,14 @@ post:
     type: "aws_proxy"
     httpMethod: "POST"
     uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:login/invocations"
+    default:
+      statusCode: "200"
+      responseParameters:
+        method.response.header.Access-Control-Allow-Headers: "'Content-Type'"
+        method.response.header.Access-Control-Allow-Methods: "'*'"
+        method.response.header.Access-Control-Allow-Origin: "'*'"
+      responseTemplates:
+        application/json: { }
   requestBody:
     required: true
     content:
@@ -18,6 +26,16 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/LoginResponse.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
     400:
       description: Bad Request
       content:
@@ -30,3 +48,37 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/Unauthorized.yaml'
+options:
+  x-amazon-apigateway-integration:
+    type: "mock"
+    default:
+      statusCode: 200
+      responseParameters:
+        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+        method.response.header.Access-Control-Allow-Origin: "'*'"
+      responseTemplates:
+        application/json: { }
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/requests/LoginRequestBody.yaml'
+  responses:
+    "200":
+      description: "200 response"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content:
+        application/json:
+          schema:
+            type: "object"
