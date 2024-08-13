@@ -1,0 +1,14 @@
+post:
+  summary: Join a game
+  description: Joins a user to an active game
+  x-amazon-apigateway-integration:
+    type: "aws_proxy"
+    httpMethod: "POST"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:joinGame/invocations"
+  responses:
+    200:
+      description: joined game successful
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/OKResponse.yaml'

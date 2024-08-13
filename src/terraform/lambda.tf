@@ -40,3 +40,5 @@ resource "aws_lambda_function" "lambda_functions" {
 
   role = aws_iam_role.iam_role_for_lambda.arn
 }
+
+

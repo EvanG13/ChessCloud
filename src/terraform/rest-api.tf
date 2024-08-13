@@ -38,6 +38,18 @@ resource "aws_lambda_permission" "lambda_permission" {
   source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
 }
 
+resource "aws_lambda_permission" "lambda_ws_permission" {
+  for_each = var.lambdas
+
+  action        = "lambda:InvokeFunction"
+  function_name = each.key
+  principal     = "apigateway.amazonaws.com"
+
+  # The /* part allows invocation from any stage, method and resource path
+  # within API Gateway.
+  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*"
+}
+
 resource "aws_api_gateway_usage_plan" "usage_plan" {
   name = "usage-plan"
 

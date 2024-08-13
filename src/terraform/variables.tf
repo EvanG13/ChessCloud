@@ -27,8 +27,10 @@ variable "lambda_runtime" {
 variable "lambdas" {
   type = map(string)
   default = {
-    login    = "org.example.handlers.login.LoginHandler::handleRequest",
-    logout   = "org.example.handlers.logout.LogoutHandler::handleRequest",
-    register = "org.example.handlers.register.RegisterHandler::handleRequest",
+    login      = "org.example.handlers.login.LoginHandler::handleRequest",
+    logout     = "org.example.handlers.logout.LogoutHandler::handleRequest",
+    register   = "org.example.handlers.register.RegisterHandler::handleRequest",
+    connect    = "org.example.handlers.wsConnect.ConnectHandler::handleRequest",
+    disconnect = "org.example.handlers.wsDisconnect.DisconnectHandler::handleRequest",
   }
 }
