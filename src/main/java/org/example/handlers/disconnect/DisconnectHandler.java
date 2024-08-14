@@ -1,11 +1,11 @@
-package org.example.handlers.wsConnect;
+package org.example.handlers.disconnect;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 
-public class ConnectHandler
+public class DisconnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
