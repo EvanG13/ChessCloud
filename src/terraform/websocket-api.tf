@@ -26,7 +26,7 @@ resource "aws_apigatewayv2_route" "routes" {
   for_each = var.websocket_lambdas
 
   api_id    = aws_apigatewayv2_api.chess-websocket.id
-  route_key = each.key
+  route_key = "${"$"}${each.key}"
 
   target = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
 }
@@ -46,7 +46,7 @@ resource "aws_apigatewayv2_deployment" "websocket-deployment" {
   api_id = aws_apigatewayv2_api.chess-websocket.id
 
   triggers = {
-    #TODO: make this a for each
+
     redeployment = sha1(join(",", tolist([
       jsonencode(aws_apigatewayv2_integration.integrations),
       jsonencode(aws_apigatewayv2_route.routes),
@@ -74,5 +74,6 @@ resource "aws_lambda_permission" "lambda_ws_permission" {
 
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
-  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*"
+  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/dev/${"$"}${each.key}"
 }
+

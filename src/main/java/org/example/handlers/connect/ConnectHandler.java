@@ -10,6 +10,8 @@ public class ConnectHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
+    String connectionId = event.getRequestContext().getConnectionId();
+    // TODO: save this to the connections mongo table
     APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
     response.setStatusCode(200); // Respond with HTTP 200 OK
     return response;
