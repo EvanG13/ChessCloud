@@ -10,6 +10,3 @@ paths:
     $ref: '../resources/logout.yaml'
   /register:
     $ref: '../resources/register.yaml'
-  /joinGame:
-    $ref: '../resources/joinGame.yaml'
-
