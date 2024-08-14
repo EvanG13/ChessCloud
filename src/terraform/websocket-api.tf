@@ -7,41 +7,28 @@ resource "aws_apigatewayv2_api" "chess-websocket" {
 ################################################################################
 # Integrations
 ################################################################################
-resource "aws_apigatewayv2_integration" "connect-integration" {
+resource "aws_apigatewayv2_integration" "integrations" {
+  for_each = var.websocket_lambdas
+
   api_id           = aws_apigatewayv2_api.chess-websocket.id
   integration_type = "AWS_PROXY"
 
 
   description        = "Lambda example"
   integration_method = "POST"
-  integration_uri    = aws_lambda_function.lambda_functions["connect"].invoke_arn
-}
-
-resource "aws_apigatewayv2_integration" "disconnect-integration" {
-  api_id           = aws_apigatewayv2_api.chess-websocket.id
-  integration_type = "AWS_PROXY"
-
-
-  description        = "Lambda example"
-  integration_method = "POST"
-  integration_uri    = aws_lambda_function.lambda_functions["disconnect"].invoke_arn
+  integration_uri    = aws_lambda_function.websocket_lambda_functions[each.key].invoke_arn
 }
 
 ################################################################################
 # Routes
 ################################################################################
-resource "aws_apigatewayv2_route" "connect-route" {
+resource "aws_apigatewayv2_route" "routes" {
+  for_each = var.websocket_lambdas
+
   api_id    = aws_apigatewayv2_api.chess-websocket.id
-  route_key = "$connect"
+  route_key = each.key
 
-  target = "integrations/${aws_apigatewayv2_integration.connect-integration.id}"
-}
-
-resource "aws_apigatewayv2_route" "disconnect-route" {
-  api_id    = aws_apigatewayv2_api.chess-websocket.id
-  route_key = "$disconnect"
-
-  target = "integrations/${aws_apigatewayv2_integration.disconnect-integration.id}"
+  target = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
 }
 
 ################################################################################
@@ -56,15 +43,13 @@ resource "aws_apigatewayv2_stage" "dev-stage" {
 # Deployments
 ################################################################################
 resource "aws_apigatewayv2_deployment" "websocket-deployment" {
-  api_id      = aws_apigatewayv2_api.chess-websocket.id
-  description = "Example deployment"
+  api_id = aws_apigatewayv2_api.chess-websocket.id
+
   triggers = {
     #TODO: make this a for each
     redeployment = sha1(join(",", tolist([
-      jsonencode(aws_apigatewayv2_integration.connect-integration),
-      jsonencode(aws_apigatewayv2_integration.disconnect-integration),
-      jsonencode(aws_apigatewayv2_route.connect-route),
-      jsonencode(aws_apigatewayv2_route.disconnect-route),
+      jsonencode(aws_apigatewayv2_integration.integrations),
+      jsonencode(aws_apigatewayv2_route.routes),
     ])))
   }
   lifecycle {
@@ -72,8 +57,8 @@ resource "aws_apigatewayv2_deployment" "websocket-deployment" {
   }
 
   depends_on = [
-    aws_apigatewayv2_route.connect-route, aws_apigatewayv2_route.disconnect-route,
-    aws_apigatewayv2_integration.connect-integration, aws_apigatewayv2_integration.disconnect-integration
+    aws_apigatewayv2_route.routes,
+    aws_apigatewayv2_integration.integrations,
   ]
 }
 

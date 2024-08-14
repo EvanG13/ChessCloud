@@ -24,7 +24,26 @@ resource "aws_iam_role_policy_attachment" "invoke_lambda_policy" {
 
 # Lambda function resource
 resource "aws_lambda_function" "lambda_functions" {
-  for_each = var.lambdas
+  for_each = var.rest_lambdas
+
+  function_name = each.key
+
+  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_key    = aws_s3_object.project_jar.key
+
+  source_code_hash = filebase64sha256("../../${path.module}/target/chess-cloud-1.0-SNAPSHOT.jar")
+
+  runtime = var.lambda_runtime
+  handler = each.value
+
+  memory_size = 1536
+
+  role = aws_iam_role.iam_role_for_lambda.arn
+}
+
+# Lambda function resource
+resource "aws_lambda_function" "websocket_lambda_functions" {
+  for_each = var.websocket_lambdas
 
   function_name = each.key
 
