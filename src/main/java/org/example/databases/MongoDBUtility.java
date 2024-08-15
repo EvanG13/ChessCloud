@@ -18,17 +18,12 @@ import org.bson.types.ObjectId;
 
 public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
 
-  final String DATABASE_NAME = "chess";
-
-  private final MongoDatabase database;
-
-  private final MongoClient client;
-
-  private MongoCollection<org.bson.Document> collection;
-
-  private final String collectionName;
-
   private static MongoDBUtility instance;
+  final String DATABASE_NAME = "chess";
+  private final MongoDatabase database;
+  private final MongoClient client;
+  private final String collectionName;
+  private MongoCollection<org.bson.Document> collection;
 
   public MongoDBUtility(String collectionName) {
     Dotenv dotenv = Dotenv.load();
