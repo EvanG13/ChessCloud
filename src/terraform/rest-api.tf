@@ -27,7 +27,7 @@ resource "aws_api_gateway_stage" "dev" {
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  for_each = var.lambdas
+  for_each = var.rest_lambdas
 
   action        = "lambda:InvokeFunction"
   function_name = each.key
