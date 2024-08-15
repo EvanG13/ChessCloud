@@ -13,7 +13,6 @@ resource "aws_apigatewayv2_integration" "integrations" {
   api_id           = aws_apigatewayv2_api.chess-websocket.id
   integration_type = "AWS_PROXY"
 
-
   description        = "Lambda example"
   integration_method = "POST"
   integration_uri    = aws_lambda_function.websocket_lambda_functions[each.key].invoke_arn
@@ -59,6 +58,7 @@ resource "aws_apigatewayv2_deployment" "websocket-deployment" {
       jsonencode(aws_apigatewayv2_route.routes),
     ])))
   }
+
   lifecycle {
     create_before_destroy = true
   }
