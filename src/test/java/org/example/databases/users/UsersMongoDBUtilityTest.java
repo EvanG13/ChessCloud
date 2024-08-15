@@ -15,12 +15,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UsersMongoDBUtilityTest {
-  private UsersMongoDBUtility utility;
-  MongoDBUtility mockedUtility;
-
   final String email = "foo@gmail.com";
   final String password = "foo";
   final ObjectId objectId = new ObjectId();
+  MongoDBUtility mockedUtility;
+  private UsersMongoDBUtility utility;
 
   @BeforeEach
   public void setUp() {
