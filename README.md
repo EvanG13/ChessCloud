@@ -6,8 +6,8 @@ This project utilizes **[Apache Maven](https://maven.apache.org/)** for managing
 
 ### Install Dependencies
 
-with tests: ``mvn clean install``\
-skip tests: ``mvn clean install -DskipTests``
+with tests: ``mvn clean package``\
+skip tests: ``mvn clean package -DskipTests``
 
 ### Steps for adding a dependency
 
@@ -29,12 +29,13 @@ skip tests: ``mvn clean install -DskipTests``
 
 ### Environment Variables
 
-In order for MongoDB to work, you **must** create a `.env` file within your root directory. It then must include your
-connection id and port number. Example below:
+In order for MongoDB to work, you **must** create a `.env` file within `src/resources`. It then must include the secret
+key, frontend url and connection string.
 
 ```text
+SECRETE_KEY=foosecretkey
+FRONTEND_URL=foofrontendurl
 MONGODB_CONNECTION_STRING=fakeconnectionstring
-PORT=00000
 ```
 
 ### Check that dependencies are installed correctly
