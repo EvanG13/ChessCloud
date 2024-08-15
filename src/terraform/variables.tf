@@ -44,5 +44,6 @@ variable "websocket_lambdas" {
   default = {
     connect    = "org.example.handlers.connect.ConnectHandler::handleRequest",
     disconnect = "org.example.handlers.disconnect.DisconnectHandler::handleRequest",
+    default    = "org.example.handlers.defaultHandler.DefaultHandler::handleRequest",
   }
 }

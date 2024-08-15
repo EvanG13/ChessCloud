@@ -17,6 +17,7 @@ resource "aws_apigatewayv2_integration" "integrations" {
   description        = "Lambda example"
   integration_method = "POST"
   integration_uri    = aws_lambda_function.websocket_lambda_functions[each.key].invoke_arn
+
 }
 
 ################################################################################
@@ -35,8 +36,14 @@ resource "aws_apigatewayv2_route" "routes" {
 # Stages
 ################################################################################
 resource "aws_apigatewayv2_stage" "dev-stage" {
-  api_id = aws_apigatewayv2_api.chess-websocket.id
-  name   = "dev"
+  api_id        = aws_apigatewayv2_api.chess-websocket.id
+  name          = "dev"
+  deployment_id = aws_apigatewayv2_deployment.websocket-deployment.id
+
+  default_route_settings {
+    throttling_rate_limit  = 2
+    throttling_burst_limit = 5
+  }
 }
 
 ################################################################################
@@ -74,6 +81,6 @@ resource "aws_lambda_permission" "lambda_ws_permission" {
 
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
-  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/dev/${"$"}${each.key}"
+  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*/${"$"}${each.key}"
 }
 
