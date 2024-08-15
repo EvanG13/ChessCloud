@@ -13,9 +13,9 @@ import com.google.gson.JsonObject;
 import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
-import org.example.handlers.TestContext;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;
+import org.example.utils.FakeContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class LoginHandlerTest {
                   "password": "test"
                 }""");
 
-    Context context = new TestContext();
+    Context context = new FakeContext();
 
     when(dbUtility.getByEmail(anyString()))
         .thenReturn(
@@ -80,7 +80,7 @@ public class LoginHandlerTest {
   @DisplayName("Bad Request \uD83D\uDE1E")
   @Test
   public void returnBadRequest() {
-    Context context = new TestContext();
+    Context context = new FakeContext();
 
     when(dbUtility.getByEmail(anyString())).thenReturn(null);
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
@@ -100,7 +100,7 @@ public class LoginHandlerTest {
               "password": "notmatching"
             }""");
 
-    Context context = new TestContext();
+    Context context = new FakeContext();
 
     when(dbUtility.getByEmail(anyString()))
         .thenReturn(new User("foo", "nonexistingemail@example.com", "password123", "fake"));

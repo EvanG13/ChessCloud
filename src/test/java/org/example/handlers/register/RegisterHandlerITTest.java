@@ -8,9 +8,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
-import org.example.handlers.TestContext;
 import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
 
 @Tag("Integration")
@@ -55,7 +55,7 @@ public class RegisterHandlerITTest {
                   "password": "test"
          }""");
 
-    Context context = new TestContext();
+    Context context = new FakeContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
@@ -70,7 +70,7 @@ public class RegisterHandlerITTest {
   @DisplayName("Bad Request 😠")
   @Test
   void returnBadRequest() {
-    Context context = new TestContext();
+    Context context = new FakeContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
@@ -80,7 +80,7 @@ public class RegisterHandlerITTest {
   @DisplayName("Conflict 🔀")
   @Test
   void returnConflict() {
-    Context context = new TestContext();
+    Context context = new FakeContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setBody(
         """

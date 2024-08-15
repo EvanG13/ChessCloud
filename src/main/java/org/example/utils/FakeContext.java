@@ -1,11 +1,13 @@
-package org.example.handlers;
+package org.example.utils;
 
 import com.amazonaws.services.lambda.runtime.ClientContext;
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import lombok.Getter;
 
-public class TestContext implements Context {
+@Getter
+public class FakeContext implements Context {
 
   @Override
   public String getAwsRequestId() {
