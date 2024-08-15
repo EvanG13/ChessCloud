@@ -10,9 +10,9 @@ import com.google.gson.JsonObject;
 import java.util.Map;
 import org.example.databases.users.UsersMongoDBUtility;
 import org.example.entities.User;
-import org.example.handlers.TestContext;
 import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
 
 @Tag("Integration")
@@ -35,7 +35,7 @@ public class LoginHandlerITTest {
 
     loginHandler = new LoginHandler();
 
-    context = new TestContext();
+    context = new FakeContext();
   }
 
   @AfterAll
