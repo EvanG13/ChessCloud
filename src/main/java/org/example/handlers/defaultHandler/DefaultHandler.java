@@ -15,9 +15,6 @@ public class DefaultHandler
     APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
     response.setStatusCode(StatusCodes.BAD_REQUEST);
 
-    // Gson gson = new Gson();
-    // DefaultRequest defaultRequest = gson.fromJson(event.getBody(), DefaultRequest.class);
-
     response.setBody("Route: " + event.getBody() + " is not supported");
 
     return response;
