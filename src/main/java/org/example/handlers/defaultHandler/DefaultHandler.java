@@ -15,7 +15,7 @@ public class DefaultHandler
     APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
     response.setStatusCode(StatusCodes.BAD_REQUEST);
 
-    response.setBody("Route: " + event.getBody() + " is not supported");
+    response.setBody("Route: is not supported");
 
     return response;
   }

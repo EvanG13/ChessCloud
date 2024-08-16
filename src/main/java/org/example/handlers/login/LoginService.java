@@ -1,7 +1,7 @@
 package org.example.handlers.login;
 
 import org.example.databases.MongoDBUtility;
-import org.example.databases.users.UsersMongoDBUtility;
+import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.utils.EncryptPassword;
 
