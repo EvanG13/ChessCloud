@@ -62,10 +62,19 @@ public class ConnectionMongoDBUtility {
   /**
    * Deletes a Connection by their id
    *
-   * @param id id (the connectionId == object id)
+   * @param id id
    */
   public void delete(String id) {
     utility.delete(id);
+  }
+
+  /**
+   * Deletes a Connection by their username
+   *
+   * @param username username
+   */
+  public void deleteByUsername(String username) {
+    utility.deleteByIndex("username", username);
   }
 
   /**

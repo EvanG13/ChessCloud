@@ -92,6 +92,12 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
     collection.findOneAndDelete(eq("_id", new ObjectId(id)));
   }
 
+  public void deleteByIndex(String index, String indexValue) {
+    collection = database.getCollection(collectionName);
+
+    collection.findOneAndDelete(eq(index, indexValue));
+  }
+
   public void delete() {
     collection.deleteMany(new Document());
   }

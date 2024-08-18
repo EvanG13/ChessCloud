@@ -12,7 +12,7 @@ import org.example.statusCodes.StatusCodes;
 public class ConnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
-  private ConnectService service;
+  private final ConnectService service;
 
   public ConnectHandler() {
     this.service = new ConnectService();
@@ -25,15 +25,17 @@ public class ConnectHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    APIGatewayV2WebSocketResponse response;
+    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
+
     Map<String, String> queryParams = event.getQueryStringParameters();
     String username = queryParams.get("username");
     String connectionId = event.getRequestContext().getConnectionId();
+
     // TODO: save this to the connections mongo table
     if (service.doesConnectionExist(username)) {
-      response = new APIGatewayV2WebSocketResponse();
       response.setBody("This connection already exists");
       response.setStatusCode(StatusCodes.CONFLICT);
+
       return response;
     }
 
@@ -45,7 +47,6 @@ public class ConnectHandler
       throw e;
     }
 
-    response = new APIGatewayV2WebSocketResponse();
     response.setStatusCode(StatusCodes.OK);
     response.setBody(connectionId);
     return response;
