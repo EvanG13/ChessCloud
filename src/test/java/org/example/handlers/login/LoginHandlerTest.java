@@ -11,7 +11,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Map;
-import org.example.databases.users.UsersMongoDBUtility;
+import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;

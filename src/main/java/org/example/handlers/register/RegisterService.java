@@ -1,7 +1,7 @@
 package org.example.handlers.register;
 
 import org.example.databases.MongoDBUtility;
-import org.example.databases.users.UsersMongoDBUtility;
+import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.example.utils.EncryptPassword;
