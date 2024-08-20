@@ -19,6 +19,18 @@ resource "aws_apigatewayv2_integration" "integrations" {
 
 }
 
+resource "aws_apigatewayv2_integration" "connect-integration" {
+
+
+  api_id           = aws_apigatewayv2_api.chess-websocket.id
+  integration_type = "AWS_PROXY"
+
+  description        = "integration between $connect route and connect lambda"
+  integration_method = "POST"
+  integration_uri    = aws_lambda_function.websocket_connect_lambda.invoke_arn
+
+}
+
 ################################################################################
 # Routes
 ################################################################################
@@ -27,9 +39,21 @@ resource "aws_apigatewayv2_route" "routes" {
 
   api_id    = aws_apigatewayv2_api.chess-websocket.id
   route_key = "${"$"}${each.key}"
+  target    = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
 
-  target = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
 }
+resource "aws_apigatewayv2_route" "connect-route" {
+
+
+  api_id    = aws_apigatewayv2_api.chess-websocket.id
+  route_key = "$connect"
+  target    = "integrations/${aws_apigatewayv2_integration.connect-integration.id}"
+  request_parameter {
+    request_parameter_key = "route.request.querystring.username"
+    required              = true
+  }
+}
+
 
 ################################################################################
 # Stages
@@ -55,7 +79,9 @@ resource "aws_apigatewayv2_deployment" "websocket-deployment" {
 
     redeployment = sha1(join(",", tolist([
       jsonencode(aws_apigatewayv2_integration.integrations),
+      jsonencode(aws_apigatewayv2_integration.connect-integration),
       jsonencode(aws_apigatewayv2_route.routes),
+      jsonencode(aws_apigatewayv2_route.connect-route),
     ])))
   }
 
@@ -83,4 +109,16 @@ resource "aws_lambda_permission" "lambda_ws_permission" {
   # within API Gateway.
   source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*/${"$"}${each.key}"
 }
+resource "aws_lambda_permission" "connect_lambda_permission" {
+
+  action        = "lambda:InvokeFunction"
+  function_name = "connect"
+  principal     = "apigateway.amazonaws.com"
+
+  # The /* part allows invocation from any stage, method and resource path
+  # within API Gateway.
+  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*/$connect"
+}
+
+
 

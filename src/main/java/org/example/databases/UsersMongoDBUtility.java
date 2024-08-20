@@ -1,10 +1,9 @@
-package org.example.databases.users;
+package org.example.databases;
 
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 
