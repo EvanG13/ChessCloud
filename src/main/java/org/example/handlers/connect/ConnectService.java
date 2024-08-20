@@ -22,6 +22,12 @@ public class ConnectService {
     return conn != null;
   }
 
+  public boolean doesConnectionIdExist(String connectionId) {
+    Connection conn = utility.getByConnectionId(connectionId);
+
+    return conn != null;
+  }
+
   public void createConnection(String username, String connectionId) {
     ConnectionRequest newConnection = new ConnectionRequest(username, connectionId);
     utility.post(newConnection);

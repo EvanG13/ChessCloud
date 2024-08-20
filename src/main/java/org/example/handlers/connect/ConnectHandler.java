@@ -32,7 +32,7 @@ public class ConnectHandler
     String connectionId = event.getRequestContext().getConnectionId();
 
     // TODO: save this to the connections mongo table
-    if (service.doesConnectionExist(username)) {
+    if (service.doesConnectionExist(username) || service.doesConnectionIdExist(connectionId)) {
       response.setBody("This connection already exists");
       response.setStatusCode(StatusCodes.CONFLICT);
 

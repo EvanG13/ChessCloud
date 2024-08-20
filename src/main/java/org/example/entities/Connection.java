@@ -35,6 +35,6 @@ public class Connection extends DataTransferObject {
 
   @Override
   public String toString() {
-    return username + " " + " " + connectionId;
+    return username + " " + connectionId;
   }
 }

@@ -22,7 +22,7 @@ public class ConnectionMongoDBUtility {
    * Get a Connection by their connectionId
    *
    * @param id id
-   * @return user
+   * @return Connection
    */
   public Connection get(String id) {
     Document doc = utility.get(id);
@@ -35,6 +35,16 @@ public class ConnectionMongoDBUtility {
 
   public Connection getByUsername(String username) {
     Document conn = utility.get(Filters.eq("username", username));
+
+    if (conn == null) {
+      return null;
+    }
+
+    return Connection.fromDocument(conn);
+  }
+
+  public Connection getByConnectionId(String connectionId) {
+    Document conn = utility.get(Filters.eq("connectionId", connectionId));
 
     if (conn == null) {
       return null;
@@ -57,6 +67,15 @@ public class ConnectionMongoDBUtility {
         new Document("_id", new ObjectId())
             .append("connectionId", connectionData.connectionId())
             .append("username", connectionData.username()));
+  }
+
+  /**
+   * Deletes a Connection by their id
+   *
+   * @param id id
+   */
+  public void deleteByConnectionId(String id) {
+    utility.deleteByIndex("connectionId", id);
   }
 
   /**
