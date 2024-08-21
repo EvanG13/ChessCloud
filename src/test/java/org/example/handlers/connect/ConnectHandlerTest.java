@@ -23,6 +23,7 @@ public class ConnectHandlerTest {
   @BeforeAll
   public static void setUp() {
     username = "test-connection";
+    connectId = "fake-connection-id";
     utility = new ConnectionMongoDBUtility();
   }
 

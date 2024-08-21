@@ -1,4 +1,4 @@
-package org.example.databases.users;
+package org.example.databases;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,8 +8,6 @@ import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.example.databases.MongoDBUtility;
-import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.BeforeEach;
