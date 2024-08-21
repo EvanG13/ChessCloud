@@ -3,7 +3,6 @@ package org.example.databases;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.example.entities.Connection;
 import org.example.requestRecords.ConnectionRequest;
 
@@ -18,21 +17,6 @@ public class ConnectionMongoDBUtility {
     this.utility = utility;
   }
 
-  /**
-   * Get a Connection by their connectionId
-   *
-   * @param id id
-   * @return Connection
-   */
-  public Connection get(String id) {
-    Document doc = utility.get(id);
-    if (doc == null) {
-      return null;
-    }
-
-    return Connection.fromDocument(doc);
-  }
-
   public Connection getByUsername(String username) {
     Document conn = utility.get(Filters.eq("username", username));
 
@@ -44,7 +28,7 @@ public class ConnectionMongoDBUtility {
   }
 
   public Connection getByConnectionId(String connectionId) {
-    Document conn = utility.get(Filters.eq("connectionId", connectionId));
+    Document conn = utility.get(Filters.eq("_id", connectionId));
 
     if (conn == null) {
       return null;
@@ -64,8 +48,7 @@ public class ConnectionMongoDBUtility {
    */
   public void post(ConnectionRequest connectionData) {
     utility.post(
-        new Document("_id", new ObjectId())
-            .append("connectionId", connectionData.connectionId())
+        new Document("_id", connectionData.connectionId())
             .append("username", connectionData.username()));
   }
 
@@ -75,16 +58,7 @@ public class ConnectionMongoDBUtility {
    * @param id id
    */
   public void deleteByConnectionId(String id) {
-    utility.deleteByIndex("connectionId", id);
-  }
-
-  /**
-   * Deletes a Connection by their id
-   *
-   * @param id id
-   */
-  public void delete(String id) {
-    utility.delete(id);
+    utility.deleteByIndex("_id", id);
   }
 
   /**
