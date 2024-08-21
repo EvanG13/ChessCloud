@@ -21,7 +21,7 @@ public class SessionService {
         // Generate a session token, possibly using UUID
         String token = UUID.randomUUID().toString();
 
-        SessionRequest newSession = new SessionRequest(userId, token);
+        SessionRequest newSession = new SessionRequest(token, userId);
         // Store the session token in the database with an association to the userId
         dbUtility.post(newSession);
 
