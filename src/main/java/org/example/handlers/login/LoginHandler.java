@@ -8,10 +8,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Optional;
 import org.example.entities.User;
+import org.example.handlers.session.SessionService;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.AuthHeaders;
-import org.example.utils.JWTUtils;
 
 public class LoginHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -51,9 +51,10 @@ public class LoginHandler
 
     JsonObject responseBody = new JsonObject();
 
-    JWTUtils jwtUtils = new JWTUtils();
+    SessionService sessionService = new SessionService();
+    String token = sessionService.createSession(user.getId());
 
-    responseBody.addProperty("jwt", jwtUtils.generateJWT(user.getEmail()));
+    responseBody.addProperty("sessionToken", token);
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()
