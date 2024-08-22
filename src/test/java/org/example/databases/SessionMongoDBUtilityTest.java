@@ -28,16 +28,7 @@ public class SessionMongoDBUtilityTest {
     private SessionService sessionService;
     @BeforeEach
     public void setUp() {
-        mockedUtility = mock(MongoDBUtility.class);
-
-        utility = new UsersMongoDBUtility(mockedUtility);
-        sessionUtility = new SessionMongoDBUtility(mockedUtility);
-
-        doNothing().when(mockedUtility).post(any(Document.class));
-
-        UserRequest userData = new UserRequest(email, "evan", password);
-
-        utility.post(userData);
+        sessionUtility = new SessionMongoDBUtility();
     }
 
     @Test
