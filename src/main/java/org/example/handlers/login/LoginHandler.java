@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import org.example.entities.User;
 import org.example.requestRecords.LoginRequest;
 import org.example.statusCodes.StatusCodes;
@@ -35,15 +36,18 @@ public class LoginHandler
     }
 
     Gson gson = new Gson();
-    LoginRequest loginRequest = gson.fromJson(event.getBody(), LoginRequest.class);
+    LoginRequest loginRequestData = gson.fromJson(event.getBody(), LoginRequest.class);
 
-    User user = service.authenticateUser(loginRequest.email(), loginRequest.password());
-    if (user == null) {
+    Optional<User> optionalUser =
+        service.authenticateUser(loginRequestData.email(), loginRequestData.password());
+    if (optionalUser.isEmpty()) {
       return APIGatewayV2HTTPResponse.builder()
           .withBody("Email or Password is incorrect")
           .withStatusCode(StatusCodes.UNAUTHORIZED)
           .build();
     }
+
+    User user = optionalUser.get();
 
     JsonObject responseBody = new JsonObject();
 

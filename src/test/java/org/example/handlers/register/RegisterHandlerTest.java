@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
+import java.util.Optional;
 import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
@@ -45,7 +46,7 @@ public class RegisterHandlerTest {
 
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString())).thenReturn(null);
+    when(dbUtility.getByEmail(anyString())).thenReturn(Optional.empty());
     doNothing().when(dbUtility).post(any(UserRequest.class));
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
@@ -82,7 +83,7 @@ public class RegisterHandlerTest {
          }""");
 
     when(dbUtility.getByEmail(anyString()))
-        .thenReturn(new User("1", "test@gmail.com", "test", "testuser"));
+        .thenReturn(Optional.of(new User("1", "test@gmail.com", "test", "testuser")));
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.CONFLICT, response.getStatusCode());

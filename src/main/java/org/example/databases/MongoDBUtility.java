@@ -52,6 +52,12 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
     collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
   }
 
+  /**
+   * Get Document by an object id
+   *
+   * @param id id
+   * @return Document
+   */
   @Override
   public Document get(String id) {
 

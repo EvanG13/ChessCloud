@@ -7,24 +7,20 @@ import org.bson.Document;
 
 public class Connection extends DataTransferObject {
   @Expose private String username;
-  @Expose private String connectionId;
 
-  public Connection(String username, String connectionId) {
-    super(connectionId);
+  public Connection(String username, String id) {
+    super(id);
     this.username = username;
-    this.connectionId = connectionId;
   }
 
   public static Connection fromDocument(Document connectionDocument) {
     return new Connection(
-        connectionDocument.getString("connectionId"), connectionDocument.getString("username"));
+        connectionDocument.getString("_id"), connectionDocument.getString("username"));
   }
 
   @Override
   public Document toDocument() {
-    return new Document()
-        .append("connectionId", this.connectionId)
-        .append("username", this.username);
+    return new Document("_id", id).append("username", this.username);
   }
 
   @Override
@@ -35,6 +31,6 @@ public class Connection extends DataTransferObject {
 
   @Override
   public String toString() {
-    return username + " " + connectionId;
+    return this.username + " " + id;
   }
 }
