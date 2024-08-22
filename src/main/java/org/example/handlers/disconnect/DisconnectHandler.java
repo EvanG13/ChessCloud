@@ -20,9 +20,12 @@ public class DisconnectHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     String connectionId = event.getRequestContext().getConnectionId();
-    utility.deleteByConnectionId(connectionId);
+
+    utility.delete(connectionId);
+
     APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
     response.setStatusCode(StatusCodes.OK);
+
     return response;
   }
 }

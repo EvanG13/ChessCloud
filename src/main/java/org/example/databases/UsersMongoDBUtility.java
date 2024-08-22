@@ -1,12 +1,15 @@
 package org.example.databases;
 
 import com.mongodb.client.model.Filters;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 
+@AllArgsConstructor
 public class UsersMongoDBUtility {
   private final MongoDBUtility utility;
 
@@ -14,44 +17,24 @@ public class UsersMongoDBUtility {
     utility = MongoDBUtility.getInstance("users");
   }
 
-  public UsersMongoDBUtility(MongoDBUtility utility) {
-    this.utility = utility;
-  }
-
-  /**
-   * Get a User by their id
-   *
-   * @param id id
-   * @return user
-   */
-  public User get(String id) {
+  public Optional<User> get(String id) {
     Document doc = utility.get(id);
     if (doc == null) {
-      return null;
+      return Optional.empty();
     }
 
-    return User.fromDocument(doc);
+    return Optional.of(User.fromDocument(doc));
   }
 
-  public User getByEmail(String email) {
+  public Optional<User> getByEmail(String email) {
     Document user = utility.get(Filters.eq("email", email));
-
     if (user == null) {
-      return null;
+      return Optional.empty();
     }
 
-    return User.fromDocument(user);
+    return Optional.of(User.fromDocument(user));
   }
 
-  public void deleteAllDocuments() {
-    utility.delete();
-  }
-
-  /**
-   * Create a new User
-   *
-   * @param userData user request data object
-   */
   public void post(UserRequest userData) {
     utility.post(
         new Document("_id", new ObjectId())
@@ -60,21 +43,10 @@ public class UsersMongoDBUtility {
             .append("username", userData.username()));
   }
 
-  /**
-   * Deletes a User by their id
-   *
-   * @param id id
-   */
   public void delete(String id) {
     utility.delete(id);
   }
 
-  /**
-   * Update a user with the given id
-   *
-   * @param id object id
-   * @param filter filter
-   */
   public void patch(String id, Bson filter) {
     utility.patch(id, filter);
   }

@@ -1,15 +1,14 @@
-package org.example.databases.users;
+package org.example.databases;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.mongodb.client.model.Updates;
+import java.util.Optional;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.example.databases.MongoDBUtility;
-import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,8 +43,10 @@ public class UsersMongoDBUtilityTest {
 
     when(mockedUtility.get(any(Bson.class))).thenReturn(document);
 
-    User user = utility.getByEmail(email);
-    assertNotNull(user);
+    Optional<User> optionalUser = utility.getByEmail(email);
+    assertTrue(optionalUser.isPresent());
+
+    User user = optionalUser.get();
     assertEquals(user.getEmail(), document.get("email"));
     assertEquals(user.getPassword(), document.get("password"));
     assertEquals(user.getUsername(), document.get("username"));
@@ -59,8 +60,10 @@ public class UsersMongoDBUtilityTest {
 
     when(mockedUtility.get(anyString())).thenReturn(document);
 
-    User user = utility.get("foo-id");
-    assertNotNull(user);
+    Optional<User> optionalUser = utility.get("foo-id");
+    assertTrue(optionalUser.isPresent());
+
+    User user = optionalUser.get();
     assertEquals(user.getEmail(), email);
     assertEquals(user.getPassword(), password);
     assertEquals(user.getId(), objectId.toString());
@@ -72,8 +75,8 @@ public class UsersMongoDBUtilityTest {
     utility.delete(objectId.toString());
 
     when(mockedUtility.get(anyString())).thenReturn(null);
-    User user = utility.get(objectId.toString());
-    assertNull(user);
+    Optional<User> user = utility.get(objectId.toString());
+    assertTrue(user.isEmpty());
   }
 
   @Test
