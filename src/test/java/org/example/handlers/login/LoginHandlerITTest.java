@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Map;
+import java.util.Optional;
 import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
@@ -40,8 +41,10 @@ public class LoginHandlerITTest {
 
   @AfterAll
   public static void tearDown() {
-    User tempUser = dbUtility.getByEmail("it-test@gmail.com");
-    dbUtility.delete(tempUser.getId());
+    Optional<User> optionalTempUser = dbUtility.getByEmail("it-test@gmail.com");
+    assertTrue(optionalTempUser.isPresent());
+
+    dbUtility.delete(optionalTempUser.get().getId());
   }
 
   @DisplayName("OK")

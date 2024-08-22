@@ -11,6 +11,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Map;
+import java.util.Optional;
 import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
@@ -49,8 +50,12 @@ public class LoginHandlerTest {
 
     when(dbUtility.getByEmail(anyString()))
         .thenReturn(
-            new User(
-                "foo", "nonexistingemail@example.com", EncryptPassword.encrypt("test"), "fake"));
+            Optional.of(
+                new User(
+                    "foo",
+                    "nonexistingemail@example.com",
+                    EncryptPassword.encrypt("test"),
+                    "fake")));
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
     // The response Body contains the expected fields
@@ -103,7 +108,8 @@ public class LoginHandlerTest {
     Context context = new FakeContext();
 
     when(dbUtility.getByEmail(anyString()))
-        .thenReturn(new User("foo", "nonexistingemail@example.com", "password123", "fake"));
+        .thenReturn(
+            Optional.of(new User("foo", "nonexistingemail@example.com", "password123", "fake")));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 

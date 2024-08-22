@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
+import java.util.Optional;
 import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
 import org.example.requestRecords.UserRequest;
@@ -35,11 +36,14 @@ public class RegisterHandlerITTest {
 
   @AfterAll
   public static void tearDown() {
-    User user = dbUtility.getByEmail("test3@gmail.com");
-    dbUtility.delete(user.getId());
+    Optional<User> user = dbUtility.getByEmail("test3@gmail.com");
+    assertTrue(user.isPresent());
 
-    User tempUser = dbUtility.getByEmail("reg-it-test@gmail.com");
-    dbUtility.delete(tempUser.getId());
+    dbUtility.delete(user.get().getId());
+
+    Optional<User> tempUser = dbUtility.getByEmail("reg-it-test@gmail.com");
+    assertTrue(tempUser.isPresent());
+    dbUtility.delete(tempUser.get().getId());
   }
 
   @DisplayName("OK 👍")

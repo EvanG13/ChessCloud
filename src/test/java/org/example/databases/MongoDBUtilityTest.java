@@ -77,7 +77,6 @@ public class MongoDBUtilityTest {
   @DisplayName("Can update a document from MongoDB \uD83E\uDD8D")
   @Test
   public void patchDocument() {
-
     try {
       service.patch(
           newUser.getObjectId("_id").toString(), Updates.set("email", "new-fake-email@gmail.com"));
@@ -86,8 +85,6 @@ public class MongoDBUtilityTest {
       assertNotNull(actual);
 
       assertEquals(actual.get("email"), "new-fake-email@gmail.com");
-
-      System.out.println(actual);
     } catch (MongoException e) {
       e.printStackTrace();
       fail("fail");

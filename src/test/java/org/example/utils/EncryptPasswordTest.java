@@ -14,8 +14,6 @@ public class EncryptPasswordTest {
     String password = "testPassword";
     String encryptedPass = EncryptPassword.encrypt(password);
 
-    System.out.println(encryptedPass);
-
     assertNotNull(encryptedPass);
 
     BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), encryptedPass);
