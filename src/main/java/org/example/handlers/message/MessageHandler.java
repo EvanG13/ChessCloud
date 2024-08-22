@@ -9,13 +9,16 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.nio.ByteBuffer;
+import org.example.utils.DotenvClass;
 
 public class MessageHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
   private final AbstractAmazonApiGatewayManagementApi apiClient;
-  private String apiEndpoint = "https://4wre5to3yc.execute-api.us-east-1.amazonaws.com/dev";
-  private String region = "us-east-1";
+  //TODO move this endpoint into .env file
+
+  private String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
+  private String region = DotenvClass.dotenv.get("AWS_REGION");
 
   public MessageHandler() {
     this.apiClient =

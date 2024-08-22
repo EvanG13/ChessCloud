@@ -9,12 +9,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
-import io.github.cdimascio.dotenv.Dotenv;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.example.utils.DotenvClass;
 
 public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
 
@@ -26,8 +26,8 @@ public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
   private MongoCollection<org.bson.Document> collection;
 
   public MongoDBUtility(String collectionName) {
-    Dotenv dotenv = Dotenv.load();
-    final String connectionString = dotenv.get("MONGODB_CONNECTION_STRING");
+
+    final String connectionString = DotenvClass.dotenv.get("MONGODB_CONNECTION_STRING");
 
     try {
       client = MongoClients.create(connectionString);
