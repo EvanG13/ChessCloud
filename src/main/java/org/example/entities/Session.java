@@ -16,7 +16,7 @@ public class Session extends DataTransferObject {
 
     public static Session fromDocument(Document sessionDocument) {
         return new Session(
-                String.valueOf(sessionDocument.getObjectId("_id")),
+                    sessionDocument.getString("_id"),
                     sessionDocument.getString("userId"));
     }
 

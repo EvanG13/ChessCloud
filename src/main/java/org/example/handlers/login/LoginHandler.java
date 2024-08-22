@@ -54,7 +54,7 @@ public class LoginHandler
     SessionService sessionService = new SessionService();
     String token = sessionService.createSession(user.getId());
 
-    responseBody.addProperty("sessionToken", token);
+    responseBody.addProperty("token", token);
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()

@@ -1,5 +1,6 @@
 package org.example.databases;
 
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.example.entities.Session;
@@ -25,14 +26,15 @@ public class SessionMongoDBUtility {
      * @return Session
      */
     public Session get(String id) {
-        Document doc = utility.get(id);
+        //Document doc = utility.get(id);
+        Document doc = utility.get(Filters.eq("_id", id));
+
         if (doc == null) {
             return null;
         }
 
         return Session.fromDocument(doc);
     }
-
 
     /**
      * Create a new Session
@@ -41,7 +43,7 @@ public class SessionMongoDBUtility {
      */
     public void post(SessionRequest sessionData) {
         utility.post(
-                new Document("_id", new ObjectId(sessionData.id()))
+                new Document("_id", sessionData.id())
                         .append("userId", sessionData.userId()));
     }
 
@@ -51,6 +53,6 @@ public class SessionMongoDBUtility {
      * @param id id
      */
     public void delete(String id) {
-        utility.delete(id);
+        utility.deleteByIndex("_id", id);
     }
 }
