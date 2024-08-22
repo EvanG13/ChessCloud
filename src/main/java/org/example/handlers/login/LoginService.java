@@ -1,5 +1,6 @@
 package org.example.handlers.login;
 
+import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
@@ -17,17 +18,18 @@ public class LoginService {
     this.dbUtility = new UsersMongoDBUtility(MongoDBUtility.getInstance("users"));
   }
 
-  public User authenticateUser(String email, String plainTextPassword) {
+  public Optional<User> authenticateUser(String email, String plainTextPassword) {
 
-    User user = dbUtility.getByEmail(email);
-    if (user == null) {
-      return null;
+    Optional<User> optionalUser = dbUtility.getByEmail(email);
+    if (optionalUser.isEmpty()) {
+      return Optional.empty();
     }
 
-    if (!EncryptPassword.verify(plainTextPassword, user.getPassword())) {
-      return null;
+    String password = optionalUser.get().getPassword();
+    if (!EncryptPassword.verify(plainTextPassword, password)) {
+      return Optional.empty();
     }
 
-    return user;
+    return optionalUser;
   }
 }
