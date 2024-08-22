@@ -3,7 +3,16 @@ resource "aws_apigatewayv2_api" "chess-websocket" {
   protocol_type              = "WEBSOCKET"
   route_selection_expression = "$request.body.action"
 }
-
+################################################################################
+# map from lambda function name to route key
+################################################################################
+locals {
+  route_keys = {
+    disconnect = "$disconnect",
+    default    = "$default",
+    message    = "message"
+  }
+}
 ################################################################################
 # Integrations
 ################################################################################
@@ -38,7 +47,7 @@ resource "aws_apigatewayv2_route" "routes" {
   for_each = var.websocket_lambdas
 
   api_id    = aws_apigatewayv2_api.chess-websocket.id
-  route_key = "${"$"}${each.key}"
+  route_key = local.route_keys[each.key]
   target    = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
 
 }
@@ -107,7 +116,7 @@ resource "aws_lambda_permission" "lambda_ws_permission" {
 
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
-  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*/${"$"}${each.key}"
+  source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/*/${local.route_keys[each.key]}"
 }
 resource "aws_lambda_permission" "connect_lambda_permission" {
 
