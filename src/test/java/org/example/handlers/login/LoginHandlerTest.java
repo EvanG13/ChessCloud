@@ -59,7 +59,7 @@ public class LoginHandlerTest {
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
     // The response Body contains the expected fields
-    assertTrue(response.getBody().contains("jwt"));
+    assertTrue(response.getBody().contains("token"));
     assertTrue(response.getBody().contains("user"));
 
     Map<String, String> headers = response.getHeaders();
