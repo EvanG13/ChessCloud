@@ -1,49 +1,45 @@
 package org.example.databases;
 
-import org.bson.Document;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.bson.types.ObjectId;
 import org.example.entities.User;
 import org.example.handlers.session.SessionService;
-import org.example.requestRecords.UserRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-
 public class SessionMongoDBUtilityTest {
-    final String email = "foo@gmail.com";
-    final String password = "foo";
+  final String email = "foo@gmail.com";
+  final String password = "foo";
 
-    final ObjectId objectId = new ObjectId();
-    MongoDBUtility mockedUtility;
-    private UsersMongoDBUtility utility;
-    private SessionMongoDBUtility sessionUtility;
-    private User fakeUser;
-    private String token;
+  final ObjectId objectId = new ObjectId();
+  MongoDBUtility mockedUtility;
+  private UsersMongoDBUtility utility;
+  private SessionMongoDBUtility sessionUtility;
+  private User fakeUser;
+  private String token;
 
-    private SessionService sessionService;
-    @BeforeEach
-    public void setUp() {
-        sessionUtility = new SessionMongoDBUtility();
-    }
+  private SessionService sessionService;
 
-    @Test
-    public void canCreateSession() {
-        sessionService = new SessionService();
-        token = sessionService.createSession("123456789123456789000000");
+  @BeforeEach
+  public void setUp() {
+    sessionUtility = new SessionMongoDBUtility();
+  }
 
-        assertEquals(token, sessionUtility.get(token).getId());
-    }
+  @Test
+  public void canCreateSession() {
+    sessionService = new SessionService();
+    token = sessionService.createSession("123456789123456789000000");
 
-    @AfterEach
-    public void tearDown() {
-        sessionUtility.delete(token);
-        sessionService = null;
-        sessionUtility = null;
-        token = null;
-    }
+    assertEquals(token, sessionUtility.get(token).getId());
+  }
+
+  @AfterEach
+  public void tearDown() {
+    sessionUtility.delete(token);
+    sessionService = null;
+    sessionUtility = null;
+    token = null;
+  }
 }
