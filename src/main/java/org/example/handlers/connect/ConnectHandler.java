@@ -31,7 +31,6 @@ public class ConnectHandler
     String username = queryParams.get("username");
     String connectionId = event.getRequestContext().getConnectionId();
 
-    // TODO: save this to the connections mongo table
     if (service.doesConnectionExistByUsername(username)
         || service.doesConnectionExistById(connectionId)) {
       response.setBody("This connection already exists");
