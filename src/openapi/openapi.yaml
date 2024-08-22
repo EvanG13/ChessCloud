@@ -9,7 +9,7 @@ paths:
   /login:
     post:
       summary: Login to the system
-      description: Logs a user into the system, providing a session token.
+      description: "Logs a user into the system, providing a session token."
       requestBody:
         content:
           application/json:
@@ -17,7 +17,7 @@ paths:
               $ref: '#/components/schemas/LoginRequestBody'
         required: true
       responses:
-        200:
+        "200":
           description: Login successful
           headers:
             Access-Control-Allow-Origin:
@@ -33,13 +33,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
-        400:
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
-        401:
+        "401":
           description: Unauthorized
           content:
             application/json:
@@ -48,7 +48,7 @@ paths:
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
-        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:login/invocations
+        uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:login/invocations"
         default:
           statusCode: "200"
           responseParameters:
@@ -65,7 +65,7 @@ paths:
               $ref: '#/components/schemas/LoginRequestBody'
         required: true
       responses:
-        200:
+        "200":
           description: 200 response
           headers:
             Access-Control-Allow-Origin:
@@ -86,8 +86,8 @@ paths:
         default:
           statusCode: 200
           responseParameters:
-            method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
-            method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+            method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: '''*'''
           responseTemplates:
             application/json: {}
@@ -96,7 +96,7 @@ paths:
       summary: Logout
       description: Logout of the app
       responses:
-        200:
+        "200":
           description: Logout Successful
           content:
             application/json:
@@ -105,11 +105,11 @@ paths:
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
-        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations
+        uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations"
   /register:
     post:
       summary: Register to the system
-      description: Registers a user into the system, providing a session token.
+      description: "Registers a user into the system, providing a session token."
       requestBody:
         content:
           application/json:
@@ -117,25 +117,25 @@ paths:
               $ref: '#/components/schemas/RegisterRequestBody'
         required: true
       responses:
-        200:
+        "200":
           description: Registration successful
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OKResponse'
-        400:
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
-        401:
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-        409:
+        "409":
           description: Conflict
           content:
             application/json:
@@ -144,7 +144,7 @@ paths:
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
-        uri: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:register/invocations
+        uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:register/invocations"
         default:
           statusCode: "200"
           responseParameters:
@@ -161,7 +161,7 @@ paths:
               $ref: '#/components/schemas/RegisterRequestBody'
         required: true
       responses:
-        200:
+        "200":
           description: 200 response
           headers:
             Access-Control-Allow-Origin:
@@ -182,8 +182,8 @@ paths:
         default:
           statusCode: 200
           responseParameters:
-            method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
-            method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+            method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: '''*'''
           responseTemplates:
             application/json: {}
