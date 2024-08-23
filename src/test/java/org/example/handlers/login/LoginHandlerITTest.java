@@ -84,6 +84,23 @@ public class LoginHandlerITTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
+  @DisplayName("Unauthorized \uD83D\uDD25")
+  @Test
+  public void returnsUnauthorized() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    event.setBody(
+        """
+                 {
+                          "email": "super-fake-email@gmail.com",
+                          "password": "testPassword"
+                        }""");
+
+    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
+  }
+
   @DisplayName("Bad Request \uD83D\uDE1E")
   @Test
   public void canReturnBadRequest() {
