@@ -3,6 +3,7 @@ resource "aws_apigatewayv2_api" "chess-websocket" {
   protocol_type              = "WEBSOCKET"
   route_selection_expression = "$request.body.action"
 }
+
 ################################################################################
 # map from lambda function name to route key
 ################################################################################
@@ -129,6 +130,11 @@ resource "aws_lambda_permission" "connect_lambda_permission" {
   # within API Gateway.
   source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/${var.stage_name}/$connect"
 }
+
+
+
+
+
 
 
 
