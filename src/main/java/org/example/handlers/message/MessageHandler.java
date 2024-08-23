@@ -33,29 +33,30 @@ public class MessageHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    System.out.println("region: " + region + " endpoint: " + apiEndpoint);
+
     // TODO eventually try fetching all the players in the game room's socket ids and
     // send a message to all of them
-    System.out.println("Received event: " + event);
+
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
+    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
 
     if (requestContext == null || requestContext.getConnectionId() == null) {
       System.err.println("Invalid event: missing requestContext or connectionId");
-      APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
-      response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
+      response.setStatusCode(StatusCodes.BAD_REQUEST);
       return response;
     }
-    String connectionId = event.getRequestContext().getConnectionId();
+    String connectionId = requestContext.getConnectionId();
     try {
       Gson gson = new Gson();
       MessageRequest message = gson.fromJson(event.getBody(), MessageRequest.class);
       sendMessage(connectionId, message.data());
     } catch (Exception e) {
       e.printStackTrace();
+      response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
+      return response;
     }
 
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
-    response.setStatusCode(200);
+    response.setStatusCode(StatusCodes.OK);
     return response;
   }
 
