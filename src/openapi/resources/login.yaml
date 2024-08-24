@@ -8,8 +8,8 @@ post:
     default:
       statusCode: "200"
       responseParameters:
-        method.response.header.Access-Control-Allow-Headers: "'Content-Type'"
-        method.response.header.Access-Control-Allow-Methods: "'*'"
+        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
         method.response.header.Access-Control-Allow-Origin: "'*'"
       responseTemplates:
         application/json: { }
@@ -42,32 +42,6 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/BadRequest.yaml'
-    401:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/responses/Unauthorized.yaml'
-options:
-  x-amazon-apigateway-integration:
-    type: "mock"
-    default:
-      statusCode: 200
-      responseParameters:
-        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-        method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-        method.response.header.Access-Control-Allow-Origin: "'*'"
-      responseTemplates:
-        application/json: { }
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: '../schemas/requests/LoginRequestBody.yaml'
-  responses:
-    "200":
-      description: "200 response"
       headers:
         Access-Control-Allow-Origin:
           schema:
@@ -78,7 +52,51 @@ options:
         Access-Control-Allow-Headers:
           schema:
             type: "string"
+    401:
+      description: Unauthorized
       content:
         application/json:
           schema:
-            type: "object"
+            $ref: '../schemas/responses/Unauthorized.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+options:
+  summary: CORS support
+  description: Enable CORS by returning correct headers
+  tags:
+    - CORS
+  x-amazon-apigateway-integration:
+    type: "mock"
+    requestTemplates:
+      application/json: "{\"statusCode\": 200}"
+    responses:
+      default:
+        statusCode: "200"
+        responseParameters:
+          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+          method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+          method.response.header.Access-Control-Allow-Origin: "'*'"
+          responseTemplates:
+            application/json: { }
+  responses:
+    "200":
+      description: Default response for CORS method
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content: { }
