@@ -64,9 +64,11 @@ public class RegisterHandlerITTest {
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
     Map<String, String> headers = response.getHeaders();
-    assertEquals(headers.get("Access-Control-Allow-Origin"), "http://localhost:8081");
-    assertEquals(headers.get("Access-Control-Allow-Methods"), "OPTIONS,POST,GET");
-    assertEquals(headers.get("Access-Control-Allow-Headers"), "Content-Type");
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
+    assertEquals(
+        headers.get("Access-Control-Allow-Headers"),
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }
