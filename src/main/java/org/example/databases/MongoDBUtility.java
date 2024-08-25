@@ -12,7 +12,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
-import io.github.cdimascio.dotenv.Dotenv;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.example.entities.DataTransferObject;
+import org.example.utils.DotenvClass;
 
 public class MongoDBUtility<T extends DataTransferObject> {
 
@@ -35,8 +35,7 @@ public class MongoDBUtility<T extends DataTransferObject> {
     this.collectionName = collectionName;
     this.tClass = tClass;
 
-    Dotenv dotenv = Dotenv.load();
-    final String connectionString = dotenv.get("MONGODB_CONNECTION_STRING");
+    final String connectionString = DotenvClass.dotenv.get("MONGODB_CONNECTION_STRING");
 
     CodecRegistry pojoCodecRegistry =
         fromProviders(PojoCodecProvider.builder().automatic(true).build());
