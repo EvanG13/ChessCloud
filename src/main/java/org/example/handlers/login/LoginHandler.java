@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.example.entities.User;
 import org.example.handlers.session.SessionService;
 import org.example.requestRecords.LoginRequest;
+import org.example.requestRecords.SessionRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.AuthHeaders;
 
@@ -54,9 +55,10 @@ public class LoginHandler
     JsonObject responseBody = new JsonObject();
 
     SessionService sessionService = new SessionService();
-    String token = sessionService.createSession(user.getId());
 
-    responseBody.addProperty("token", token);
+    String sessionToken = sessionService.createSession(new SessionRequest(user.getId()));
+
+    responseBody.addProperty("token", sessionToken);
     responseBody.addProperty("user", user.toResponseJson());
 
     return APIGatewayV2HTTPResponse.builder()

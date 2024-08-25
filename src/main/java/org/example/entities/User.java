@@ -1,42 +1,20 @@
 package org.example.entities;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import java.util.Objects;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import lombok.experimental.SuperBuilder;
 
-@Setter
 @Getter
+@Setter
+@NoArgsConstructor
+@SuperBuilder
 public class User extends DataTransferObject {
   @Expose private String email;
   private String password;
   @Expose private String username;
-
-  public User(String id, String email, String password, String username) {
-    super(id);
-    this.email = email;
-    this.password = password;
-    this.username = username;
-  }
-
-  public static User fromDocument(Document userDocument) {
-    return new User(
-        String.valueOf(userDocument.getObjectId("_id")),
-        userDocument.getString("email"),
-        userDocument.getString("password"),
-        userDocument.getString("username"));
-  }
-
-  @Override
-  public Document toDocument() {
-    return new Document("_id", new ObjectId(id))
-        .append("email", email)
-        .append("password", password)
-        .append("username", username);
-  }
 
   @Override
   public String toString() {
@@ -44,9 +22,22 @@ public class User extends DataTransferObject {
   }
 
   @Override
-  public String toResponseJson() {
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-    return gsonBuilder.toJson(this, User.class);
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    User user = (User) o;
+    return Objects.equals(id, user.getId())
+        && Objects.equals(email, user.getEmail())
+        && Objects.equals(password, user.getPassword())
+        && Objects.equals(username, user.getUsername());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, password, email, username);
   }
 }

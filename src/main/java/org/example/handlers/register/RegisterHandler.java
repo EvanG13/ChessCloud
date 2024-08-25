@@ -49,8 +49,7 @@ public class RegisterHandler
     }
 
     try {
-      service.registerUser(
-          registerRequest.email(), registerRequest.username(), registerRequest.password());
+      service.registerUser(registerRequest);
     } catch (MongoException e) {
       LambdaLogger logger = context.getLogger();
       logger.log(e.getMessage());

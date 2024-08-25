@@ -50,11 +50,9 @@ resource "aws_apigatewayv2_route" "routes" {
   api_id    = aws_apigatewayv2_api.chess-websocket.id
   route_key = local.route_keys[each.key]
   target    = "integrations/${aws_apigatewayv2_integration.integrations[each.key].id}"
-
 }
+
 resource "aws_apigatewayv2_route" "connect-route" {
-
-
   api_id    = aws_apigatewayv2_api.chess-websocket.id
   route_key = "$connect"
   target    = "integrations/${aws_apigatewayv2_integration.connect-integration.id}"
@@ -64,6 +62,11 @@ resource "aws_apigatewayv2_route" "connect-route" {
   }
 }
 
+resource "aws_apigatewayv2_route_response" "default-response" {
+  api_id             = aws_apigatewayv2_api.chess-websocket.id
+  route_id           = aws_apigatewayv2_route.routes["default"].id
+  route_response_key = "$default"
+}
 
 ################################################################################
 # Stages

@@ -4,16 +4,21 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import org.example.databases.ConnectionMongoDBUtility;
+import org.example.databases.MongoDBUtility;
+import org.example.entities.Connection;
 import org.example.statusCodes.StatusCodes;
 
 public class DisconnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
-  ConnectionMongoDBUtility utility;
+  MongoDBUtility<Connection> utility;
 
   public DisconnectHandler() {
-    this.utility = new ConnectionMongoDBUtility();
+    this.utility = new MongoDBUtility<>("connections", Connection.class);
+  }
+
+  public DisconnectHandler(MongoDBUtility<Connection> utility) {
+    this.utility = utility;
   }
 
   @Override
