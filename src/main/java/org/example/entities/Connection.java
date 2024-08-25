@@ -1,7 +1,5 @@
 package org.example.entities;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import java.util.Objects;
 import lombok.Getter;
@@ -15,12 +13,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Connection extends DataTransferObject {
   @Expose private String username;
-
-  @Override
-  public String toResponseJson() {
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    return gsonBuilder.toJson(this, Connection.class);
-  }
 
   @Override
   public String toString() {

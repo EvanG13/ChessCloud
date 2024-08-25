@@ -1,7 +1,5 @@
 package org.example.entities;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import java.util.Objects;
 import lombok.Getter;
@@ -36,12 +34,5 @@ public class Session extends DataTransferObject {
   @Override
   public int hashCode() {
     return Objects.hash(id, userId);
-  }
-
-  @Override
-  public String toResponseJson() {
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-
-    return gsonBuilder.toJson(this, Session.class);
   }
 }
