@@ -8,7 +8,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.example.databases.ConnectionMongoDBUtility;
+import org.example.databases.MongoDBUtility;
+import org.example.entities.Connection;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
@@ -18,18 +19,18 @@ public class ConnectHandlerTest {
 
   public static String username;
   public static String connectId;
-  public static ConnectionMongoDBUtility utility;
+  public static MongoDBUtility<Connection> utility;
 
   @BeforeAll
   public static void setUp() {
     username = "test-connection";
     connectId = "fake-connection-id";
-    utility = new ConnectionMongoDBUtility();
+    utility = new MongoDBUtility<>("connections", Connection.class);
   }
 
   @AfterAll
   public static void tearDown() {
-    utility.deleteByUsername(username);
+    utility.delete(connectId);
   }
 
   @DisplayName("OK ✅")
@@ -56,6 +57,8 @@ public class ConnectHandlerTest {
     APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
   }
+
+  public ConnectHandlerTest() {}
 
   @DisplayName("Conflict ✅")
   @Order(2)

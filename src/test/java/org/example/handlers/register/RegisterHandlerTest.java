@@ -1,7 +1,6 @@
 package org.example.handlers.register;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -9,22 +8,23 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import java.util.Optional;
-import org.example.databases.UsersMongoDBUtility;
+import org.bson.conversions.Bson;
+import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
-import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("unchecked")
 public class RegisterHandlerTest {
   private RegisterHandler registerHandler;
-  private UsersMongoDBUtility dbUtility;
+  private MongoDBUtility<User> dbUtility;
 
   @BeforeEach
   void setUp() {
-    dbUtility = mock(UsersMongoDBUtility.class);
+    dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
 
     RegisterService service = new RegisterService(dbUtility);
 
@@ -46,8 +46,8 @@ public class RegisterHandlerTest {
 
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString())).thenReturn(Optional.empty());
-    doNothing().when(dbUtility).post(any(UserRequest.class));
+    when(dbUtility.get(any(Bson.class))).thenReturn(Optional.empty());
+    doNothing().when(dbUtility).post(any(User.class));
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
     Map<String, String> headers = response.getHeaders();
@@ -65,7 +65,6 @@ public class RegisterHandlerTest {
   void returnBadRequest() {
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString())).thenReturn(null);
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -84,8 +83,10 @@ public class RegisterHandlerTest {
                   "password": "test"
          }""");
 
-    when(dbUtility.getByEmail(anyString()))
-        .thenReturn(Optional.of(new User("1", "test@gmail.com", "test", "testuser")));
+    when(dbUtility.get(any(Bson.class)))
+        .thenReturn(
+            Optional.of(
+                User.builder().id("1").email("test@gmail.com").username("testuser").build()));
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.CONFLICT, response.getStatusCode());

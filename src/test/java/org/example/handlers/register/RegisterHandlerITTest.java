@@ -1,5 +1,6 @@
 package org.example.handlers.register;
 
+import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -7,43 +8,49 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import java.util.Optional;
-import org.example.databases.UsersMongoDBUtility;
+import org.bson.types.ObjectId;
+import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
-import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.EncryptPassword;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
 
 @Tag("Integration")
 public class RegisterHandlerITTest {
   private static RegisterHandler registerHandler;
-  private static UsersMongoDBUtility dbUtility;
+  private static MongoDBUtility<User> utility;
 
   @BeforeAll
   public static void setUp() {
-    dbUtility = new UsersMongoDBUtility();
+    utility = new MongoDBUtility<>("users", User.class);
 
-    dbUtility.post(
-        new UserRequest(
-            "reg-it-test@gmail.com",
-            "TestUsername",
-            "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"));
+    User newUser =
+        User.builder()
+            .id(new ObjectId().toString())
+            .email("reg-it-test@gmail.com")
+            .password(EncryptPassword.encrypt("test"))
+            .username("TestUsername")
+            .build();
 
-    RegisterService service = new RegisterService(dbUtility);
+    utility.post(newUser);
+
+    RegisterService service = new RegisterService(utility);
 
     registerHandler = new RegisterHandler(service);
   }
 
   @AfterAll
   public static void tearDown() {
-    Optional<User> user = dbUtility.getByEmail("test3@gmail.com");
+    Optional<User> user = utility.get(eq("email", "test3@gmail.com"));
     assertTrue(user.isPresent());
 
-    dbUtility.delete(user.get().getId());
+    utility.delete(user.get().getId());
 
-    Optional<User> tempUser = dbUtility.getByEmail("reg-it-test@gmail.com");
+    Optional<User> tempUser = utility.get(eq("email", "reg-it-test@gmail.com"));
+
     assertTrue(tempUser.isPresent());
-    dbUtility.delete(tempUser.get().getId());
+    utility.delete(tempUser.get().getId());
   }
 
   @DisplayName("OK 👍")

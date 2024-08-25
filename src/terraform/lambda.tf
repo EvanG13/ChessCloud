@@ -27,7 +27,7 @@ resource "aws_iam_policy" "lambda_manage_connections_policy" {
       {
         Effect   = "Allow"
         Action   = "execute-api:ManageConnections"
-        Resource = "arn:aws:execute-api:us-east-1:891377152062:4wre5to3yc/*/POST/@connections/*"
+        Resource = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/${var.stage_name}/POST/@connections/*"
       }
     ]
   })
@@ -37,7 +37,6 @@ resource "aws_iam_role_policy_attachment" "lambda_role_manage_connections_policy
   role       = aws_iam_role.iam_role_for_lambda.name
   policy_arn = aws_iam_policy.lambda_manage_connections_policy.arn
 }
-
 
 resource "aws_iam_role_policy_attachment" "invoke_lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"

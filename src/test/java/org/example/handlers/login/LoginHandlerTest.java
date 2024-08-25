@@ -1,9 +1,7 @@
 package org.example.handlers.login;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -12,7 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Map;
 import java.util.Optional;
-import org.example.databases.UsersMongoDBUtility;
+import org.bson.conversions.Bson;
+import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;
@@ -21,13 +20,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("unchecked")
 public class LoginHandlerTest {
   private LoginHandler loginHandler;
-  private UsersMongoDBUtility dbUtility;
+  private MongoDBUtility<User> dbUtility;
 
   @BeforeEach
   public void setUp() {
-    dbUtility = mock(UsersMongoDBUtility.class);
+    dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
 
     LoginService service = new LoginService(dbUtility);
 
@@ -48,17 +48,17 @@ public class LoginHandlerTest {
 
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString()))
+    when(dbUtility.get(any(Bson.class)))
         .thenReturn(
             Optional.of(
-                new User(
-                    "foo",
-                    "nonexistingemail@example.com",
-                    EncryptPassword.encrypt("test"),
-                    "fake")));
+                User.builder()
+                    .id("foo")
+                    .email("nonexistingemail@example.com")
+                    .password(EncryptPassword.encrypt("test"))
+                    .username("fake")
+                    .build()));
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
-    // The response Body contains the expected fields
     assertTrue(response.getBody().contains("token"));
     assertTrue(response.getBody().contains("user"));
 
@@ -89,7 +89,6 @@ public class LoginHandlerTest {
   public void returnBadRequest() {
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString())).thenReturn(null);
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -109,9 +108,15 @@ public class LoginHandlerTest {
 
     Context context = new FakeContext();
 
-    when(dbUtility.getByEmail(anyString()))
+    when(dbUtility.get(any(Bson.class)))
         .thenReturn(
-            Optional.of(new User("foo", "nonexistingemail@example.com", "password123", "fake")));
+            Optional.of(
+                User.builder()
+                    .id("foo")
+                    .email("nonexistingemail@example.com")
+                    .password("password123")
+                    .username("fake")
+                    .build()));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 

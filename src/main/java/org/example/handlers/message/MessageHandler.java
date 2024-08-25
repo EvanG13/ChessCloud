@@ -60,7 +60,7 @@ public class MessageHandler
     return response;
   }
 
-  private void sendMessage(String connectionId, String message) throws Exception {
+  private void sendMessage(String connectionId, String message) {
     PostToConnectionRequest request =
         new PostToConnectionRequest()
             .withConnectionId(connectionId)

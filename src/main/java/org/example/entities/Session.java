@@ -1,35 +1,38 @@
 package org.example.entities;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@SuperBuilder
 public class Session extends DataTransferObject {
-  @Expose String userId;
-
-  public Session(String id, String userId) {
-    super(id);
-    this.userId = userId;
-  }
-
-  public static Session fromDocument(Document sessionDocument) {
-    return new Session(sessionDocument.getString("_id"), sessionDocument.getString("userId"));
-  }
-
-  public Document toDocument() {
-    return new Document("_id", new ObjectId(id));
-  }
+  @Expose private String userId;
 
   public String toString() {
     return this.id + " " + this.userId;
   }
 
   @Override
-  public String toResponseJson() {
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-    return gsonBuilder.toJson(this, Session.class);
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Session session = (Session) o;
+
+    return Objects.equals(id, session.getId()) && Objects.equals(userId, session.getUserId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, userId);
   }
 }
