@@ -66,9 +66,11 @@ public class LoginHandlerITTest {
     assertTrue(response.getBody().contains("user"));
 
     Map<String, String> headers = response.getHeaders();
-    assertEquals(headers.get("Access-Control-Allow-Origin"), "http://localhost:8081");
-    assertEquals(headers.get("Access-Control-Allow-Methods"), "OPTIONS,POST,GET");
-    assertEquals(headers.get("Access-Control-Allow-Headers"), "Content-Type");
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
+    assertEquals(
+        headers.get("Access-Control-Allow-Headers"),
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
 
     String body = response.getBody();
     Gson gson = new Gson();
@@ -82,6 +84,23 @@ public class LoginHandlerITTest {
     assertNull(user.getPassword());
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
+  }
+
+  @DisplayName("Unauthorized \uD83D\uDD25")
+  @Test
+  public void returnsUnauthorized() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    event.setBody(
+        """
+                 {
+                          "email": "super-fake-email@gmail.com",
+                          "password": "testPassword"
+                        }""");
+
+    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
   }
 
   @DisplayName("Bad Request \uD83D\uDE1E")

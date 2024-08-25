@@ -30,6 +30,7 @@ public class LoginHandler
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     if (event == null || event.getBody() == null) {
       return APIGatewayV2HTTPResponse.builder()
+          .withHeaders(AuthHeaders.getCorsHeaders())
           .withBody("no event/event.body")
           .withStatusCode(StatusCodes.BAD_REQUEST)
           .build();
@@ -42,6 +43,7 @@ public class LoginHandler
         service.authenticateUser(loginRequestData.email(), loginRequestData.password());
     if (optionalUser.isEmpty()) {
       return APIGatewayV2HTTPResponse.builder()
+          .withHeaders(AuthHeaders.getCorsHeaders())
           .withBody("Email or Password is incorrect")
           .withStatusCode(StatusCodes.UNAUTHORIZED)
           .build();
