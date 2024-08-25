@@ -1,110 +1,107 @@
 package org.example.databases;
 
 import static com.mongodb.client.model.Filters.eq;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-import com.mongodb.MongoException;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import io.github.cdimascio.dotenv.Dotenv;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.example.utils.DotenvClass;
+import org.example.entities.DataTransferObject;
 
-public class MongoDBUtility implements DatabaseUtility<Document, Bson> {
+public class MongoDBUtility<T extends DataTransferObject> {
 
-  private static MongoDBUtility instance;
-  final String DATABASE_NAME = "chess";
-  private final MongoDatabase database;
   private final MongoClient client;
+  private final MongoDatabase database;
+  private final Class<T> tClass;
   private final String collectionName;
-  private MongoCollection<org.bson.Document> collection;
 
-  public MongoDBUtility(String collectionName) {
+  public MongoDBUtility(String collectionName, Class<T> tClass) {
 
-    final String connectionString = DotenvClass.dotenv.get("MONGODB_CONNECTION_STRING");
+    this.collectionName = collectionName;
+    this.tClass = tClass;
+
+    Dotenv dotenv = Dotenv.load();
+    final String connectionString = dotenv.get("MONGODB_CONNECTION_STRING");
+
+    CodecRegistry pojoCodecRegistry =
+        fromProviders(PojoCodecProvider.builder().automatic(true).build());
+    CodecRegistry codecRegistry =
+        fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+    MongoClientSettings clientSettings =
+        MongoClientSettings.builder()
+            .applyConnectionString(new ConnectionString(connectionString))
+            .codecRegistry(codecRegistry)
+            .build();
 
     try {
-      client = MongoClients.create(connectionString);
-
-      database = client.getDatabase(DATABASE_NAME);
-      this.collectionName = collectionName;
-    } catch (MongoException e) {
+      this.client = MongoClients.create(clientSettings);
+      this.database = client.getDatabase("chess");
+    } catch (Exception e) {
       e.printStackTrace();
       throw e;
     }
   }
 
-  public static synchronized MongoDBUtility getInstance(String collectionName) {
-    if (instance == null) {
-      instance = new MongoDBUtility(collectionName);
-    }
-
-    return instance;
+  private MongoCollection<T> getCollection() {
+    return database.getCollection(collectionName, tClass);
   }
 
   public void createIndex(String field) {
-    collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
+    getCollection().createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
   }
 
-  /**
-   * Get Document by an object id
-   *
-   * @param id id
-   * @return Document
-   */
-  @Override
-  public Document get(String id) {
-
-    collection = database.getCollection(collectionName);
-
-    return collection.find(eq("_id", new ObjectId(id))).first();
+  public Optional<T> get(String id) {
+    return Optional.ofNullable(getCollection().find(eq("_id", id)).first());
   }
 
-  public Document get(Bson filter) {
-    collection = database.getCollection(collectionName);
-
-    return collection.find(filter).first();
+  public Optional<T> get(ObjectId id) {
+    return Optional.ofNullable(getCollection().find(eq("_id", id)).first());
   }
 
-  @Override
-  public void post(Document document) {
-    collection = database.getCollection(collectionName);
-    collection.insertOne(document);
+  public Optional<T> get(Bson filter) {
+    return Optional.ofNullable(getCollection().find(filter).first());
   }
 
-  @Override
-  public List<Document> list(Bson filter) {
-    collection = database.getCollection(collectionName);
-    return collection.find(filter).into(new ArrayList<>());
+  public void post(T object) {
+    getCollection().insertOne(object);
   }
 
-  @Override
+  public List<T> list(Bson filter) {
+    return getCollection().find(filter).into(new ArrayList<>());
+  }
+
   public void patch(String id, Bson filter) {
-    collection = database.getCollection(collectionName);
-
-    collection.updateOne(new Document("_id", new ObjectId(id)), filter);
+    getCollection().updateOne(new Document("_id", id), filter);
   }
 
-  @Override
+  public void patch(ObjectId id, Bson filter) {
+    getCollection().updateOne(new Document("_id", id), filter);
+  }
+
   public void delete(String id) {
-    collection = database.getCollection(collectionName);
-
-    collection.findOneAndDelete(eq("_id", new ObjectId(id)));
+    getCollection().findOneAndDelete(eq("_id", id));
   }
 
-  public void deleteByIndex(String index, String indexValue) {
-    collection = database.getCollection(collectionName);
-
-    collection.findOneAndDelete(eq(index, indexValue));
+  public void delete(String index, String indexValue) {
+    getCollection().findOneAndDelete(eq(index, indexValue));
   }
 
   public void delete() {
-    collection.deleteMany(new Document());
+    getCollection().deleteMany(new Document());
   }
 }
