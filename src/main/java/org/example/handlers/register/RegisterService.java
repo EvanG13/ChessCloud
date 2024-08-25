@@ -26,7 +26,7 @@ public class RegisterService {
   public void registerUser(RegisterRequest data) {
     User newUser =
         User.builder()
-            .id(new ObjectId().toHexString())
+            .id(new ObjectId().toString())
             .email(data.email())
             .password(EncryptPassword.encrypt(data.password()))
             .username(data.username())

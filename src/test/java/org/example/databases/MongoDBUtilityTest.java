@@ -101,7 +101,7 @@ public class MongoDBUtilityTest {
 
     User listUser1 =
         User.builder()
-            .id(new ObjectId().toHexString())
+            .id(new ObjectId().toString())
             .email("twosecond-email@test.com")
             .password("list")
             .username("second")
@@ -109,7 +109,7 @@ public class MongoDBUtilityTest {
 
     User listUser2 =
         User.builder()
-            .id(new ObjectId().toHexString())
+            .id(new ObjectId().toString())
             .email("third-email@test.com")
             .password("list")
             .username("third")
