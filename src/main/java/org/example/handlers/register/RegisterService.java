@@ -1,29 +1,36 @@
 package org.example.handlers.register;
 
+import com.mongodb.client.model.Filters;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
-import org.example.databases.UsersMongoDBUtility;
 import org.example.entities.User;
-import org.example.requestRecords.UserRequest;
+import org.example.requestRecords.RegisterRequest;
 import org.example.utils.EncryptPassword;
 
 @AllArgsConstructor
 public class RegisterService {
-  private final UsersMongoDBUtility utility;
+  private final MongoDBUtility<User> utility;
 
   public RegisterService() {
-    this.utility = new UsersMongoDBUtility(MongoDBUtility.getInstance("users"));
+    this.utility = new MongoDBUtility<>("users", User.class);
   }
 
   public boolean doesEmailExist(String email) {
-    Optional<User> user = utility.getByEmail(email);
+    Optional<User> user = utility.get(Filters.eq("email", email));
 
     return user.isPresent();
   }
 
-  public void registerUser(String email, String username, String password) {
-    UserRequest newUser = new UserRequest(email, username, EncryptPassword.encrypt(password));
+  public void registerUser(RegisterRequest data) {
+    User newUser =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email(data.email())
+            .password(EncryptPassword.encrypt(data.password()))
+            .username(data.email()) // Assuming username is set as email for this example
+            .build();
 
     utility.post(newUser);
   }

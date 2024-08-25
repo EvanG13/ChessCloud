@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.mongodb.MongoException;
 import java.util.Map;
+import org.example.requestRecords.ConnectionRequest;
 import org.example.statusCodes.StatusCodes;
 
 public class ConnectHandler
@@ -40,7 +41,7 @@ public class ConnectHandler
     }
 
     try {
-      service.createConnection(username, connectionId);
+      service.createConnection(new ConnectionRequest(username, connectionId));
     } catch (MongoException e) {
       LambdaLogger logger = context.getLogger();
       logger.log(e.getMessage());

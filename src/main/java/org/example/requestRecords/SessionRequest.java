@@ -1,3 +1,3 @@
 package org.example.requestRecords;
 
-public record SessionRequest(String id, String userId) {}
+public record SessionRequest(String userId) {}
