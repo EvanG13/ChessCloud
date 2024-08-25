@@ -8,10 +8,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.Map;
-import java.util.Optional;
-import org.example.databases.UsersMongoDBUtility;
+import org.bson.types.ObjectId;
+import org.example.databases.MongoDBUtility;
 import org.example.entities.User;
-import org.example.requestRecords.UserRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
@@ -22,17 +21,24 @@ public class LoginHandlerITTest {
 
   private static Context context;
 
-  private static UsersMongoDBUtility dbUtility;
+  private static MongoDBUtility<User> dbUtility;
+
+  private static User newUser;
 
   @BeforeAll
   public static void setUp() {
 
-    dbUtility = new UsersMongoDBUtility();
-    dbUtility.post(
-        new UserRequest(
-            "it-test@gmail.com",
-            "TestUsername",
-            "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"));
+    dbUtility = new MongoDBUtility<>("users", User.class);
+
+    newUser =
+        User.builder()
+            .id(new ObjectId().toString())
+            .email("it-test@gmail.com")
+            .password("$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC")
+            .username("TestUsername")
+            .build();
+
+    dbUtility.post(newUser);
 
     loginHandler = new LoginHandler();
 
@@ -41,10 +47,7 @@ public class LoginHandlerITTest {
 
   @AfterAll
   public static void tearDown() {
-    Optional<User> optionalTempUser = dbUtility.getByEmail("it-test@gmail.com");
-    assertTrue(optionalTempUser.isPresent());
-
-    dbUtility.delete(optionalTempUser.get().getId());
+    dbUtility.delete(newUser.getId());
   }
 
   @DisplayName("OK")
@@ -76,6 +79,7 @@ public class LoginHandlerITTest {
     Gson gson = new Gson();
     JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
     String userJsonString = jsonObject.get("user").getAsString();
+
     User user = gson.fromJson(userJsonString, User.class);
 
     assertNotNull(user.getId());

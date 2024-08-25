@@ -6,8 +6,9 @@ import com.mongodb.MongoException;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import java.util.List;
-import org.bson.Document;
+import java.util.Optional;
 import org.bson.types.ObjectId;
+import org.example.entities.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,24 +17,27 @@ import org.junit.jupiter.api.Test;
 public class MongoDBUtilityTest {
   private static final String COLLECTION_NAME = "testCollection";
 
-  MongoDBUtility service;
-  Document newUser;
+  MongoDBUtility<User> service;
+  User newUser;
 
   @BeforeEach
   public void setUp() {
-    service = new MongoDBUtility(COLLECTION_NAME);
+    service = new MongoDBUtility<>(COLLECTION_NAME, User.class);
 
     newUser =
-        new Document("_id", new ObjectId())
-            .append("email", "test-foo-email@test.com")
-            .append("password", "test-fod");
+        User.builder()
+            .id(new ObjectId().toString())
+            .email("test-foo-email@test.com")
+            .username("test-username")
+            .password("test-password")
+            .build();
 
     service.post(newUser);
   }
 
   @AfterEach
   public void tearDown() {
-    service.list(new Document()).forEach(doc -> service.delete(doc.getObjectId("_id").toString()));
+    service.delete();
   }
 
   @DisplayName("Can create an index")
@@ -42,16 +46,14 @@ public class MongoDBUtilityTest {
     service.createIndex("email");
   }
 
-  @DisplayName("Can get a document from MongoDB \uD83E\uDD8D")
+  @DisplayName("Can get a Object from MongoDB \uD83E\uDD8D")
   @Test
   public void getDocument() {
     try {
-      Document actual = service.get(newUser.getObjectId("_id").toString());
-      assertNotNull(actual);
+      Optional<User> actual = service.get(newUser.getId());
+      assertTrue(actual.isPresent());
 
-      assertEquals(newUser.getObjectId("_id"), actual.getObjectId("_id"));
-      assertEquals(newUser.get("email"), actual.get("email"));
-      assertEquals(newUser.get("password"), actual.get("password"));
+      assertEquals(newUser, actual.get());
 
     } catch (MongoException e) {
       e.printStackTrace();
@@ -64,10 +66,10 @@ public class MongoDBUtilityTest {
   public void deleteDocument() {
 
     try {
-      service.delete(newUser.getObjectId("_id").toString());
+      service.delete(newUser.getId());
 
-      Document actual = service.get(newUser.getObjectId("_id").toString());
-      assertNull(actual);
+      Optional<User> actual = service.get(newUser.getId());
+      assertTrue(actual.isEmpty());
     } catch (MongoException e) {
       e.printStackTrace();
       fail("fail");
@@ -77,14 +79,16 @@ public class MongoDBUtilityTest {
   @DisplayName("Can update a document from MongoDB \uD83E\uDD8D")
   @Test
   public void patchDocument() {
+    final String newEmail = "new-fake-email@gmail.com";
     try {
-      service.patch(
-          newUser.getObjectId("_id").toString(), Updates.set("email", "new-fake-email@gmail.com"));
+      service.patch(newUser.getId(), Updates.set("email", newEmail));
 
-      Document actual = service.get(newUser.getObjectId("_id").toString());
-      assertNotNull(actual);
+      Optional<User> optionalUser = service.get(newUser.getId());
+      assertTrue(optionalUser.isPresent());
 
-      assertEquals(actual.get("email"), "new-fake-email@gmail.com");
+      User actual = optionalUser.get();
+      assertEquals(actual.getId(), newUser.getId());
+      assertEquals(actual.getEmail(), newEmail);
     } catch (MongoException e) {
       e.printStackTrace();
       fail("fail");
@@ -95,20 +99,27 @@ public class MongoDBUtilityTest {
   @Test
   public void listDocuments() {
 
-    Document document1 =
-        new Document("_id", new ObjectId())
-            .append("email", "twosecond-email@test.com")
-            .append("password", "list");
-    Document document2 =
-        new Document("_id", new ObjectId())
-            .append("email", "third-email@test.com")
-            .append("password", "list");
+    User listUser1 =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email("twosecond-email@test.com")
+            .password("list")
+            .username("second")
+            .build();
+
+    User listUser2 =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email("third-email@test.com")
+            .password("list")
+            .username("third")
+            .build();
 
     try {
-      service.post(document1);
-      service.post(document2);
+      service.post(listUser1);
+      service.post(listUser2);
 
-      List<Document> actualDocs = service.list(Filters.eq("password", "list"));
+      List<User> actualDocs = service.list(Filters.eq("password", "list"));
 
       assertNotNull(actualDocs);
       assertEquals(2, actualDocs.size());

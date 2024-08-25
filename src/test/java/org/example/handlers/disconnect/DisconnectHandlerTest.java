@@ -6,9 +6,8 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.Optional;
-import org.example.databases.ConnectionMongoDBUtility;
+import org.example.databases.MongoDBUtility;
 import org.example.entities.Connection;
-import org.example.requestRecords.ConnectionRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,24 +17,25 @@ import org.junit.jupiter.api.Test;
 public class DisconnectHandlerTest {
   public static String username;
   public static String id;
-  public static ConnectionMongoDBUtility utility;
+  public static MongoDBUtility<Connection> utility;
 
   @BeforeAll
   public static void setUp() {
     username = "foo-username";
     id = "connection-id";
 
-    utility = new ConnectionMongoDBUtility();
-    utility.post(new ConnectionRequest(username, id));
+    utility = new MongoDBUtility<>("connections", Connection.class);
+
+    utility.post(Connection.builder().id(id).username(username).build());
   }
 
   @DisplayName("OK ✅")
   @Test
   public void returnSuccess() {
-    Optional<Connection> connection = utility.getByUsername(username);
+    Optional<Connection> connection = utility.get(id);
     assertTrue(connection.isPresent());
 
-    assertEquals(connection.get().toString(), id + " " + username);
+    assertEquals(connection.get().toString(), username + " " + id);
     DisconnectHandler disconnectHandler = new DisconnectHandler();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -51,7 +51,7 @@ public class DisconnectHandlerTest {
     APIGatewayV2WebSocketResponse response = disconnectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
-    Optional<Connection> previousRecord = utility.getByUsername(username);
+    Optional<Connection> previousRecord = utility.get(id);
     assertTrue(previousRecord.isEmpty());
   }
 }
