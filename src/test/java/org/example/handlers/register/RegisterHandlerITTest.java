@@ -33,12 +33,6 @@ public class RegisterHandlerITTest {
             .username("TestUsername")
             .build();
 
-    //    dbUtility.post(
-    //        new UserRequest(
-    //            "reg-it-test@gmail.com",
-    //            "TestUsername",
-    //            "$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC"));
-
     utility.post(newUser);
 
     RegisterService service = new RegisterService(utility);

@@ -29,7 +29,7 @@ public class RegisterService {
             .id(new ObjectId().toHexString())
             .email(data.email())
             .password(EncryptPassword.encrypt(data.password()))
-            .username(data.email()) // Assuming username is set as email for this example
+            .username(data.email())
             .build();
 
     utility.post(newUser);

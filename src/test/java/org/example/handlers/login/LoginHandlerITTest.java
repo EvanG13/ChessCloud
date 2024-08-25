@@ -104,6 +104,13 @@ public class LoginHandlerITTest {
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
+    assertEquals(
+        headers.get("Access-Control-Allow-Headers"),
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
+
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
   }
 
@@ -112,6 +119,13 @@ public class LoginHandlerITTest {
   public void canReturnBadRequest() {
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
+    assertEquals(
+        headers.get("Access-Control-Allow-Headers"),
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }

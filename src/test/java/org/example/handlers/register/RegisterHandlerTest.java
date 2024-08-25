@@ -65,7 +65,6 @@ public class RegisterHandlerTest {
   void returnBadRequest() {
     Context context = new FakeContext();
 
-    //    when(dbUtility.getByEmail(anyString())).thenReturn(null);
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());

@@ -16,12 +16,10 @@ public class SessionService {
   }
 
   public String createSession(SessionRequest data) {
-    // Generate a session token, possibly using UUID
     String sessionId = UUID.randomUUID().toString();
 
     // Store the session token in the database with an association to the userId
     Session session = Session.builder().id(sessionId).userId(data.userId()).build();
-
     dbUtility.post(session);
 
     return sessionId;

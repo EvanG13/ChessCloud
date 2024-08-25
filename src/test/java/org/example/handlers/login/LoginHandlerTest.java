@@ -52,7 +52,7 @@ public class LoginHandlerTest {
         .thenReturn(
             Optional.of(
                 User.builder()
-                    .id("foo") // Use String or convert ObjectId if needed
+                    .id("foo")
                     .email("nonexistingemail@example.com")
                     .password(EncryptPassword.encrypt("test"))
                     .username("fake")
@@ -89,7 +89,6 @@ public class LoginHandlerTest {
   public void returnBadRequest() {
     Context context = new FakeContext();
 
-    //    when(dbUtility.get(any(Bson.class))).thenReturn(null);
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -113,7 +112,7 @@ public class LoginHandlerTest {
         .thenReturn(
             Optional.of(
                 User.builder()
-                    .id("foo") // Adjust if using ObjectId
+                    .id("foo")
                     .email("nonexistingemail@example.com")
                     .password("password123")
                     .username("fake")
