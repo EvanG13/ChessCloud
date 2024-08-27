@@ -8,8 +8,10 @@ import com.google.gson.Gson;
 import java.util.Optional;
 import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.User;
 import org.example.requestRecords.JoinGameRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.SocketEmitter;
 
 public class JoinGameHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
@@ -40,27 +42,49 @@ public class JoinGameHandler
       return response;
     }
 
+    System.out.println(requestContext);
+    System.out.println(event);
+
     Gson gson = new Gson();
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
+    System.out.println(joinRequestData.timeControl() + " " + joinRequestData.userId());
     // TODO: find game using matchmaking logic
     // if no game exists then create a game
-
+    String userId = joinRequestData.userId();
+    Optional<User> optionalUser = service.getUser(userId);
+    if (optionalUser.isEmpty()) {
+      response.setStatusCode(StatusCodes.UNAUTHORIZED);
+      System.out.println("user not found");
+      return response;
+    }
+    User user = optionalUser.get();
+    System.out.println(user);
+    String username = user.getUsername();
     Optional<Game> optionalGame = service.getPendingGame(joinRequestData.timeControl());
     Player newPlayer =
         Player.builder()
-            .playerId(joinRequestData.userId())
+            .playerId(userId)
             .connectionId(requestContext.getConnectionId())
-            .playerId(joinRequestData.userId())
+            .username(username) // could add rating and things later
             .build();
     if (optionalGame.isEmpty()) {
       // create a game
+      System.out.println("game is empty");
       Game newGame = new Game(joinRequestData.timeControl(), newPlayer);
+      service.createGame(newGame);
       response.setStatusCode(StatusCodes.CREATED);
     } else {
+      System.out.println("game found!");
       // join this user to the game
       Game game = optionalGame.get();
+      System.out.println(game);
       game.setup(newPlayer);
-      // notify both players that the game is starting via apigatewaymanagementapiClient
+      // save the game in the database
+      // notify both players that the game is starting
+      SocketEmitter.sendMessages(
+          game.getPlayers().get(0).getConnectionId(),
+          game.getPlayers().get(1).getConnectionId(),
+          "game is started");
       response.setStatusCode(StatusCodes.OK);
     }
 

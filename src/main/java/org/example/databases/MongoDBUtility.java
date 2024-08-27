@@ -92,6 +92,10 @@ public class MongoDBUtility<T extends DataTransferObject> {
     getCollection().updateOne(new Document("_id", id), filter);
   }
 
+  public void put(String id, T object) {
+    getCollection().replaceOne(eq("_id", id), object);
+  }
+
   public void delete(String id) {
     getCollection().findOneAndDelete(eq("_id", id));
   }

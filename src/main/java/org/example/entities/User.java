@@ -34,6 +34,7 @@ public class User extends DataTransferObject {
         && Objects.equals(email, user.getEmail())
         && Objects.equals(password, user.getPassword())
         && Objects.equals(username, user.getUsername());
+    // this whole function could also just be: return this.toString() == o.toString() ?
   }
 
   @Override

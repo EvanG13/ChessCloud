@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
 
@@ -67,26 +68,27 @@ public class Game extends DataTransferObject {
 
   // add first player to game
   public Game(TimeControl timeControl, Player player1) {
+    id = new ObjectId().toString();
     players = new ArrayList<>();
     players.add(player1);
     this.timeControl = timeControl;
+    this.gameStatus = GameStatus.PENDING;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (o == this) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    // TODO: ask evan if this is really necessary
-    return true;
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Game game = (Game) o;
+    return Objects.equals(id, game.id)
+        && timeControl == game.timeControl
+        && Objects.equals(activePlayerConnectionId, game.activePlayerConnectionId)
+        && gameStatus == game.gameStatus
+        && Objects.equals(players, game.players);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        id, timeControl.getTimeInSeconds(), activePlayerConnectionId, gameStatus.getStatus());
+    return Objects.hash(id, timeControl, activePlayerConnectionId, gameStatus, players);
   }
 }

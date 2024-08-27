@@ -11,7 +11,8 @@ locals {
   route_keys = {
     disconnect = "$disconnect",
     default    = "$default",
-    message    = "message"
+    message    = "message",
+    joinGame   = "joinGame"
   }
 }
 ################################################################################
