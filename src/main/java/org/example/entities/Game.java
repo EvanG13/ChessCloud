@@ -32,7 +32,25 @@ public class Game extends DataTransferObject {
 
   @Override
   public String toString() {
-    return null;
+    return "Game{"
+        + "id='"
+        + id
+        + '\''
+        + ", timeControl="
+        + timeControl
+        + ", activePlayerConnectionId='"
+        + activePlayerConnectionId
+        + '\''
+        + ", moveList="
+        + moveList
+        + ", gameStatus="
+        + gameStatus
+        + ", gameStateJSON='"
+        + gameStateJSON
+        + '\''
+        + ", players="
+        + players
+        + '}';
   }
 
   // add second player to game and set up

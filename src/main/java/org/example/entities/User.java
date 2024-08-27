@@ -13,6 +13,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class User extends DataTransferObject {
   @Expose private String email;
+
+  @Expose private Integer rating;
+  @Expose private Integer gamesWon;
+  @Expose private Integer gamesLost;
   private String password;
   @Expose private String username;
 
@@ -33,8 +37,10 @@ public class User extends DataTransferObject {
     return Objects.equals(id, user.getId())
         && Objects.equals(email, user.getEmail())
         && Objects.equals(password, user.getPassword())
+        && Objects.equals(rating, user.getRating())
+        && Objects.equals(gamesWon, user.getGamesWon())
+        && Objects.equals(gamesLost, user.getGamesLost())
         && Objects.equals(username, user.getUsername());
-    // this whole function could also just be: return this.toString() == o.toString() ?
   }
 
   @Override

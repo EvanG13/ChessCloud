@@ -29,7 +29,7 @@ public class JoinGameHandler
   @Override
   /*
    * returns a status of 200 if a game was found and we were able to join
-   * returns a status of 201 if no game was found to join so we created a game and are awaiting a second player
+   * returns a status of 201 if no game was found to join thus we created a game and are awaiting a second player
    * */
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
@@ -42,9 +42,6 @@ public class JoinGameHandler
       return response;
     }
 
-    System.out.println(requestContext);
-    System.out.println(event);
-
     Gson gson = new Gson();
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
     System.out.println(joinRequestData.timeControl() + " " + joinRequestData.userId());
@@ -54,11 +51,10 @@ public class JoinGameHandler
     Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
       response.setStatusCode(StatusCodes.UNAUTHORIZED);
-      System.out.println("user not found");
+
       return response;
     }
     User user = optionalUser.get();
-    System.out.println(user);
     String username = user.getUsername();
     Optional<Game> optionalGame = service.getPendingGame(joinRequestData.timeControl());
     Player newPlayer =
@@ -69,22 +65,25 @@ public class JoinGameHandler
             .build();
     if (optionalGame.isEmpty()) {
       // create a game
-      System.out.println("game is empty");
+
       Game newGame = new Game(joinRequestData.timeControl(), newPlayer);
       service.createGame(newGame);
       response.setStatusCode(StatusCodes.CREATED);
+      SocketEmitter.sendMessage(
+          newGame.getPlayers().get(0).getConnectionId(),
+          "Created new game. Waiting for someone to join");
     } else {
-      System.out.println("game found!");
+
       // join this user to the game
       Game game = optionalGame.get();
-      System.out.println(game);
       game.setup(newPlayer);
       // save the game in the database
+      service.updateGame(game);
       // notify both players that the game is starting
       SocketEmitter.sendMessages(
           game.getPlayers().get(0).getConnectionId(),
           game.getPlayers().get(1).getConnectionId(),
-          "game is started");
+          "game is started: " + game);
       response.setStatusCode(StatusCodes.OK);
     }
 
