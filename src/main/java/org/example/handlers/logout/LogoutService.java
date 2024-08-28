@@ -1,6 +1,5 @@
 package org.example.handlers.logout;
 
-import com.google.gson.Gson;
 import org.example.handlers.session.SessionService;
 
 public class LogoutService {
