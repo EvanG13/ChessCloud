@@ -1,5 +1,6 @@
 package org.example.entities;
 
+import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,54 +20,65 @@ import org.example.utils.TimeControl;
 @AllArgsConstructor
 @SuperBuilder
 public class Game extends DataTransferObject {
-  private TimeControl timeControl;
+  @Expose private TimeControl timeControl;
   private String activePlayerConnectionId;
 
   private List<String> moveList;
 
-  private GameStatus gameStatus;
+  @Expose private GameStatus gameStatus;
 
   private String gameStateJSON;
 
-  private List<Player> players;
+  @Expose private List<Player> players;
+
+  @Expose private Integer rating;
 
   @Override
   public String toString() {
     return "Game{"
-        + "id='"
+        + "id= "
         + id
-        + '\''
-        + ", timeControl="
+        + "\n"
+        + ", timeControl= "
         + timeControl
-        + ", activePlayerConnectionId='"
+        + "\n"
+        + ", activePlayerConnectionId= "
         + activePlayerConnectionId
-        + '\''
+        + '\n'
         + ", moveList="
         + moveList
-        + ", gameStatus="
+        + "\n"
+        + ", gameStatus= "
         + gameStatus
-        + ", gameStateJSON='"
+        + "\n"
+        + ", gameStateJSON= "
         + gameStateJSON
-        + '\''
-        + ", players="
+        + "\n"
+        + ", players= "
         + players
+        + "\n, rating= "
+        + rating
+        + "\n"
         + '}';
   }
 
-  // add second player to game and set up
-  public void setup(Player player2) {
+  /**
+   * Add player to existing game
+   *
+   * @param player2
+   */
+  public void setup(Player player2) throws Exception {
     if (this.gameStatus.getStatus() != GameStatus.PENDING.getStatus() || players.size() != 1) {
       // game has already started or has finished so do nothing
-      // TODO throw an error or something
-      return;
+      throw new Exception();
     }
+
     moveList = new ArrayList<>();
     gameStateJSON = "";
     Player player1 = players.get(0);
 
     Random rand = new Random();
 
-    // Generate random integers in range (0, 1) inclusive
     int randInt = rand.nextInt(2);
 
     player1.setRemainingTime(timeControl.getTimeInSeconds());
@@ -84,13 +96,13 @@ public class Game extends DataTransferObject {
     this.gameStatus = GameStatus.ONGOING;
   }
 
-  // add first player to game
-  public Game(TimeControl timeControl, Player player1) {
+  public Game(TimeControl timeControl, Player player) {
     id = new ObjectId().toString();
     players = new ArrayList<>();
-    players.add(player1);
+    players.add(player);
     this.timeControl = timeControl;
     this.gameStatus = GameStatus.PENDING;
+    this.rating = player.getRating();
   }
 
   @Override
@@ -102,11 +114,12 @@ public class Game extends DataTransferObject {
         && timeControl == game.timeControl
         && Objects.equals(activePlayerConnectionId, game.activePlayerConnectionId)
         && gameStatus == game.gameStatus
-        && Objects.equals(players, game.players);
+        && Objects.equals(players, game.players)
+        && Objects.equals(rating, game.rating);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, timeControl, activePlayerConnectionId, gameStatus, players);
+    return Objects.hash(id, timeControl, activePlayerConnectionId, gameStatus, players, rating);
   }
 }

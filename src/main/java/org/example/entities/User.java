@@ -14,15 +14,28 @@ import lombok.experimental.SuperBuilder;
 public class User extends DataTransferObject {
   @Expose private String email;
 
-  @Expose private Integer rating;
-  @Expose private Integer gamesWon;
-  @Expose private Integer gamesLost;
+  private Integer rating;
+  private Integer gamesWon;
+  private Integer gamesLost;
   private String password;
   @Expose private String username;
 
   @Override
   public String toString() {
-    return email + " " + username + " " + id;
+    StringBuilder sb =
+        new StringBuilder()
+            .append("id       = ")
+            .append(id)
+            .append("\nusername = ")
+            .append(username)
+            .append("\nemail    = ")
+            .append(email)
+            .append("\nwins     = ")
+            .append(gamesWon)
+            .append("\nlost     = ")
+            .append(gamesLost);
+
+    return sb.toString();
   }
 
   @Override

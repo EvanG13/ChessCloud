@@ -17,7 +17,7 @@ public class Player {
   @Expose private String username;
   @Expose private String playerId;
   @Expose private Boolean isWhite;
-
+  @Expose private Integer rating;
   @Expose private Integer remainingTime;
 
   @Expose private String connectionId;
@@ -35,6 +35,8 @@ public class Player {
         + ", connectionId='"
         + connectionId
         + '\''
+        + rating
+        + "\n"
         + '}';
   }
 
@@ -46,6 +48,7 @@ public class Player {
     return Objects.equals(isWhite, player.isWhite)
         && Objects.equals(remainingTime, player.remainingTime)
         && Objects.equals(username, player.username)
+        && Objects.equals(rating, player.rating)
         && Objects.equals(connectionId, player.connectionId);
   }
 }
