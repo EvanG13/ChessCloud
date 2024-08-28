@@ -10,6 +10,10 @@ public class LogoutService {
     service = new SessionService();
   }
 
+  public LogoutService(SessionService service) {
+    this.service = service;
+  }
+
   public String getMessage() {
     return "Logged out successfully.";
   }

@@ -17,6 +17,10 @@ public class LogoutHandler
     service = new LogoutService();
   }
 
+  public LogoutHandler(LogoutService service) {
+    this.service = service;
+  }
+
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     Gson gson = new Gson();
