@@ -13,12 +13,29 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class User extends DataTransferObject {
   @Expose private String email;
+
+  private Integer rating;
+  private Integer gamesWon;
+  private Integer gamesLost;
   private String password;
   @Expose private String username;
 
   @Override
   public String toString() {
-    return email + " " + username + " " + id;
+    StringBuilder sb =
+        new StringBuilder()
+            .append("id       = ")
+            .append(id)
+            .append("\nusername = ")
+            .append(username)
+            .append("\nemail    = ")
+            .append(email)
+            .append("\nwins     = ")
+            .append(gamesWon)
+            .append("\nlost     = ")
+            .append(gamesLost);
+
+    return sb.toString();
   }
 
   @Override
@@ -33,6 +50,9 @@ public class User extends DataTransferObject {
     return Objects.equals(id, user.getId())
         && Objects.equals(email, user.getEmail())
         && Objects.equals(password, user.getPassword())
+        && Objects.equals(rating, user.getRating())
+        && Objects.equals(gamesWon, user.getGamesWon())
+        && Objects.equals(gamesLost, user.getGamesLost())
         && Objects.equals(username, user.getUsername());
   }
 
