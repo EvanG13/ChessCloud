@@ -1,10 +1,12 @@
 package org.example.handlers.joinGame;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
+import java.util.List;
 import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
@@ -157,6 +159,21 @@ public class JoinGameHandlerTest {
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
+    Optional<Game> optionalGame = utility.get(gameId);
+    assertEquals(optionalGame.isEmpty(), false);
+    Game actual = optionalGame.get();
+    List<Player> actualPlayerList = actual.getPlayers();
+    assertEquals(2, actualPlayerList.size());
+    boolean player1Color = actualPlayerList.get(0).getIsWhite();
+    boolean player2Color = actualPlayerList.get(1).getIsWhite();
+    assertNotEquals(player1Color, player2Color);
+    String activePlayerConnectionId = actual.getActivePlayerConnectionId();
+    if(player1Color){
+      assertEquals(connectId, activePlayerConnectionId);
+    }
+    else{
+      assertEquals(connectId2, activePlayerConnectionId);
+    }
   }
 
   @Test
