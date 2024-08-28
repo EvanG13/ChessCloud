@@ -26,11 +26,15 @@ public class JoinGameHandler
     this.service = service;
   }
 
+  /**
+   * @param event { <br>
+   *     action: "joinGame", "userId": "fooid", "timeControl": "BLITZ_5" <br>
+   *     }
+   * @return 409 if a player is already connected to a game <br>
+   *     200 if a game was found, and we were able to join <br>
+   *     201 if no game was found to join thus we created a game and are awaiting a second player
+   */
   @Override
-  /*
-   * returns a status of 200 if a game was found and we were able to join
-   * returns a status of 201 if no game was found to join thus we created a game and are awaiting a second player
-   * */
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
@@ -42,11 +46,13 @@ public class JoinGameHandler
       return response;
     }
 
+    String connectionId = requestContext.getConnectionId();
+
+    // TODO : Check if the player is already connected to a game
+
     Gson gson = new Gson();
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
-    System.out.println(joinRequestData.timeControl() + " " + joinRequestData.userId());
-    // TODO: find game using matchmaking logic
-    // if no game exists then create a game
+
     String userId = joinRequestData.userId();
     Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
@@ -54,36 +60,51 @@ public class JoinGameHandler
 
       return response;
     }
+
     User user = optionalUser.get();
-    String username = user.getUsername();
-    Optional<Game> optionalGame = service.getPendingGame(joinRequestData.timeControl());
+    Optional<Game> optionalGame =
+        service.getPendingGame(joinRequestData.timeControl(), user.getRating());
+
     Player newPlayer =
         Player.builder()
             .playerId(userId)
-            .connectionId(requestContext.getConnectionId())
-            .username(username) // could add rating and things later
+            .connectionId(connectionId)
+            .username(user.getUsername())
+            .rating(user.getRating())
             .build();
+
     if (optionalGame.isEmpty()) {
-      // create a game
+      // No pending game for the requested time control
+      // Create new game with requested time control
 
       Game newGame = new Game(joinRequestData.timeControl(), newPlayer);
       service.createGame(newGame);
-      response.setStatusCode(StatusCodes.CREATED);
-      SocketEmitter.sendMessage(
-          newGame.getPlayers().get(0).getConnectionId(),
-          "Created new game. Waiting for someone to join");
-    } else {
 
-      // join this user to the game
+      response.setStatusCode(StatusCodes.CREATED);
+
+      SocketEmitter.sendMessage(connectionId, "Created new game. Waiting for someone to join");
+    } else {
+      // Pending game exists for the requested time control
+      // Join pending game
+
       Game game = optionalGame.get();
-      game.setup(newPlayer);
-      // save the game in the database
+      try {
+        game.setup(newPlayer);
+      } catch (Exception e) {
+        response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
+        return response;
+      }
+
       service.updateGame(game);
-      // notify both players that the game is starting
+
+      // Notify both players that the game is
+      String gameJson = game.toResponseJson();
       SocketEmitter.sendMessages(
           game.getPlayers().get(0).getConnectionId(),
           game.getPlayers().get(1).getConnectionId(),
-          "game is started: " + game);
+          "game is started: \n" + gameJson);
+
+      response.setBody(gameJson);
       response.setStatusCode(StatusCodes.OK);
     }
 
