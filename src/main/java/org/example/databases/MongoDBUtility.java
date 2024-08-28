@@ -19,7 +19,6 @@ import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.example.entities.DataTransferObject;
 import org.example.utils.DotenvClass;
 
@@ -68,10 +67,6 @@ public class MongoDBUtility<T extends DataTransferObject> {
     return Optional.ofNullable(getCollection().find(eq("_id", id)).first());
   }
 
-  public Optional<T> get(ObjectId id) {
-    return Optional.ofNullable(getCollection().find(eq("_id", id)).first());
-  }
-
   public Optional<T> get(Bson filter) {
     return Optional.ofNullable(getCollection().find(filter).first());
   }
@@ -85,10 +80,6 @@ public class MongoDBUtility<T extends DataTransferObject> {
   }
 
   public void patch(String id, Bson filter) {
-    getCollection().updateOne(new Document("_id", id), filter);
-  }
-
-  public void patch(ObjectId id, Bson filter) {
     getCollection().updateOne(new Document("_id", id), filter);
   }
 
