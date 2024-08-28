@@ -14,6 +14,7 @@ import org.example.entities.Player;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
+import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
 import org.junit.jupiter.api.*;
 
@@ -119,7 +120,7 @@ public class JoinGameHandlerTest {
             .playerId(userId)
             .connectionId(connectId)
             .username(username)
-            .rating(1000)
+            .rating(1000) // new player default rating
             .build();
     Game expected = new Game(timeControl, newPlayer);
     expected.setId(
@@ -168,12 +169,12 @@ public class JoinGameHandlerTest {
     boolean player2Color = actualPlayerList.get(1).getIsWhite();
     assertNotEquals(player1Color, player2Color);
     String activePlayerConnectionId = actual.getActivePlayerConnectionId();
-    if(player1Color){
+    if (player1Color) {
       assertEquals(connectId, activePlayerConnectionId);
-    }
-    else{
+    } else {
       assertEquals(connectId2, activePlayerConnectionId);
     }
+    assertEquals(GameStatus.ONGOING, actual.getGameStatus());
   }
 
   @Test
