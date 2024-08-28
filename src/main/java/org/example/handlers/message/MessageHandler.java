@@ -1,34 +1,18 @@
 package org.example.handlers.message;
 
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApi;
-import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApiClientBuilder;
-import com.amazonaws.services.apigatewaymanagementapi.model.PostToConnectionRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
-import java.nio.ByteBuffer;
 import org.example.requestRecords.MessageRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.DotenvClass;
+import org.example.utils.SocketEmitter;
 
 public class MessageHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
-  private final AmazonApiGatewayManagementApi apiClient;
-
-  private String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
-  private String region = DotenvClass.dotenv.get("AWS_REGION");
-
-  public MessageHandler() {
-    this.apiClient =
-        AmazonApiGatewayManagementApiClientBuilder.standard()
-            .withEndpointConfiguration(
-                new AwsClientBuilder.EndpointConfiguration(apiEndpoint, region))
-            .build();
-  }
+  public MessageHandler() {}
 
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
@@ -49,7 +33,7 @@ public class MessageHandler
     try {
       Gson gson = new Gson();
       MessageRequest message = gson.fromJson(event.getBody(), MessageRequest.class);
-      sendMessage(connectionId, message.data());
+      SocketEmitter.sendMessage(connectionId, message.data());
     } catch (Exception e) {
       e.printStackTrace();
       response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -58,14 +42,5 @@ public class MessageHandler
 
     response.setStatusCode(StatusCodes.OK);
     return response;
-  }
-
-  private void sendMessage(String connectionId, String message) {
-    PostToConnectionRequest request =
-        new PostToConnectionRequest()
-            .withConnectionId(connectionId)
-            .withData(ByteBuffer.wrap(message.getBytes()));
-
-    apiClient.postToConnection(request);
   }
 }
