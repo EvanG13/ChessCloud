@@ -1,6 +1,6 @@
 package org.example.handlers.logout;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -31,7 +31,7 @@ public class LogoutHandlerTest {
     Session newSession = Session.builder().id(sessionToken).userId("pretend-userId").build();
     sessionUtility.post(newSession);
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);
-    assertEquals(false, optionalSession.isEmpty());
+    assertFalse(optionalSession.isEmpty());
 
     LogoutService service = new LogoutService(new SessionService(sessionUtility));
 
@@ -49,6 +49,19 @@ public class LogoutHandlerTest {
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);
-    assertEquals(true, optionalSession.isEmpty());
+    assertTrue(optionalSession.isEmpty());
+  }
+
+  @DisplayName("OK 🔀")
+  @Test
+  void returnBadRequest() {
+    Context context = new FakeContext();
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    Optional<Session> optionalSession = sessionUtility.get(sessionToken);
+    assertTrue(optionalSession.isEmpty());
   }
 }
