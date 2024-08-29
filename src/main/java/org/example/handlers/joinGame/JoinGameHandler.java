@@ -11,20 +11,21 @@ import org.example.entities.Player;
 import org.example.entities.User;
 import org.example.requestRecords.JoinGameRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.SocketEmitter;
+import org.example.utils.socketMessenger.SocketEmitter;
+import org.example.utils.socketMessenger.SocketMessenger;
 
 public class JoinGameHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
   private final JoinGameService service;
-  private final SocketEmitter emitter;
+  private final SocketMessenger emitter;
 
   public JoinGameHandler() {
     service = new JoinGameService();
     emitter = new SocketEmitter();
   }
 
-  public JoinGameHandler(JoinGameService service, SocketEmitter emitter) {
+  public JoinGameHandler(JoinGameService service, SocketMessenger emitter) {
     this.service = service;
     this.emitter = emitter;
   }

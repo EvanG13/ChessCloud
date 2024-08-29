@@ -1,12 +1,13 @@
-package org.example.utils;
+package org.example.utils.socketMessenger;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApi;
 import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApiClientBuilder;
 import com.amazonaws.services.apigatewaymanagementapi.model.PostToConnectionRequest;
 import java.nio.ByteBuffer;
+import org.example.utils.DotenvClass;
 
-public class SocketEmitter {
+public class SocketEmitter implements SocketMessenger {
   private final String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
   private final String region = DotenvClass.dotenv.get("AWS_REGION");
   private final AmazonApiGatewayManagementApi apiClient;

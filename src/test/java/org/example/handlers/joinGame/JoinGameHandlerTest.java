@@ -2,9 +2,6 @@ package org.example.handlers.joinGame;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -19,8 +16,8 @@ import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
-import org.example.utils.SocketEmitter;
 import org.example.utils.TimeControl;
+import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -45,15 +42,14 @@ public class JoinGameHandlerTest {
   public static MongoDBUtility<Game> utility;
   public static MongoDBUtility<User> userUtility;
 
-  public static SocketEmitter mockSocketEmitter;
+  public static SocketSystemLogger socketLogger;
 
   @BeforeAll
   public static void setUp() {
     gson = new Gson();
+    socketLogger = new SocketSystemLogger();
     userId = "test-Id";
     userId2 = "test-Id2";
-    mockSocketEmitter = mock(SocketEmitter.class);
-    doNothing().when(mockSocketEmitter).sendMessage(anyString(), anyString());
     connectId = "fake-connection-id";
     connectId2 = "fake-connection-id2";
     username = "test-username";
@@ -102,7 +98,7 @@ public class JoinGameHandlerTest {
   @Test
   @Order(1)
   public void returnGameCreated() {
-    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
@@ -148,7 +144,7 @@ public class JoinGameHandlerTest {
   @DisplayName("OK")
   @Order(2)
   public void returnGameStarted() {
-    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
@@ -192,7 +188,7 @@ public class JoinGameHandlerTest {
   @DisplayName("UNAUTHORIZED")
   @Order(3)
   public void returnUnauthorized() {
-    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 

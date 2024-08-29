@@ -7,7 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.requestRecords.MessageRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.SocketEmitter;
+import org.example.utils.socketMessenger.SocketEmitter;
 
 public class MessageHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
