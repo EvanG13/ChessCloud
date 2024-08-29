@@ -7,12 +7,19 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.requestRecords.MessageRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.SocketEmitter;
+import org.example.utils.socketMessenger.SocketEmitter;
 
 public class MessageHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
+  SocketEmitter emitter;
 
-  public MessageHandler() {}
+  public MessageHandler() {
+    emitter = new SocketEmitter();
+  }
+
+  public MessageHandler(SocketEmitter emitter) {
+    this.emitter = emitter;
+  }
 
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
@@ -33,7 +40,7 @@ public class MessageHandler
     try {
       Gson gson = new Gson();
       MessageRequest message = gson.fromJson(event.getBody(), MessageRequest.class);
-      SocketEmitter.sendMessage(connectionId, message.data());
+      emitter.sendMessage(connectionId, message.data());
     } catch (Exception e) {
       e.printStackTrace();
       response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
