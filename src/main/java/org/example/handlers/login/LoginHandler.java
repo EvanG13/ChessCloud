@@ -13,6 +13,7 @@ import org.example.requestRecords.LoginRequest;
 import org.example.requestRecords.SessionRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.AuthHeaders;
+import org.example.utils.ValidateObject;
 
 public class LoginHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -39,6 +40,15 @@ public class LoginHandler
 
     Gson gson = new Gson();
     LoginRequest loginRequestData = gson.fromJson(event.getBody(), LoginRequest.class);
+    try {
+      ValidateObject.requireNonNull(loginRequestData);
+    } catch (NullPointerException e) {
+      return APIGatewayV2HTTPResponse.builder()
+          .withHeaders(AuthHeaders.getCorsHeaders())
+          .withBody("Missing argument(s)")
+          .withStatusCode(StatusCodes.BAD_REQUEST)
+          .build();
+    }
 
     Optional<User> optionalUser =
         service.authenticateUser(loginRequestData.email(), loginRequestData.password());

@@ -10,6 +10,7 @@ import com.mongodb.MongoException;
 import org.example.requestRecords.RegisterRequest;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.AuthHeaders;
+import org.example.utils.ValidateObject;
 
 public class RegisterHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -37,6 +38,15 @@ public class RegisterHandler
     // Deserialize the request body into a LoginRequest object
     Gson gson = new Gson();
     RegisterRequest registerRequest = gson.fromJson(event.getBody(), RegisterRequest.class);
+    try {
+      ValidateObject.requireNonNull(registerRequest);
+    } catch (NullPointerException e) {
+      return APIGatewayV2HTTPResponse.builder()
+          .withHeaders(AuthHeaders.getCorsHeaders())
+          .withBody("Missing argument(s)")
+          .withStatusCode(StatusCodes.BAD_REQUEST)
+          .build();
+    }
 
     // TODO filter user credentials to meet standards
 
