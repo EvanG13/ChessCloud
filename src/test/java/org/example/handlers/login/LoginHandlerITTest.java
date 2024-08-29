@@ -15,7 +15,6 @@ import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
 
-@Tag("Integration")
 public class LoginHandlerITTest {
   private static LoginHandler loginHandler;
 
@@ -114,7 +113,7 @@ public class LoginHandlerITTest {
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
   }
 
-  @DisplayName("Bad Request \uD83D\uDE1E")
+  @DisplayName("Bad Request - Missing Event \uD83D\uDE1E")
   @Test
   public void canReturnBadRequest() {
 
@@ -127,6 +126,30 @@ public class LoginHandlerITTest {
         headers.get("Access-Control-Allow-Headers"),
         "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
 
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @DisplayName("Bad Request \uD83D\uDE1E")
+  @Test
+  public void nullArgumentBadRequest() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    event.setBody(
+        """
+                     {
+                              "email": "super-fake-email@gmail.com"
+                            }""");
+
+    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
+    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
+    assertEquals(
+        headers.get("Access-Control-Allow-Headers"),
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
+
+    assertEquals("Missing argument(s)", response.getBody());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 }

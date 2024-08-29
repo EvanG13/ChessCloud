@@ -16,7 +16,6 @@ import org.example.utils.EncryptPassword;
 import org.example.utils.FakeContext;
 import org.junit.jupiter.api.*;
 
-@Tag("Integration")
 public class RegisterHandlerITTest {
   private static RegisterHandler registerHandler;
   private static MongoDBUtility<User> utility;
@@ -80,13 +79,31 @@ public class RegisterHandlerITTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
-  @DisplayName("Bad Request 😠")
+  @DisplayName("Bad Request - Missing Event 😠")
   @Test
   void returnBadRequest() {
     Context context = new FakeContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @DisplayName("Bad Request - Missing Arg 😠")
+  @Test
+  void returnBadRequestMissingArgs() {
+    Context context = new FakeContext();
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setBody(
+        """
+             {
+                      "email": "reg-it-test@gmail.com",
+                      "password": "test"
+             }""");
+
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+
+    assertEquals("Missing argument(s)", response.getBody());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
