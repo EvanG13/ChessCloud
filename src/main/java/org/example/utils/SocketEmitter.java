@@ -7,17 +7,19 @@ import com.amazonaws.services.apigatewaymanagementapi.model.PostToConnectionRequ
 import java.nio.ByteBuffer;
 
 public class SocketEmitter {
-  private static String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
-  private static String region = DotenvClass.dotenv.get("AWS_REGION");
-  private static final AmazonApiGatewayManagementApi apiClient =
-      AmazonApiGatewayManagementApiClientBuilder.standard()
-          .withEndpointConfiguration(
-              new AwsClientBuilder.EndpointConfiguration(apiEndpoint, region))
-          .build();
+  private final String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
+  private final String region = DotenvClass.dotenv.get("AWS_REGION");
+  private final AmazonApiGatewayManagementApi apiClient;
 
-  private SocketEmitter() {}
+  public SocketEmitter() {
+    apiClient =
+        AmazonApiGatewayManagementApiClientBuilder.standard()
+            .withEndpointConfiguration(
+                new AwsClientBuilder.EndpointConfiguration(apiEndpoint, region))
+            .build();
+  }
 
-  public static void sendMessage(String connectionId, String message) {
+  public void sendMessage(String connectionId, String message) {
 
     PostToConnectionRequest request =
         new PostToConnectionRequest()
@@ -27,7 +29,7 @@ public class SocketEmitter {
     apiClient.postToConnection(request);
   }
 
-  public static void sendMessages(String connectionId, String secondConnectionId, String message) {
+  public void sendMessages(String connectionId, String secondConnectionId, String message) {
 
     PostToConnectionRequest request =
         new PostToConnectionRequest()

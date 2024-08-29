@@ -25,10 +25,10 @@ public class LogoutHandler
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     if (event == null || event.getBody() == null) {
       return APIGatewayV2HTTPResponse.builder()
-              .withHeaders(AuthHeaders.getCorsHeaders())
-              .withBody("Missing Event object or Event request body")
-              .withStatusCode(StatusCodes.BAD_REQUEST)
-              .build();
+          .withHeaders(AuthHeaders.getCorsHeaders())
+          .withBody("Missing Event object or Event request body")
+          .withStatusCode(StatusCodes.BAD_REQUEST)
+          .build();
     }
     Gson gson = new Gson();
     String sessionToken = gson.fromJson(event.getBody(), LogoutRequest.class).sessionToken();

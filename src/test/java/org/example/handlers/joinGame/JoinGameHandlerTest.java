@@ -2,10 +2,14 @@ package org.example.handlers.joinGame;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
+import com.google.gson.Gson;
 import java.util.List;
 import java.util.Optional;
 import org.example.databases.MongoDBUtility;
@@ -15,12 +19,14 @@ import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
+import org.example.utils.SocketEmitter;
 import org.example.utils.TimeControl;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JoinGameHandlerTest {
-
+  public static Gson gson;
+  public static JoinGameService joinGameService;
   public static String userId;
   public static String userId2;
 
@@ -39,11 +45,15 @@ public class JoinGameHandlerTest {
   public static MongoDBUtility<Game> utility;
   public static MongoDBUtility<User> userUtility;
 
+  public static SocketEmitter mockSocketEmitter;
+
   @BeforeAll
   public static void setUp() {
+    gson = new Gson();
     userId = "test-Id";
     userId2 = "test-Id2";
-
+    mockSocketEmitter = mock(SocketEmitter.class);
+    doNothing().when(mockSocketEmitter).sendMessage(anyString(), anyString());
     connectId = "fake-connection-id";
     connectId2 = "fake-connection-id2";
     username = "test-username";
@@ -56,6 +66,7 @@ public class JoinGameHandlerTest {
     timeControl2 = TimeControl.BULLET_1;
     utility = new MongoDBUtility<>("games", Game.class);
     userUtility = new MongoDBUtility<>("users", User.class);
+    joinGameService = new JoinGameService(utility, userUtility);
     User testUser =
         User.builder()
             .id(userId)
@@ -91,8 +102,7 @@ public class JoinGameHandlerTest {
   @Test
   @Order(1)
   public void returnGameCreated() {
-    JoinGameHandlerTester joinGameHandler =
-        new JoinGameHandlerTester(new JoinGameService(utility, userUtility));
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
@@ -114,7 +124,9 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
-    gameId = response.getBody();
+    String gameJson = response.getBody();
+
+    gameId = gson.fromJson(gameJson, Game.class).getId();
     Player newPlayer =
         Player.builder()
             .playerId(userId)
@@ -136,8 +148,7 @@ public class JoinGameHandlerTest {
   @DisplayName("OK")
   @Order(2)
   public void returnGameStarted() {
-    JoinGameHandlerTester joinGameHandler =
-        new JoinGameHandlerTester(new JoinGameService(utility, userUtility));
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
@@ -181,8 +192,7 @@ public class JoinGameHandlerTest {
   @DisplayName("UNAUTHORIZED")
   @Order(3)
   public void returnUnauthorized() {
-    JoinGameHandlerTester joinGameHandler =
-        new JoinGameHandlerTester(new JoinGameService(utility, userUtility));
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, mockSocketEmitter);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
@@ -202,8 +212,6 @@ public class JoinGameHandlerTest {
             + "'}");
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
-
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    gameId = response.getBody();
   }
 }

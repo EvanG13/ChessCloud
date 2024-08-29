@@ -12,16 +12,16 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/OKResponse.yaml'
-    headers:
-      Access-Control-Allow-Origin:
-        schema:
-          type: "string"
-      Access-Control-Allow-Methods:
-        schema:
-          type: "string"
-      Access-Control-Allow-Headers:
-        schema:
-          type: "string"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
     400:
       description: Bad Request
       content:

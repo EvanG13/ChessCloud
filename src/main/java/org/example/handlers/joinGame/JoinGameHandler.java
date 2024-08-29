@@ -17,13 +17,16 @@ public class JoinGameHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
   private final JoinGameService service;
+  private final SocketEmitter emitter;
 
   public JoinGameHandler() {
     service = new JoinGameService();
+    emitter = new SocketEmitter();
   }
 
-  public JoinGameHandler(JoinGameService service) {
+  public JoinGameHandler(JoinGameService service, SocketEmitter emitter) {
     this.service = service;
+    this.emitter = emitter;
   }
 
   /**
@@ -81,8 +84,9 @@ public class JoinGameHandler
       service.createGame(newGame);
 
       response.setStatusCode(StatusCodes.CREATED);
+      response.setBody(newGame.toResponseJson());
 
-      SocketEmitter.sendMessage(connectionId, "Created new game. Waiting for someone to join");
+      emitter.sendMessage(connectionId, "Created new game. Waiting for someone to join");
     } else {
       // Pending game exists for the requested time control
       // Join pending game
@@ -99,7 +103,7 @@ public class JoinGameHandler
 
       // Notify both players that the game is
       String gameJson = game.toResponseJson();
-      SocketEmitter.sendMessages(
+      emitter.sendMessages(
           game.getPlayers().get(0).getConnectionId(),
           game.getPlayers().get(1).getConnectionId(),
           "game is started: \n" + gameJson);
