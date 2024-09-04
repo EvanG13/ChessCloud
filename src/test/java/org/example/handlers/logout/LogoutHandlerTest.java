@@ -2,9 +2,10 @@ package org.example.handlers.logout;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Session;
@@ -41,24 +42,26 @@ public class LogoutHandlerTest {
   @DisplayName("OK 🔀")
   @Test
   void returnOk() {
-    Context context = new FakeContext();
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setBody("{ 'sessionToken': " + sessionToken + "}");
+    Map<String, String> headers = new HashMap<>();
+    headers.put("Authorization", sessionToken);
+    headers.put("userId", "pretend-userId");
 
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, context);
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(headers);
+
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new FakeContext());
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);
     assertTrue(optionalSession.isEmpty());
   }
 
-  @DisplayName("OK 🔀")
+  @DisplayName("BadRequest 🔀")
   @Test
   void returnBadRequest() {
-    Context context = new FakeContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new FakeContext());
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);
