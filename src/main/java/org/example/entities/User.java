@@ -42,7 +42,13 @@ public class User extends DataTransferObject {
   }
 
   public String toStatsJSON() {
-    return "{ \"won\": " + gamesWon + ", \"lost\": " + gamesLost + ", \"draws\": " + gamesDrawn + " }";
+    return "{ \"won\": "
+        + gamesWon
+        + ", \"lost\": "
+        + gamesLost
+        + ", \"draws\": "
+        + gamesDrawn
+        + " }";
   }
 
   @Override
@@ -60,7 +66,7 @@ public class User extends DataTransferObject {
         && Objects.equals(rating, user.getRating())
         && Objects.equals(gamesWon, user.getGamesWon())
         && Objects.equals(gamesLost, user.getGamesLost())
-            && Objects.equals(gamesDrawn, user.getGamesDrawn())
+        && Objects.equals(gamesDrawn, user.getGamesDrawn())
         && Objects.equals(username, user.getUsername());
   }
 
