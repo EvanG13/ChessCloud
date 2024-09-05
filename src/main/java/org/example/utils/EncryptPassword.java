@@ -1,8 +1,10 @@
 package org.example.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import lombok.experimental.UtilityClass;
 
-public class EncryptPassword {
+@UtilityClass
+public final class EncryptPassword {
   public static String encrypt(String input) {
     return BCrypt.withDefaults().hashToString(12, input.toCharArray());
   }

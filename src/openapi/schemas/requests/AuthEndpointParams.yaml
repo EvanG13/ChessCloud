@@ -1,0 +1,15 @@
+components:
+  parameters:
+    authHeader:
+      name: "Authorization"
+      description: session token
+      in: header
+      required: true
+      schema:
+        type: string
+    userId:
+      name: "userId"
+      in: header
+      required: true
+      schema:
+        type: string

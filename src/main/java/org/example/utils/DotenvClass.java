@@ -1,12 +1,13 @@
 package org.example.utils;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.experimental.UtilityClass;
 
-// Singleton class to prevent multiple env loads.
-// Access .env variables in other files like: String myEnvValue =
-// DotenvClass.dotenv.get("ENVIRONMENT_KEY");
-public class DotenvClass {
+/**
+ * Access .env variables in other files like: String myEnvValue =
+ * DotenvClass.dotenv.get("ENVIRONMENT_KEY");
+ */
+@UtilityClass
+public final class DotenvClass {
   public static Dotenv dotenv = Dotenv.load();
-
-  private DotenvClass() {}
 }
