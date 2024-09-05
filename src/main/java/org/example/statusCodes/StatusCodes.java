@@ -1,5 +1,8 @@
 package org.example.statusCodes;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public final class StatusCodes {
   public static final int OK = 200;
   public static final int CREATED = 201;
@@ -7,6 +10,4 @@ public final class StatusCodes {
   public static final int UNAUTHORIZED = 401;
   public static final int CONFLICT = 409;
   public static final int INTERNAL_SERVER_ERROR = 500;
-
-  private StatusCodes() {}
 }

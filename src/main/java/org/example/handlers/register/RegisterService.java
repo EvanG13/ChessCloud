@@ -1,6 +1,7 @@
 package org.example.handlers.register;
 
-import com.mongodb.client.model.Filters;
+import static com.mongodb.client.model.Filters.eq;
+
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
@@ -18,7 +19,7 @@ public class RegisterService {
   }
 
   public boolean doesEmailExist(String email) {
-    Optional<User> user = utility.get(Filters.eq("email", email));
+    Optional<User> user = utility.get(eq("email", email));
 
     return user.isPresent();
   }

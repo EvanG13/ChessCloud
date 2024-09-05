@@ -25,11 +25,12 @@ variable "lambda_runtime" {
  * handler = the handler function that will be invoked for that lambda, package.Class::method
  */
 variable "rest_lambdas" {
-  type    = map(string)
+  type = map(string)
   default = {
     login    = "org.example.handlers.login.LoginHandler::handleRequest",
     logout   = "org.example.handlers.logout.LogoutHandler::handleRequest",
     register = "org.example.handlers.register.RegisterHandler::handleRequest",
+    auth     = "org.example.handlers.auth.AuthHandler::handleRequest"
   }
 }
 
@@ -40,7 +41,7 @@ variable "rest_lambdas" {
    * handler = the handler function that will be invoked for that lambda, package.Class::method
    */
 variable "websocket_lambdas" {
-  type    = map(string)
+  type = map(string)
   default = {
 
     disconnect = "org.example.handlers.disconnect.DisconnectHandler::handleRequest",
