@@ -24,7 +24,7 @@ public class LogoutHandler
     if (event == null || event.getHeaders() == null) {
       return APIGatewayV2HTTPResponse.builder()
           .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Missing Event object or Event request body")
+          .withBody("Missing Event object or Event Request Headers")
           .withStatusCode(StatusCodes.BAD_REQUEST)
           .build();
     }
@@ -32,7 +32,7 @@ public class LogoutHandler
     String sessionToken =
         event.getHeaders().get("Authorization").replace("Bearer ", "").replace("\"", "");
 
-    service.destroySession(sessionToken);
+    service.logout(sessionToken);
 
     return APIGatewayV2HTTPResponse.builder()
         .withBody("Logged out successfully.")

@@ -25,11 +25,7 @@ public class SessionService {
     return sessionId;
   }
 
-  public boolean isLoggedIn(String sessionId) {
-    return dbUtility.get(sessionId).isPresent();
-  }
-
-  public void logOut(String sessionId) {
+  public void delete(String sessionId) {
     dbUtility.delete(sessionId);
   }
 }

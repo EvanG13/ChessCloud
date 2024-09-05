@@ -2,9 +2,10 @@ package org.example.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 
-public class AuthHeaders {
-  private AuthHeaders() {}
+@UtilityClass
+public final class AuthHeaders {
 
   public static Map<String, String> getCorsHeaders() {
     Map<String, String> corsHeaders = new HashMap<>();

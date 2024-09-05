@@ -23,11 +23,10 @@ public class LogoutHandlerTest {
   private static MongoDBUtility<Session> sessionUtility;
   private static LogoutHandler logoutHandler;
 
-  private static String sessionToken = "pretend-session-token";
+  private static final String sessionToken = "pretend-session-token";
 
   @BeforeAll
   public static void setUp() {
-
     sessionUtility = new MongoDBUtility<>("sessions", Session.class);
     Session newSession = Session.builder().id(sessionToken).userId("pretend-userId").build();
     sessionUtility.post(newSession);

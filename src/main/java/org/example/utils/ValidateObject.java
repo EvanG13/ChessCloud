@@ -3,9 +3,10 @@ package org.example.utils;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import lombok.NonNull;
+import lombok.experimental.UtilityClass;
 
-public class ValidateObject {
-  private ValidateObject() {}
+@UtilityClass
+public final class ValidateObject {
 
   public static <T> void requireNonNull(@NonNull T object) throws NullPointerException {
     Field[] fields = object.getClass().getDeclaredFields();
