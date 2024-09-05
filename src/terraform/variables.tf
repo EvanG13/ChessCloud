@@ -31,7 +31,7 @@ variable "rest_lambdas" {
     logout   = "org.example.handlers.logout.LogoutHandler::handleRequest",
     register = "org.example.handlers.register.RegisterHandler::handleRequest",
     auth     = "org.example.handlers.auth.AuthHandler::handleRequest",
-    stats = "org.example.handlers.stats.StatsHandler::handleRequest"
+    stats    = "org.example.handlers.stats.StatsHandler::handleRequest"
   }
 }
 
