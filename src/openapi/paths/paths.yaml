@@ -3,6 +3,21 @@ info:
   title: Chess Cloud API
   description: API for our React-Nave mobile app
   version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: "apiKey"
+      in: "header"
+      name: "Unused"
+      scheme: bearer
+      bearerFormat: Session Token
+      x-amazon-apigateway-authtype: "custom"
+      x-amazon-apigateway-authorizer:
+        type: "REQUEST"
+        authorizerUri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:auth/invocations"
+        identityValidationExpression: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+        authorizerResultTtlInSeconds: 300
+        identitySource: "method.request.header.Authorization,method.request.header.userId"
 paths:
   /login:
     $ref: '../resources/login.yaml'

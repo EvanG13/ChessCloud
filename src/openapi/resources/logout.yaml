@@ -5,6 +5,11 @@ post:
     type: "aws_proxy"
     httpMethod: "POST"
     uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations"
+  security:
+    - bearerAuth: [ ]
+  parameters:
+    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
+    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/userId"
   responses:
     200:
       description: Logout Successful
