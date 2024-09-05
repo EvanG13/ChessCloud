@@ -50,10 +50,10 @@ public class AuthHandler
 
     List<IamPolicyResponse.Statement> statements = new ArrayList<>();
 
-    if (!service.isValidSession(new AuthRequest(token, userId))) {
-      statements.add(denyStatement(resource.toString()));
-    } else {
+    if (service.isValidSession(new AuthRequest(token, userId))) {
       statements.add(allowStatement(resource.toString()));
+    } else {
+      statements.add(denyStatement(resource.toString()));
     }
 
     policyDocument.setStatement(statements);
