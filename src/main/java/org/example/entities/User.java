@@ -17,6 +17,7 @@ public class User extends DataTransferObject {
   private Integer rating;
   private Integer gamesWon;
   private Integer gamesLost;
+  private Integer gamesDrawn;
   private String password;
   @Expose private String username;
 
@@ -33,9 +34,15 @@ public class User extends DataTransferObject {
             .append("\nwins     = ")
             .append(gamesWon)
             .append("\nlost     = ")
+            .append(gamesLost)
+            .append("\ndraws     = ")
             .append(gamesLost);
 
     return sb.toString();
+  }
+
+  public String toStatsJSON() {
+    return "{ \"won\": " + gamesWon + ", \"lost\": " + gamesLost + ", \"draws\": " + gamesDrawn + " }";
   }
 
   @Override
@@ -53,6 +60,7 @@ public class User extends DataTransferObject {
         && Objects.equals(rating, user.getRating())
         && Objects.equals(gamesWon, user.getGamesWon())
         && Objects.equals(gamesLost, user.getGamesLost())
+            && Objects.equals(gamesDrawn, user.getGamesDrawn())
         && Objects.equals(username, user.getUsername());
   }
 

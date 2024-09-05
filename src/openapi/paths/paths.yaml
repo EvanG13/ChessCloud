@@ -25,3 +25,5 @@ paths:
     $ref: '../resources/logout.yaml'
   /register:
     $ref: '../resources/register.yaml'
+  /stats:
+    $ref: '../resources/stats.yaml'

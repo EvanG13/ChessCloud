@@ -1,0 +1,11 @@
+type: object
+properties:
+  gamesWon:
+    type: int
+    example: 0
+  gamesLost:
+    type: int
+    example: 8
+  gamesDrawn:
+    type: int
+    example: 0
