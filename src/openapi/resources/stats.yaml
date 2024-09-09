@@ -8,7 +8,7 @@ post:
   security:
     - bearerAuth: [ ]
   parameters:
-git    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
+    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/userId"
   responses:
     200:
