@@ -1,6 +1,6 @@
 post:
   summary: stats
-  description: get win/loss/draw
+  description: post win/loss/draw
   x-amazon-apigateway-integration:
     type: "aws_proxy"
     httpMethod: "POST"
@@ -17,6 +17,22 @@ post:
         application/json:
           schema:
             $ref: '../schemas/responses/StatsResponse.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/responses/BadRequest.yaml'
       headers:
         Access-Control-Allow-Origin:
           schema:

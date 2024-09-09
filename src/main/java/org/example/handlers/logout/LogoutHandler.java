@@ -37,6 +37,7 @@ public class LogoutHandler
     return APIGatewayV2HTTPResponse.builder()
         .withBody("Logged out successfully.")
         .withStatusCode(StatusCodes.OK)
+        .withHeaders(AuthHeaders.getCorsHeaders())
         .build();
   }
 }

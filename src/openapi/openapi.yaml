@@ -302,7 +302,7 @@ paths:
   /stats:
     post:
       summary: stats
-      description: get win/loss/draw
+      description: post win/loss/draw
       parameters:
       - name: Authorization
         in: header
@@ -332,6 +332,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatsResponse'
+        "400":
+          description: Bad Request
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
       security:
       - bearerAuth: []
       x-amazon-apigateway-integration:
