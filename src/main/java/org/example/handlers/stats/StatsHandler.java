@@ -23,10 +23,7 @@ public class StatsHandler
 
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
-    System.out.println(event);
-    String userId = event.getHeaders().get("userId");
-    String sessionToken =
-        event.getHeaders().get("Authorization").replace("Bearer ", "").replace("\"", "");
+    String userId = event.getHeaders().get("userid");
 
     Optional<User> optionalUser = service.getByID(userId);
 

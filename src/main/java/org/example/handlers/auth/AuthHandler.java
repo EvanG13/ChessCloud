@@ -32,12 +32,10 @@ public class AuthHandler
     APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext = event.getRequestContext();
 
     String token = headers.get("Authorization").replace("Bearer ", "").replace("\"", "");
-    System.out.println("token: " + token);
     IamPolicyResponse.PolicyDocument policyDocument = new IamPolicyResponse.PolicyDocument();
     policyDocument.setVersion("2012-10-17");
 
-    String userId = headers.get("userId").replace("userId ", "").replace("\"", "");
-    System.out.println("userId: " + userId);
+    String userId = headers.get("userid").replace("\"", "");
 
     StringBuilder resource =
         new StringBuilder("arn:aws:execute-api")
@@ -53,10 +51,8 @@ public class AuthHandler
 
     if (service.isValidSession(new AuthRequest(token, userId))) {
       statements.add(allowStatement(resource.toString()));
-      System.out.println("is allowed");
     } else {
       statements.add(denyStatement(resource.toString()));
-      System.out.println("is denied");
     }
 
     policyDocument.setStatement(statements);
