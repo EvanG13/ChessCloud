@@ -53,9 +53,7 @@ public class RegisterHandlerTest {
     Map<String, String> headers = response.getHeaders();
     assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
     assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
-    assertEquals(
-        headers.get("Access-Control-Allow-Headers"),
-        "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
+    assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }
