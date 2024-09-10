@@ -5,9 +5,9 @@ post:
     type: "aws_proxy"
     httpMethod: "POST"
     uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations"
-  ##################### Min Block Required for protected endpoint #########################
-  security:
-    - bearerAuth: [ ]
+    ##################### Min Block Required for protected endpoint #########################
+    security:
+      - bearerAuth: [ ]
   parameters:
     - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/userId"
@@ -58,7 +58,7 @@ options:
       default:
         statusCode: "200"
         responseParameters:
-          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+          method.response.header.Access-Control-Allow-Headers: "'*'"
           method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
           method.response.header.Access-Control-Allow-Origin: "'*'"
           responseTemplates:

@@ -158,12 +158,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
-      security:
-      - bearerAuth: []
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
         uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations"
+        security:
+        - bearerAuth: []
     options:
       tags:
       - CORS
@@ -191,7 +191,7 @@ paths:
           default:
             statusCode: "200"
             responseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Headers: '''*'''
               method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
@@ -348,8 +348,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
-      security:
-      - bearerAuth: []
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -381,7 +379,7 @@ paths:
           default:
             statusCode: "200"
             responseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Headers: '''*'''
               method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
@@ -502,3 +500,18 @@ components:
         identityValidationExpression: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
         authorizerResultTtlInSeconds: 300
         identitySource: "method.request.header.Authorization,method.request.header.userId"
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+    responseTemplates:
+      application/json: "{}"
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+    responseTemplates:
+      application/json: "{}"

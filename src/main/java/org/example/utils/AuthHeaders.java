@@ -11,8 +11,7 @@ public final class AuthHeaders {
     Map<String, String> corsHeaders = new HashMap<>();
 
     corsHeaders.put("Access-Control-Allow-Origin", "*");
-    corsHeaders.put(
-        "Access-Control-Allow-Headers", "Content-Type,X-Amz-Date,Authorization,X-Api-Key");
+    corsHeaders.put("Access-Control-Allow-Headers", "*");
     corsHeaders.put("Access-Control-Allow-Methods", "POST,OPTIONS");
 
     return corsHeaders;
