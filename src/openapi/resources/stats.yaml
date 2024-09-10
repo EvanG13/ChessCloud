@@ -28,21 +28,7 @@ post:
           schema:
             type: "string"
     400:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/responses/BadRequest.yaml'
-      headers:
-        Access-Control-Allow-Origin:
-          schema:
-            type: "string"
-        Access-Control-Allow-Methods:
-          schema:
-            type: "string"
-        Access-Control-Allow-Headers:
-          schema:
-            type: "string"
+      $ref: '../schemas/responses/Responses.yaml#/components/responses/400'
 options:
   summary: CORS support
   description: Enable CORS by returning correct headers

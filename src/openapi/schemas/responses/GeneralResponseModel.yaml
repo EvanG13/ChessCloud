@@ -2,4 +2,4 @@ type: object
 properties:
   message:
     type: string
-    example: "Unauthorized"
+    example: "Message"

@@ -48,7 +48,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "401":
           description: Unauthorized
           headers:
@@ -64,7 +64,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Unauthorized'
+                $ref: '#/components/schemas/GeneralResponseModel'
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -127,7 +127,7 @@ paths:
           type: string
       responses:
         "200":
-          description: Logout Successful
+          description: OK
           headers:
             Access-Control-Allow-Origin:
               schema:
@@ -141,7 +141,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OKResponse'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "400":
           description: Bad Request
           headers:
@@ -157,7 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
       security:
       - bearerAuth: []
       x-amazon-apigateway-integration:
@@ -208,7 +208,7 @@ paths:
         required: true
       responses:
         "200":
-          description: Registration successful
+          description: OK
           headers:
             Access-Control-Allow-Origin:
               schema:
@@ -222,7 +222,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OKResponse'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "400":
           description: Bad Request
           headers:
@@ -238,7 +238,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "409":
           description: Conflict
           headers:
@@ -254,7 +254,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Conflict'
+                $ref: '#/components/schemas/GeneralResponseModel'
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -347,7 +347,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
       security:
       - bearerAuth: []
       x-amazon-apigateway-integration:
@@ -409,24 +409,12 @@ components:
           example: 9dd1561d-e3ea-419b-a394-5ca2fbad058b
         user:
           $ref: '#/components/schemas/User'
-    BadRequest:
+    GeneralResponseModel:
       type: object
       properties:
         message:
           type: string
-          example: Bad Request
-    Unauthorized:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Unauthorized
-    OKResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: OK
+          example: Message
     RegisterRequestBody:
       required:
       - email
@@ -444,12 +432,6 @@ components:
         password:
           type: string
           description: The user's password
-    Conflict:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Conflict
     StatsResponse:
       type: object
       properties:
@@ -474,6 +456,71 @@ components:
         username:
           type: string
           example: foo-username
+  responses:
+    "400":
+      description: Bad Request
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "401":
+      description: Unauthorized
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "200":
+      description: OK
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "409":
+      description: Conflict
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
   parameters:
     authHeader:
       name: Authorization

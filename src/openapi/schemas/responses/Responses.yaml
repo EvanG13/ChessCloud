@@ -1,0 +1,66 @@
+components:
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: 'GeneralResponseModel.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: 'GeneralResponseModel.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+    401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: 'GeneralResponseModel.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+    409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: 'GeneralResponseModel.yaml'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
