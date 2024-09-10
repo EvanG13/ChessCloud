@@ -1,5 +1,7 @@
 package org.example.handlers.stats;
 
+import static org.example.handlers.Responses.makeHttpResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -7,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Optional;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.AuthHeaders;
 
 public class StatsHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -28,20 +29,11 @@ public class StatsHandler
     Optional<User> optionalUser = service.getByID(userId);
 
     if (optionalUser.isEmpty()) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Missing User")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
+      return makeHttpResponse(StatusCodes.BAD_REQUEST, "Missing User");
     }
 
     User user = optionalUser.get();
-    String statsJSON = user.toStatsJSON();
 
-    return APIGatewayV2HTTPResponse.builder()
-        .withHeaders(AuthHeaders.getCorsHeaders())
-        .withBody(statsJSON)
-        .withStatusCode(StatusCodes.OK)
-        .build();
+    return makeHttpResponse(StatusCodes.OK, user.toStatsJSON());
   }
 }

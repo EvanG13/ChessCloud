@@ -1,5 +1,7 @@
 package org.example.handlers.login;
 
+import static org.example.handlers.Responses.makeHttpResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -12,7 +14,6 @@ import org.example.handlers.session.SessionService;
 import org.example.requestRecords.LoginRequest;
 import org.example.requestRecords.SessionRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.AuthHeaders;
 import org.example.utils.ValidateObject;
 
 public class LoginHandler
@@ -31,11 +32,7 @@ public class LoginHandler
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     if (event == null || event.getBody() == null) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("no event/event.body")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
+      return makeHttpResponse(StatusCodes.BAD_REQUEST, "no event/event.body");
     }
 
     Gson gson = new Gson();
@@ -43,21 +40,13 @@ public class LoginHandler
     try {
       ValidateObject.requireNonNull(loginRequestData);
     } catch (NullPointerException e) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Missing argument(s)")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
+      return makeHttpResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
 
     Optional<User> optionalUser =
         service.authenticateUser(loginRequestData.email(), loginRequestData.password());
     if (optionalUser.isEmpty()) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Email or Password is incorrect")
-          .withStatusCode(StatusCodes.UNAUTHORIZED)
-          .build();
+      return makeHttpResponse(StatusCodes.UNAUTHORIZED, "Email or Password is incorrect");
     }
 
     User user = optionalUser.get();
@@ -71,10 +60,6 @@ public class LoginHandler
     responseBody.addProperty("token", sessionToken);
     responseBody.addProperty("user", user.toResponseJson());
 
-    return APIGatewayV2HTTPResponse.builder()
-        .withHeaders(AuthHeaders.getCorsHeaders())
-        .withBody(responseBody.toString())
-        .withStatusCode(StatusCodes.OK)
-        .build();
+    return makeHttpResponse(StatusCodes.OK, responseBody.toString());
   }
 }
