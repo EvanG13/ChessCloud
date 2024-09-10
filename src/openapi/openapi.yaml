@@ -158,12 +158,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
+      security:
+      - bearerAuth: []
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
         uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:logout/invocations"
-        security:
-        - bearerAuth: []
     options:
       tags:
       - CORS
@@ -348,6 +348,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
+      security:
+      - bearerAuth: []
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
