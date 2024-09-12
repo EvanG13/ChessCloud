@@ -34,9 +34,11 @@ secret
 key, frontend url and connection string.
 
 ```text
-SECRETE_KEY=foosecretkey
 FRONTEND_URL=foofrontendurl
 MONGODB_CONNECTION_STRING=fakeconnectionstring
+AWS_REGION=foo-region
+AWS_STAGE=foo-stage
+WEB_SOCKET_BACKEND_ENDPOINT=foowebsocketendpoint
 ```
 
 ### Check that dependencies are installed correctly
