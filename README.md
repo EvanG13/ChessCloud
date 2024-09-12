@@ -29,7 +29,8 @@ skip tests: ``mvn clean package -DskipTests``
 
 ### Environment Variables
 
-In order for MongoDB to work, you **must** create a `.env` file within `src/resources`. It then must include the secret
+In order for MongoDB to work, you **must** create a `.env` file within `src/main/resources`. It then must include the
+secret
 key, frontend url and connection string.
 
 ```text
