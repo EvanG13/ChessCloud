@@ -10,9 +10,11 @@ import com.google.gson.Gson;
 import java.util.Optional;
 import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.requestRecords.JoinGameRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.GameMode;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -64,16 +66,25 @@ public class JoinGameHandler
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "Unauthorized");
     }
 
+    Optional<Stats> optionalStats = service.getUserStats(userId);
+    if (optionalStats.isEmpty()) {
+      response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR); // all users should have stats
+      return response;
+    }
+
     User user = optionalUser.get();
+    Stats stats = optionalStats.get();
+    GameMode gameMode = joinRequestData.timeControl().getGameMode();
+
     Optional<Game> optionalGame =
-        service.getPendingGame(joinRequestData.timeControl(), user.getRating());
+        service.getPendingGame(joinRequestData.timeControl(), stats.getRating(gameMode));
 
     Player newPlayer =
         Player.builder()
             .playerId(userId)
             .connectionId(connectionId)
             .username(user.getUsername())
-            .rating(user.getRating())
+            .rating(stats.getRating(gameMode))
             .build();
 
     String body;
