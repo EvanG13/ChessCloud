@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.bson.conversions.Bson;
 import org.example.databases.MongoDBUtility;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
@@ -21,12 +22,14 @@ import org.junit.jupiter.api.Test;
 public class RegisterHandlerTest {
   private RegisterHandler registerHandler;
   private MongoDBUtility<User> dbUtility;
+  private MongoDBUtility<Stats> statsUtility;
 
   @BeforeEach
   void setUp() {
     dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
+    statsUtility = (MongoDBUtility<Stats>) mock(MongoDBUtility.class);
 
-    RegisterService service = new RegisterService(dbUtility);
+    RegisterService service = new RegisterService(dbUtility, statsUtility);
 
     registerHandler = new RegisterHandler(service);
   }

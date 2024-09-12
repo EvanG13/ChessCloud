@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.EncryptPassword;
@@ -19,10 +20,12 @@ import org.junit.jupiter.api.*;
 public class RegisterHandlerITTest {
   private static RegisterHandler registerHandler;
   private static MongoDBUtility<User> utility;
+  private static MongoDBUtility<Stats> statsUtility;
 
   @BeforeAll
   public static void setUp() {
     utility = new MongoDBUtility<>("users", User.class);
+    statsUtility = new MongoDBUtility<>("stats", Stats.class);
 
     User newUser =
         User.builder()
@@ -34,7 +37,10 @@ public class RegisterHandlerITTest {
 
     utility.post(newUser);
 
-    RegisterService service = new RegisterService(utility);
+    Stats newUserStats = new Stats(newUser.getId());
+    statsUtility.post(newUserStats);
+
+    RegisterService service = new RegisterService(utility, statsUtility);
 
     registerHandler = new RegisterHandler(service);
   }
@@ -44,12 +50,20 @@ public class RegisterHandlerITTest {
     Optional<User> user = utility.get(eq("email", "test3@gmail.com"));
     assertTrue(user.isPresent());
 
+    Optional<Stats> userStats = statsUtility.get(user.get().getId());
+    assertTrue(userStats.isPresent());
+
     utility.delete(user.get().getId());
+    statsUtility.delete(userStats.get().getId());
 
     Optional<User> tempUser = utility.get(eq("email", "reg-it-test@gmail.com"));
-
     assertTrue(tempUser.isPresent());
+
+    Optional<Stats> tempUserStats = statsUtility.get(tempUser.get().getId());
+    assertTrue(tempUserStats.isPresent());
+
     utility.delete(tempUser.get().getId());
+    statsUtility.delete(tempUserStats.get().getId());
   }
 
   @DisplayName("OK 👍")

@@ -68,8 +68,8 @@ public class JoinGameHandler
 
     Optional<Stats> optionalStats = service.getUserStats(userId);
     if (optionalStats.isEmpty()) {
-      response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR); // all users should have stats
-      return response;
+      // all users should have stats
+      return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "User doesn't have entry in Stats collection");
     }
 
     User user = optionalUser.get();

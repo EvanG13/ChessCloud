@@ -34,10 +34,6 @@ public class RegisterService {
             .email(data.email())
             .password(EncryptPassword.encrypt(data.password()))
             .username(data.username())
-            .gamesWon(0)
-            .gamesLost(0)
-            .gamesDrawn(0)
-            .rating(1000)
             .build();
     userDBUtility.post(newUser);
 
