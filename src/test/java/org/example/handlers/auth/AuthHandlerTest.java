@@ -53,7 +53,7 @@ public class AuthHandlerTest {
   @Test
   public void canAllowPolicy() {
     headers.put("Authorization", validSessionToken);
-    headers.put("userId", validUserId);
+    headers.put("userid", validUserId);
 
     event.setHeaders(headers);
 
@@ -76,7 +76,7 @@ public class AuthHandlerTest {
   @Test
   public void canDenyPolicy() {
     headers.put("Authorization", "7a897393-4167-43fe-a618-9bdb65b53529");
-    headers.put("userId", "fakeUserId");
+    headers.put("userid", "fakeUserId");
 
     event.setHeaders(headers);
 

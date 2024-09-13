@@ -1,5 +1,7 @@
 package org.example.handlers.connect;
 
+import static org.example.handlers.Responses.makeWebsocketResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -26,7 +28,6 @@ public class ConnectHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
 
     Map<String, String> queryParams = event.getQueryStringParameters();
     String username = queryParams.get("username");
@@ -34,10 +35,7 @@ public class ConnectHandler
 
     if (service.doesConnectionExistByUsername(username)
         || service.doesConnectionExistById(connectionId)) {
-      response.setBody("This connection already exists");
-      response.setStatusCode(StatusCodes.CONFLICT);
-
-      return response;
+      return makeWebsocketResponse(StatusCodes.CONFLICT, "This connection already exists");
     }
 
     try {
@@ -48,8 +46,6 @@ public class ConnectHandler
       throw e;
     }
 
-    response.setStatusCode(StatusCodes.OK);
-    response.setBody(connectionId);
-    return response;
+    return makeWebsocketResponse(StatusCodes.OK, connectionId);
   }
 }

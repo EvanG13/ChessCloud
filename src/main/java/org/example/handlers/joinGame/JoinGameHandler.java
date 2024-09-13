@@ -1,5 +1,7 @@
 package org.example.handlers.joinGame;
 
+import static org.example.handlers.Responses.makeWebsocketResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -42,12 +44,11 @@ public class JoinGameHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
 
     if (requestContext == null || requestContext.getConnectionId() == null) {
       System.err.println("Invalid event: missing requestContext or connectionId");
-      response.setStatusCode(StatusCodes.BAD_REQUEST);
-      return response;
+      return makeWebsocketResponse(
+          StatusCodes.BAD_REQUEST, "Invalid event: missing requestContext or connectionId");
     }
 
     String connectionId = requestContext.getConnectionId();
@@ -60,9 +61,7 @@ public class JoinGameHandler
     String userId = joinRequestData.userId();
     Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
-      response.setStatusCode(StatusCodes.UNAUTHORIZED);
-
-      return response;
+      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "Unauthorized");
     }
 
     User user = optionalUser.get();
@@ -77,6 +76,8 @@ public class JoinGameHandler
             .rating(user.getRating())
             .build();
 
+    String body;
+    int statusCode;
     if (optionalGame.isEmpty()) {
       // No pending game for the requested time control
       // Create new game with requested time control
@@ -84,8 +85,8 @@ public class JoinGameHandler
       Game newGame = new Game(joinRequestData.timeControl(), newPlayer);
       service.createGame(newGame);
 
-      response.setStatusCode(StatusCodes.CREATED);
-      response.setBody(newGame.toResponseJson());
+      statusCode = StatusCodes.CREATED;
+      body = newGame.toResponseJson();
 
       emitter.sendMessage(connectionId, "Created new game. Waiting for someone to join");
     } else {
@@ -96,8 +97,7 @@ public class JoinGameHandler
       try {
         game.setup(newPlayer);
       } catch (Exception e) {
-        response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
-        return response;
+        return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
       }
 
       service.updateGame(game);
@@ -109,10 +109,10 @@ public class JoinGameHandler
           game.getPlayers().get(1).getConnectionId(),
           "game is started: \n" + gameJson);
 
-      response.setBody(gameJson);
-      response.setStatusCode(StatusCodes.OK);
+      statusCode = StatusCodes.OK;
+      body = gameJson;
     }
 
-    return response;
+    return makeWebsocketResponse(statusCode, body);
   }
 }

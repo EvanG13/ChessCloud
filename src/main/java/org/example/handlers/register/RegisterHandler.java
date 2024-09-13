@@ -1,15 +1,14 @@
 package org.example.handlers.register;
 
+import static org.example.handlers.Responses.makeHttpResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.mongodb.MongoException;
 import org.example.requestRecords.RegisterRequest;
 import org.example.statusCodes.StatusCodes;
-import org.example.utils.AuthHeaders;
 import org.example.utils.ValidateObject;
 
 public class RegisterHandler
@@ -28,11 +27,8 @@ public class RegisterHandler
   @Override
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     if (event == null || event.getBody() == null) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Missing Event object or Event request body")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
+      return makeHttpResponse(
+          StatusCodes.BAD_REQUEST, "Missing Event object or Event request body");
     }
 
     // Deserialize the request body into a LoginRequest object
@@ -41,35 +37,16 @@ public class RegisterHandler
     try {
       ValidateObject.requireNonNull(registerRequest);
     } catch (NullPointerException e) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Missing argument(s)")
-          .withStatusCode(StatusCodes.BAD_REQUEST)
-          .build();
+      return makeHttpResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
 
     // TODO filter user credentials to meet standards
-
     if (service.doesEmailExist(registerRequest.email())) {
-      return APIGatewayV2HTTPResponse.builder()
-          .withHeaders(AuthHeaders.getCorsHeaders())
-          .withBody("Email already exists")
-          .withStatusCode(StatusCodes.CONFLICT)
-          .build();
+      return makeHttpResponse(StatusCodes.CONFLICT, "Email already exists");
     }
 
-    try {
-      service.registerUser(registerRequest);
-    } catch (MongoException e) {
-      LambdaLogger logger = context.getLogger();
-      logger.log(e.getMessage());
-      throw e;
-    }
+    service.registerUser(registerRequest);
 
-    return APIGatewayV2HTTPResponse.builder()
-        .withHeaders(AuthHeaders.getCorsHeaders())
-        .withBody("Successfully registered")
-        .withStatusCode(StatusCodes.OK)
-        .build();
+    return makeHttpResponse(StatusCodes.OK, "Successfully registered");
   }
 }

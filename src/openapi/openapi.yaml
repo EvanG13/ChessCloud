@@ -48,7 +48,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "401":
           description: Unauthorized
           headers:
@@ -64,7 +64,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Unauthorized'
+                $ref: '#/components/schemas/GeneralResponseModel'
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -127,7 +127,7 @@ paths:
           type: string
       responses:
         "200":
-          description: Logout Successful
+          description: OK
           headers:
             Access-Control-Allow-Origin:
               schema:
@@ -141,7 +141,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OKResponse'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "400":
           description: Bad Request
           headers:
@@ -157,7 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
       security:
       - bearerAuth: []
       x-amazon-apigateway-integration:
@@ -191,7 +191,7 @@ paths:
           default:
             statusCode: "200"
             responseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Headers: '''*'''
               method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
@@ -208,7 +208,7 @@ paths:
         required: true
       responses:
         "200":
-          description: Registration successful
+          description: OK
           headers:
             Access-Control-Allow-Origin:
               schema:
@@ -222,7 +222,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OKResponse'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "400":
           description: Bad Request
           headers:
@@ -238,7 +238,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: '#/components/schemas/GeneralResponseModel'
         "409":
           description: Conflict
           headers:
@@ -254,7 +254,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Conflict'
+                $ref: '#/components/schemas/GeneralResponseModel'
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
@@ -299,6 +299,93 @@ paths:
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
                 application/json: {}
+  /stats:
+    post:
+      summary: stats
+      description: post win/loss/draw
+      parameters:
+      - name: Authorization
+        in: header
+        description: session token
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Post Stats Successful
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        "400":
+          description: Bad Request
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResponseModel'
+      security:
+      - bearerAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:stats/invocations"
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: Enable CORS by returning correct headers
+      responses:
+        "200":
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              responseTemplates:
+                application/json: {}
 components:
   schemas:
     LoginRequestBody:
@@ -319,27 +406,15 @@ components:
       properties:
         token:
           type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+          example: 9dd1561d-e3ea-419b-a394-5ca2fbad058b
         user:
           $ref: '#/components/schemas/User'
-    BadRequest:
+    GeneralResponseModel:
       type: object
       properties:
         message:
           type: string
-          example: Bad Request
-    Unauthorized:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Unauthorized
-    OKResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: OK
+          example: Message
     RegisterRequestBody:
       required:
       - email
@@ -357,12 +432,18 @@ components:
         password:
           type: string
           description: The user's password
-    Conflict:
+    StatsResponse:
       type: object
       properties:
-        message:
-          type: string
-          example: Conflict
+        gamesWon:
+          type: integer
+          example: 0
+        gamesLost:
+          type: integer
+          example: 8
+        gamesDrawn:
+          type: integer
+          example: 0
     User:
       type: object
       properties:
@@ -371,10 +452,75 @@ components:
           example: foo-id
         email:
           type: string
-          example: fake@gamil.com
+          example: fake@gmail.com
         username:
           type: string
           example: foo-username
+  responses:
+    "400":
+      description: Bad Request
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "401":
+      description: Unauthorized
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "200":
+      description: OK
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
+    "409":
+      description: Conflict
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+        Access-Control-Allow-Methods:
+          schema:
+            type: string
+        Access-Control-Allow-Headers:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralResponseModel'
   parameters:
     authHeader:
       name: Authorization
@@ -403,3 +549,18 @@ components:
         identityValidationExpression: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
         authorizerResultTtlInSeconds: 300
         identitySource: "method.request.header.Authorization,method.request.header.userId"
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+    responseTemplates:
+      application/json: "{}"
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+    responseTemplates:
+      application/json: "{}"

@@ -32,11 +32,10 @@ public class AuthHandler
     APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext = event.getRequestContext();
 
     String token = headers.get("Authorization").replace("Bearer ", "").replace("\"", "");
-
     IamPolicyResponse.PolicyDocument policyDocument = new IamPolicyResponse.PolicyDocument();
     policyDocument.setVersion("2012-10-17");
 
-    String userId = headers.get("userId").replace("userId ", "").replace("\"", "");
+    String userId = headers.get("userid").replace("\"", "");
 
     StringBuilder resource =
         new StringBuilder("arn:aws:execute-api")
