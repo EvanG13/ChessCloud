@@ -1,5 +1,7 @@
 package org.example.handlers.defaultHandler;
 
+import static org.example.handlers.Responses.makeWebsocketResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -12,11 +14,6 @@ public class DefaultHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     // TODO: save this to the connections mongo table
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
-    response.setStatusCode(StatusCodes.BAD_REQUEST);
-
-    response.setBody("Route: is not supported");
-
-    return response;
+    return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Route: is not supported");
   }
 }

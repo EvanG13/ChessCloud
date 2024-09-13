@@ -1,5 +1,7 @@
 package org.example.handlers.message;
 
+import static org.example.handlers.Responses.makeWebsocketResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -26,15 +28,13 @@ public class MessageHandler
       APIGatewayV2WebSocketEvent event, Context context) {
 
     // TODO eventually try fetching all the players in the game room's socket ids and
-    // send a message to all of them
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
 
     if (requestContext == null || requestContext.getConnectionId() == null) {
       System.err.println("Invalid event: missing requestContext or connectionId");
-      response.setStatusCode(StatusCodes.BAD_REQUEST);
-      return response;
+      return makeWebsocketResponse(
+          StatusCodes.BAD_REQUEST, "Invalid event: missing requestContext or connectionId");
     }
     String connectionId = requestContext.getConnectionId();
     try {
@@ -42,12 +42,10 @@ public class MessageHandler
       MessageRequest message = gson.fromJson(event.getBody(), MessageRequest.class);
       emitter.sendMessage(connectionId, message.data());
     } catch (Exception e) {
-      e.printStackTrace();
-      response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
-      return response;
+      System.err.println(e);
+      return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
     }
 
-    response.setStatusCode(StatusCodes.OK);
-    return response;
+    return makeWebsocketResponse(StatusCodes.OK, "OK");
   }
 }

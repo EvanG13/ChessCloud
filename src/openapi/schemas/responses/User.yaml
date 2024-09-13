@@ -5,7 +5,7 @@ properties:
     example: "foo-id"
   email:
     type: string
-    example: "fake@gamil.com"
+    example: "fake@gmail.com"
   username:
     type: string
     example: "foo-username"

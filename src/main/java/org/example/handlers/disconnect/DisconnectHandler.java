@@ -1,5 +1,7 @@
 package org.example.handlers.disconnect;
 
+import static org.example.handlers.Responses.makeWebsocketResponse;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -28,9 +30,6 @@ public class DisconnectHandler
 
     utility.delete(connectionId);
 
-    APIGatewayV2WebSocketResponse response = new APIGatewayV2WebSocketResponse();
-    response.setStatusCode(StatusCodes.OK);
-
-    return response;
+    return makeWebsocketResponse(StatusCodes.OK, "Successfully disconnected");
   }
 }
