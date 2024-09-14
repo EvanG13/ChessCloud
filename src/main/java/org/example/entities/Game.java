@@ -33,6 +33,8 @@ public class Game extends DataTransferObject {
 
   @Expose private Integer rating;
 
+  private String gameStateAsFen;
+
   @Override
   public String toString() {
     return "Game{"
