@@ -63,8 +63,12 @@ public class Stats extends DataTransferObject {
     return getGamemodeStats(gameMode.toString());
   }
 
+  public int getRating(String gameMode) {
+    return getGamemodeStats(gameMode).getRating();
+  }
+
   public int getRating(GameMode gameMode) {
-    return gameModeStats.get(gameMode.toString()).getRating();
+    return getRating(gameMode.toString());
   }
 
   @Override
