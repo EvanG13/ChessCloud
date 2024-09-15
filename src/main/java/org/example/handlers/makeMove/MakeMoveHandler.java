@@ -26,32 +26,22 @@ public class MakeMoveHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
-
-    if (requestContext == null || requestContext.getConnectionId() == null) {
-      System.err.println("Invalid event: missing requestContext or connectionId");
-      return makeWebsocketResponse(
-          StatusCodes.BAD_REQUEST, "Invalid event: missing requestContext or connectionId");
-    }
-
-    String connectionId = requestContext.getConnectionId();
 
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
-    requestData.setConnectionId(connectionId);
 
-    if (service.doesGameMatchUser(requestData.getGameId(), connectionId, requestData.getPlayerId())) {
+    if (service.doesGameMatchUser(requestData.gameId(), requestData.connectionId(), requestData.playerId())) {
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, )
     }
 
-    String gameState = service.getGameState(requestData.getGameId());
-    if (gameState == null) {
+    String boardState = service.getBoardState(requestData.gameId());
+    if (boardState == null) {
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game is Missing Game State");
     }
 
-    requestData.setBoardState(gameState);
 
-    if (service.makeMove(requestData))
+    if (service.makeMove(requestData.move(), boardState, requestData.gameId())) {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move");
+    }
 
     return makeWebsocketResponse(StatusCodes.OK, "Move made");
   }

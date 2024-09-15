@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
 import org.example.entities.Player;
-import org.example.requestRecords.MakeMoveRequest;
 
 @AllArgsConstructor
 public class MakeMoveService {
@@ -22,7 +21,7 @@ public class MakeMoveService {
     board = new Board();
   }
 
-  public String getGameState(String gameId) {
+  public String getBoardState(String gameId) {
     Optional<Game> g = gameDBUtility.get(gameId);
 
     if (g.isEmpty()) return null;
@@ -58,14 +57,14 @@ public class MakeMoveService {
     return false;
   }
 
-  public boolean makeMove(MakeMoveRequest request) {
-    board.loadFromFen(request.getBoardState());
+  public boolean makeMove(String move, String boardState, String gameId) {
+    board.loadFromFen(boardState);
 
-    if (board.doMove(request.getMove())) {
+    if (board.doMove(move)) {
       return false;
     }
 
-    gameDBUtility.patch(request.getGameId(), Updates.set("gameStateAsFen", board.getFen()));
+    gameDBUtility.patch(gameId, Updates.set("gameStateAsFen", board.getFen()));
 
     return true;
   }
