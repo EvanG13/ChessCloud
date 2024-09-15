@@ -47,6 +47,22 @@ public class Stats extends DataTransferObject {
     return sb.toString();
   }
 
+  public boolean doesGamemodeHaveStats(String gameMode) {
+    return gameModeStats.containsKey(gameMode.toLowerCase());
+  }
+
+  public boolean doesGamemodeHaveStats(GameMode gameMode) {
+    return doesGamemodeHaveStats(gameMode.toString());
+  }
+
+  public GameModeStats getGamemodeStats(String gameMode) {
+    return gameModeStats.get(gameMode.toLowerCase());
+  }
+
+  public GameModeStats getGamemodeStats(GameMode gameMode) {
+    return getGamemodeStats(gameMode.toString());
+  }
+
   public int getRating(GameMode gameMode) {
     return gameModeStats.get(gameMode.toString()).getRating();
   }
