@@ -302,7 +302,7 @@ paths:
   /stats:
     post:
       summary: stats
-      description: post win/loss/draw
+      description: post win/loss/draw/rating
       parameters:
       - name: Authorization
         in: header
@@ -313,6 +313,12 @@ paths:
       - name: userId
         in: header
         required: true
+        schema:
+          type: string
+      - name: gamemode
+        in: query
+        description: Specific game mode to retrieve stats for (optional)
+        required: false
         schema:
           type: string
       responses:
@@ -331,7 +337,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatsResponse'
+                $ref: '#/components/schemas/GamemodeStats'
         "400":
           description: Bad Request
           headers:
@@ -432,18 +438,31 @@ components:
         password:
           type: string
           description: The user's password
-    StatsResponse:
+    GamemodeStats:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Stats'
+      description: Stats for one or all tracked game modes
+    Stats:
+      required:
+      - draws
+      - losses
+      - rating
+      - wins
       type: object
       properties:
-        gamesWon:
+        wins:
           type: integer
-          example: 0
-        gamesLost:
+          example: 1
+        losses:
           type: integer
-          example: 8
-        gamesDrawn:
+          example: 2
+        draws:
           type: integer
-          example: 0
+          example: 3
+        rating:
+          type: integer
+          example: 987
     User:
       type: object
       properties:

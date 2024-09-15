@@ -1,6 +1,6 @@
 post:
   summary: stats
-  description: post win/loss/draw
+  description: post win/loss/draw/rating
   x-amazon-apigateway-integration:
     type: "aws_proxy"
     httpMethod: "POST"
@@ -10,13 +10,19 @@ post:
   parameters:
     - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/userId"
+    - in: query
+      name: gamemode
+      schema:
+        type: string
+      required: false
+      description: Specific game mode to retrieve stats for (optional)
   responses:
     200:
       description: Post Stats Successful
       content:
         application/json:
           schema:
-            $ref: '../schemas/responses/StatsResponse.yaml'
+            $ref: '../schemas/responses/StatsResponse.yaml#/components/schemas/GamemodeStats'
       headers:
         Access-Control-Allow-Origin:
           schema:

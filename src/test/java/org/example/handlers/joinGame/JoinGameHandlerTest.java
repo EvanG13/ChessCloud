@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
@@ -39,8 +40,9 @@ public class JoinGameHandlerTest {
   public static String email2;
   public static String password;
   public static String password2;
-  public static MongoDBUtility<Game> utility;
+  public static MongoDBUtility<Game> gameUtility;
   public static MongoDBUtility<User> userUtility;
+  public static MongoDBUtility<Stats> statsUtility;
 
   public static SocketSystemLogger socketLogger;
 
@@ -60,38 +62,29 @@ public class JoinGameHandlerTest {
     password2 = "123";
     timeControl = TimeControl.BLITZ_5;
     timeControl2 = TimeControl.BULLET_1;
-    utility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new MongoDBUtility<>("games", Game.class);
     userUtility = new MongoDBUtility<>("users", User.class);
-    joinGameService = new JoinGameService(utility, userUtility);
+    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
     User testUser =
-        User.builder()
-            .id(userId)
-            .email(email)
-            .password(password)
-            .gamesWon(0)
-            .gamesLost(0)
-            .rating(1000)
-            .username(username)
-            .build();
+        User.builder().id(userId).email(email).password(password).username(username).build();
     User testUser2 =
-        User.builder()
-            .id(userId2)
-            .email(email2)
-            .password(password2)
-            .username(username2)
-            .gamesWon(0)
-            .gamesLost(0)
-            .rating(1000)
-            .build();
+        User.builder().id(userId2).email(email2).password(password2).username(username2).build();
     userUtility.post(testUser);
     userUtility.post(testUser2);
+    Stats testUserStats = new Stats(testUser.getId());
+    Stats testUserStats2 = new Stats(testUser2.getId());
+    statsUtility.post(testUserStats);
+    statsUtility.post(testUserStats2);
   }
 
   @AfterAll
   public static void tearDown() {
-    utility.delete(gameId);
+    gameUtility.delete(gameId);
     userUtility.delete(userId);
     userUtility.delete(userId2);
+    statsUtility.delete(userId);
+    statsUtility.delete(userId2);
   }
 
   @DisplayName("CREATED ✅")
@@ -134,7 +127,7 @@ public class JoinGameHandlerTest {
     expected.setId(
         gameId); // since calling the constructor will autoincrement the id from the last game
     // created.
-    Optional<Game> optionalGame = utility.get(gameId);
+    Optional<Game> optionalGame = gameUtility.get(gameId);
     assertEquals(optionalGame.isEmpty(), false);
     Game actual = optionalGame.get();
     assertEquals(expected, actual);
@@ -167,7 +160,7 @@ public class JoinGameHandlerTest {
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    Optional<Game> optionalGame = utility.get(gameId);
+    Optional<Game> optionalGame = gameUtility.get(gameId);
     assertEquals(optionalGame.isEmpty(), false);
     Game actual = optionalGame.get();
     List<Player> actualPlayerList = actual.getPlayers();

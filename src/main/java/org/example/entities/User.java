@@ -13,11 +13,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class User extends DataTransferObject {
   @Expose private String email;
-
-  private Integer rating;
-  private Integer gamesWon;
-  private Integer gamesLost;
-  private Integer gamesDrawn;
   private String password;
   @Expose private String username;
 
@@ -30,43 +25,19 @@ public class User extends DataTransferObject {
             .append("\nusername = ")
             .append(username)
             .append("\nemail    = ")
-            .append(email)
-            .append("\nwins     = ")
-            .append(gamesWon)
-            .append("\nlost     = ")
-            .append(gamesLost)
-            .append("\ndraws     = ")
-            .append(gamesLost);
+            .append(email);
 
     return sb.toString();
-  }
-
-  public String toStatsJSON() {
-    return "{ \"won\": "
-        + gamesWon
-        + ", \"lost\": "
-        + gamesLost
-        + ", \"draws\": "
-        + gamesDrawn
-        + " }";
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
+    if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
     return Objects.equals(id, user.getId())
         && Objects.equals(email, user.getEmail())
         && Objects.equals(password, user.getPassword())
-        && Objects.equals(rating, user.getRating())
-        && Objects.equals(gamesWon, user.getGamesWon())
-        && Objects.equals(gamesLost, user.getGamesLost())
-        && Objects.equals(gamesDrawn, user.getGamesDrawn())
         && Objects.equals(username, user.getUsername());
   }
 

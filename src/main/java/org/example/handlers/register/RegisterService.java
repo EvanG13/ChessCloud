@@ -6,20 +6,23 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.example.databases.MongoDBUtility;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.requestRecords.RegisterRequest;
 import org.example.utils.EncryptPassword;
 
 @AllArgsConstructor
 public class RegisterService {
-  private final MongoDBUtility<User> utility;
+  private final MongoDBUtility<User> userDBUtility;
+  private final MongoDBUtility<Stats> statsDBUtility;
 
   public RegisterService() {
-    this.utility = new MongoDBUtility<>("users", User.class);
+    this.userDBUtility = new MongoDBUtility<>("users", User.class);
+    this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }
 
   public boolean doesEmailExist(String email) {
-    Optional<User> user = utility.get(eq("email", email));
+    Optional<User> user = userDBUtility.get(eq("email", email));
 
     return user.isPresent();
   }
@@ -31,12 +34,10 @@ public class RegisterService {
             .email(data.email())
             .password(EncryptPassword.encrypt(data.password()))
             .username(data.username())
-            .gamesWon(0)
-            .gamesLost(0)
-            .gamesDrawn(0)
-            .rating(1000)
             .build();
+    userDBUtility.post(newUser);
 
-    utility.post(newUser);
+    Stats newStats = new Stats(newUser.getId());
+    statsDBUtility.post(newStats);
   }
 }
