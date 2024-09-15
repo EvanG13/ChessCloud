@@ -53,17 +53,13 @@ public class StatsHandler
       // gamemode not part of query: bad request
       if (queryGamemode == null) {
         return makeHttpResponse(
-            StatusCodes.BAD_REQUEST,
-            "Query defined, but query parameter \"gamemode\" was missing"
-        );
+            StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
       }
 
       // missing value for gamemode: bad request
       if (queryGamemode.isEmpty()) {
         return makeHttpResponse(
-            StatusCodes.BAD_REQUEST,
-            "Query parameter \"gamemode\" was missing a value"
-        );
+            StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" was missing a value");
       }
 
       Optional<String> optionalJson = userStats.toJSON(queryGamemode);
@@ -72,8 +68,7 @@ public class StatsHandler
       if (optionalJson.isEmpty()) {
         return makeHttpResponse(
             StatusCodes.BAD_REQUEST,
-            "Query parameter \"gamemode\" had an invalid value: " + queryGamemode
-        );
+            "Query parameter \"gamemode\" had an invalid value: " + queryGamemode);
       }
 
       // return with QUERIED gamemode

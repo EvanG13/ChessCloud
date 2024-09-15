@@ -26,10 +26,7 @@ public class Stats extends DataTransferObject {
     this.gameModeStats = new HashMap<>();
     for (GameMode gameMode : GameMode.values()) {
       // case insensitive
-      gameModeStats.put(
-          gameMode.toString().toLowerCase(),
-          new GameModeStats()
-      );
+      gameModeStats.put(gameMode.toString().toLowerCase(), new GameModeStats());
     }
   }
 
@@ -50,9 +47,7 @@ public class Stats extends DataTransferObject {
   }
 
   public String toJSON() {
-    return new GsonBuilder()
-        .create()
-        .toJson(gameModeStats);
+    return new GsonBuilder().create().toJson(gameModeStats);
   }
 
   public Optional<String> toJSON(String gameMode) {
@@ -60,11 +55,7 @@ public class Stats extends DataTransferObject {
       return Optional.empty();
     }
 
-    return Optional.of(
-        new GsonBuilder()
-            .create()
-            .toJson(getGamemodeStats(gameMode))
-    );
+    return Optional.of(new GsonBuilder().create().toJson(getGamemodeStats(gameMode)));
   }
 
   public Optional<String> toJSON(GameMode gameMode) {
@@ -100,8 +91,7 @@ public class Stats extends DataTransferObject {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Stats stats = (Stats) o;
-    return Objects.equals(id, stats.id)
-        && Objects.equals(gameModeStats, stats.gameModeStats);
+    return Objects.equals(id, stats.id) && Objects.equals(gameModeStats, stats.gameModeStats);
   }
 
   @Override

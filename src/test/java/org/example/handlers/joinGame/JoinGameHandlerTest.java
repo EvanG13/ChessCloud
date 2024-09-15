@@ -67,19 +67,9 @@ public class JoinGameHandlerTest {
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
     User testUser =
-        User.builder()
-            .id(userId)
-            .email(email)
-            .password(password)
-            .username(username)
-            .build();
+        User.builder().id(userId).email(email).password(password).username(username).build();
     User testUser2 =
-        User.builder()
-            .id(userId2)
-            .email(email2)
-            .password(password2)
-            .username(username2)
-            .build();
+        User.builder().id(userId2).email(email2).password(password2).username(username2).build();
     userUtility.post(testUser);
     userUtility.post(testUser2);
     Stats testUserStats = new Stats(testUser.getId());
