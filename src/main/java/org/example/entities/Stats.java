@@ -23,7 +23,11 @@ public class Stats extends DataTransferObject {
 
     this.gameModeStats = new HashMap<>();
     for (GameMode gameMode : GameMode.values()) {
-      gameModeStats.put(gameMode.toString(), new GameModeStats());
+      // case insensitive
+      gameModeStats.put(
+          gameMode.toString().toLowerCase(),
+          new GameModeStats()
+      );
     }
   }
 
