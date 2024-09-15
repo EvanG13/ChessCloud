@@ -1,8 +1,10 @@
 package org.example.entities;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +47,28 @@ public class Stats extends DataTransferObject {
     }
 
     return sb.toString();
+  }
+
+  public String toJSON() {
+    return new GsonBuilder()
+        .create()
+        .toJson(gameModeStats);
+  }
+
+  public Optional<String> toJSON(String gameMode) {
+    if (gameMode == null || !doesGamemodeHaveStats(gameMode)) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        new GsonBuilder()
+            .create()
+            .toJson(getGamemodeStats(gameMode))
+    );
+  }
+
+  public Optional<String> toJSON(GameMode gameMode) {
+    return toJSON(gameMode.toString());
   }
 
   public boolean doesGamemodeHaveStats(String gameMode) {
