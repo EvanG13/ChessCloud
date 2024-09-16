@@ -52,9 +52,9 @@ public class MakeMoveHandler
     if (makeMoveResult == "INVALID MOVE") {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move: " + requestData.move());
     }
-    // update the clock?
-    // send the new fen to both players in the frontend
-
+    //TODO update the clock
+    String[] connectionIds = service.getConnectionIds(requestData.gameId());
+    socketMessenger.sendMessages(connectionIds[0], connectionIds[1], makeMoveResult);
     return makeWebsocketResponse(StatusCodes.OK, makeMoveResult);
   }
 }
