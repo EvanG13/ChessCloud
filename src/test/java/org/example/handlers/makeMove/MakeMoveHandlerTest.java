@@ -1,7 +1,6 @@
 package org.example.handlers.makeMove;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
@@ -28,7 +27,7 @@ import org.junit.jupiter.api.*;
 public class MakeMoveHandlerTest {
   public static Gson gson;
   public static MakeMoveService makeMoveService;
-
+  public static MongoDBUtility<Stats> statsUtility;
   public static JoinGameService joinGameService;
   public static String userId;
   public static String userId2;
@@ -57,7 +56,7 @@ public class MakeMoveHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-
+    statsUtility = new MongoDBUtility<>("stats", Stats.class);
     gson = new Gson();
     socketLogger = new SocketSystemLogger();
     firstMove = "e2e4";
@@ -80,24 +79,18 @@ public class MakeMoveHandlerTest {
     utility = new MongoDBUtility<>("games", Game.class);
     userUtility = new MongoDBUtility<>("users", User.class);
     makeMoveService = new MakeMoveService(utility, new Board());
-    joinGameService = new JoinGameService(utility, userUtility, new MongoDBUtility<Stats>("stats", Stats.class));
+    joinGameService =
+        new JoinGameService(utility, userUtility, new MongoDBUtility<Stats>("stats", Stats.class));
     User testUser =
-        User.builder()
-            .id(userId)
-            .email(email)
-            .password(password)
-            .username(username)
-            .build();
+        User.builder().id(userId).email(email).password(password).username(username).build();
     User testUser2 =
-        User.builder()
-            .id(userId2)
-            .email(email2)
-            .password(password2)
-            .username(username2)
-            .build();
+        User.builder().id(userId2).email(email2).password(password2).username(username2).build();
     userUtility.post(testUser);
     userUtility.post(testUser2);
-
+    Stats testUserStats = new Stats(testUser.getId());
+    statsUtility.post(testUserStats);
+    Stats testUserStats2 = new Stats(testUser2.getId());
+    statsUtility.post(testUserStats2);
   }
 
   @AfterAll
@@ -148,7 +141,7 @@ public class MakeMoveHandlerTest {
         gameId); // since calling the constructor will autoincrement the id from the last game
     // created.
     Optional<Game> optionalGame = utility.get(gameId);
-    assertEquals(optionalGame.isEmpty(), false);
+    assertFalse(optionalGame.isEmpty());
     Game actual = optionalGame.get();
     assertEquals(expected, actual);
   }
@@ -181,7 +174,7 @@ public class MakeMoveHandlerTest {
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     Optional<Game> optionalGame = utility.get(gameId);
-    assertEquals(optionalGame.isEmpty(), false);
+    assertFalse(optionalGame.isEmpty());
     Game actual = optionalGame.get();
     List<Player> actualPlayerList = actual.getPlayers();
     assertEquals(2, actualPlayerList.size());
