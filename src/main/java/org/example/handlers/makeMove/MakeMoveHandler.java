@@ -33,6 +33,7 @@ public class MakeMoveHandler
       APIGatewayV2WebSocketEvent event, Context context) {
 
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
+
     String connectionId = event.getRequestContext().getConnectionId();
     if (!service.doesGameMatchUser(requestData.gameId(), connectionId, requestData.playerId())) {
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "user is not in this game.");
@@ -46,6 +47,7 @@ public class MakeMoveHandler
     if (boardState == null) {
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game is Missing Game State");
     }
+
     String makeMoveResult = service.makeMove(requestData.move(), boardState, requestData.gameId());
     if (makeMoveResult == "INVALID MOVE") {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move: " + requestData.move());

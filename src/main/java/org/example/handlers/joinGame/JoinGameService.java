@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
@@ -15,11 +16,13 @@ import org.example.utils.TimeControl;
 public class JoinGameService {
   private final MongoDBUtility<Game> gameDBUtility;
   private final MongoDBUtility<User> userDBUtility;
+  private final MongoDBUtility<Stats> statsDBUtility;
   private final int RATING_MARGIN = 500;
 
   public JoinGameService() {
     this.gameDBUtility = new MongoDBUtility<>("games", Game.class);
     this.userDBUtility = new MongoDBUtility<>("users", User.class);
+    this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }
 
   public Optional<Game> getPendingGame(TimeControl timeControl, int rating) {
@@ -52,5 +55,13 @@ public class JoinGameService {
       return Optional.empty();
     }
     return user;
+  }
+
+  public Optional<Stats> getUserStats(String userId) {
+    Optional<Stats> stats = statsDBUtility.get(userId);
+    if (stats.isEmpty()) {
+      return Optional.empty();
+    }
+    return stats;
   }
 }

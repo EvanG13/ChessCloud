@@ -1,11 +1,27 @@
-type: object
-properties:
-  gamesWon:
-    type: integer
-    example: 0
-  gamesLost:
-    type: integer
-    example: 8
-  gamesDrawn:
-    type: integer
-    example: 0
+components:
+  schemas:
+    Stats:
+      type: object
+      properties:
+        wins:
+          type: integer
+          example: 1
+        losses:
+          type: integer
+          example: 2
+        draws:
+          type: integer
+          example: 3
+        rating:
+          type: integer
+          example: 987
+      required:
+        - wins
+        - losses
+        - draws
+        - rating
+    GamemodeStats:
+      type: object
+      description: Stats for one or all tracked game modes
+      additionalProperties:
+        $ref: '#/components/schemas/Stats'

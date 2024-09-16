@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.joinGame.JoinGameHandler;
 import org.example.handlers.joinGame.JoinGameService;
@@ -79,15 +80,12 @@ public class MakeMoveHandlerTest {
     utility = new MongoDBUtility<>("games", Game.class);
     userUtility = new MongoDBUtility<>("users", User.class);
     makeMoveService = new MakeMoveService(utility, new Board());
-    joinGameService = new JoinGameService(utility, userUtility);
+    joinGameService = new JoinGameService(utility, userUtility, new MongoDBUtility<Stats>("stats", Stats.class));
     User testUser =
         User.builder()
             .id(userId)
             .email(email)
             .password(password)
-            .gamesWon(0)
-            .gamesLost(0)
-            .rating(1000)
             .username(username)
             .build();
     User testUser2 =
@@ -96,12 +94,10 @@ public class MakeMoveHandlerTest {
             .email(email2)
             .password(password2)
             .username(username2)
-            .gamesWon(0)
-            .gamesLost(0)
-            .rating(1000)
             .build();
     userUtility.post(testUser);
     userUtility.post(testUser2);
+
   }
 
   @AfterAll
