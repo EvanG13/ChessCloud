@@ -63,6 +63,15 @@ public class MakeMoveService {
     return false;
   }
 
+  public String[] getConnectionIds(String gameId) {
+    Optional<Game> optionalGame = gameDBUtility.get(gameId);
+    Game game = optionalGame.get();
+    String[] connectionIds = new String[2];
+    connectionIds[0] = game.getPlayers().get(0).getConnectionId();
+    connectionIds[1] = game.getPlayers().get(1).getConnectionId();
+    return connectionIds;
+  }
+
   public boolean isMovingOutOfTurn(String gameId, String connectionId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     if (optionalGame.isEmpty()) {
@@ -100,12 +109,8 @@ public class MakeMoveService {
             : game.getPlayers().get(0).getConnectionId();
     System.out.println(
         "current :" + game.getActivePlayerConnectionId() + " next " + nextConnectionId);
-    gameDBUtility.patch(
-        gameId,
-        Updates.combine(
-            Updates.set("gameStateAsFen", board.getFen()),
-            Updates.set("activePlayerConnectionId", nextConnectionId)));
-
+    gameDBUtility.patch(gameId, Updates.set("gameStateAsFen", board.getFen()));
+    gameDBUtility.patch(gameId, Updates.set("activePlayerConnectionId", nextConnectionId));
     return board.getFen();
   }
 }
