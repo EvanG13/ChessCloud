@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.example.utils.Constants;
 import org.example.utils.GameMode;
 
 @Getter
@@ -41,6 +42,7 @@ public class Stats extends DataTransferObject {
       sb.append("\n\t\tlosses = ").append(entry.getValue().getLosses());
       sb.append("\n\t\tdraws  = ").append(entry.getValue().getDraws());
       sb.append("\n\t\trating = ").append(entry.getValue().getRating());
+      sb.append("\n\t\tRD = ").append(entry.getValue().getRD());
     }
 
     return sb.toString();
@@ -106,12 +108,18 @@ public class Stats extends DataTransferObject {
     private Integer losses;
     private Integer draws;
     private Integer rating;
+    private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
 
     public GameModeStats() {
       this.wins = 0;
       this.losses = 0;
       this.draws = 0;
-      this.rating = 1000; // starting rating - get from const somewhere instead?
+      this.rating = Constants.BASE_RATING;
+      this.RD =
+          Constants
+              .BASE_RD; // relatively high uncertainty for new players allows new players to arrive
+      // at their actual rating faster
+
     }
 
     public GameModeStats(int rating) {
@@ -119,20 +127,61 @@ public class Stats extends DataTransferObject {
       this.losses = 0;
       this.draws = 0;
       this.rating = rating;
+      this.RD = Constants.BASE_RD;
     }
 
-    public void AddWin(int opponentRating) {
+    // g is the adjusted impact of the opponent's rating taking into account their RD
+    private double g(double opponentRd) {
+      return 1.0
+          / Math.sqrt(
+              1 + 3 * Constants.Q * Constants.Q * opponentRd * opponentRd / (Math.PI * Math.PI));
+    }
+
+    private double expectedOutcome(double opponentRating, double opponentRd) {
+      double gValue = g(opponentRd);
+      return 1.0 / (1.0 + Math.exp(-gValue * (this.rating - opponentRating) / (1.0 / Constants.Q)));
+    }
+
+    public void AddWin(int opponentRating, double opponentRd) {
       this.wins++;
-      // determine rating gain?
+      double outcome = 1.0;
+      updateRating(opponentRating, opponentRd, outcome);
     }
 
-    public void AddLoss(int opponentRating) {
+    public void AddLoss(int opponentRating, double opponentRd) {
       this.losses++;
-      // determine rating loss?
+      double outcome = 0.0;
+      updateRating(opponentRating, opponentRd, outcome);
     }
 
-    public void AddDraw() {
+    public void AddDraw(int opponentRating, double opponentRd) {
       this.draws++;
+      double outcome = 0.5;
+      updateRating(opponentRating, opponentRd, outcome);
+    }
+
+    private void updateRating(int opponentRating, double opponentRd, double outcome) {
+      double gValue = g(opponentRd);
+      double expectedOutcome = expectedOutcome(opponentRating, opponentRd);
+
+      // Simplified Glicko-1 update equation
+      double dSquared =
+          1.0
+              / (Constants.Q
+                  * Constants.Q
+                  * gValue
+                  * gValue
+                  * expectedOutcome
+                  * (1 - expectedOutcome));
+      double rdNew = 1.0 / Math.sqrt(1.0 / (RD * RD) + 1.0 / dSquared);
+
+      double ratingChange =
+          Constants.Q
+              / ((1.0 / (RD * RD)) + (1.0 / dSquared))
+              * gValue
+              * (outcome - expectedOutcome);
+      this.rating += (int) Math.round(ratingChange);
+      this.RD = rdNew;
     }
 
     @Override
@@ -143,12 +192,13 @@ public class Stats extends DataTransferObject {
       return Objects.equals(wins, gameModeStats.wins)
           && Objects.equals(losses, gameModeStats.losses)
           && Objects.equals(draws, gameModeStats.draws)
-          && Objects.equals(rating, gameModeStats.rating);
+          && Objects.equals(rating, gameModeStats.rating)
+          && Objects.equals(RD, gameModeStats.RD);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(wins, losses, draws, rating);
+      return Objects.hash(wins, losses, draws, rating, RD);
     }
   }
 }
