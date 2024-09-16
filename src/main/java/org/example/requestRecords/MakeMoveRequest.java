@@ -1,3 +1,3 @@
 package org.example.requestRecords;
 
-public record MakeMoveRequest(String gameId, String playerId, String move, String connectionId) {}
+public record MakeMoveRequest(String gameId, String playerId, String move) {}
