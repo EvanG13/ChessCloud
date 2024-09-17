@@ -40,6 +40,10 @@ public class MakeMoveHandler
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
 
+    // TODO: maybe check if the game exists? isUserInGame does this, as well as most of the others
+    // maybe like, return the game into this class, or store in the service after checking if it exists
+    // because nothing should really happen to the game to make it disappear from here until the end of the function
+
     String connectionId = event.getRequestContext().getConnectionId();
     if (!service.isUserInGame(requestData.gameId(), connectionId, requestData.playerId())) {
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
@@ -50,12 +54,12 @@ public class MakeMoveHandler
     }
 
     String boardState = service.getBoardState(requestData.gameId());
-    if (boardState == null) {
+    if (boardState == null) { // TODO: throw an exception instead of returning null
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game is Missing Game State");
     }
 
     String makeMoveResult = service.makeMove(requestData.move(), boardState, requestData.gameId());
-    if (makeMoveResult.equals("INVALID MOVE") ) {
+    if (makeMoveResult.equals("INVALID MOVE") ) { // TODO: see MakeMoveService; should probably catch exceptions
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move: " + requestData.move());
     }
 

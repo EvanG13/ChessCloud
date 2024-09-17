@@ -105,6 +105,7 @@ public class Stats extends DataTransferObject {
   @Getter
   @AllArgsConstructor
   public static class GameModeStats {
+    // TODO: Move this to its own class?
     private Integer wins;
     private Integer losses;
     private Integer draws;

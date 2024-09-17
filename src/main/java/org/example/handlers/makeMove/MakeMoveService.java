@@ -23,18 +23,15 @@ public class MakeMoveService {
   }
 
   public String getBoardState(String gameId) {
-    Optional<Game> g = gameDBUtility.get(gameId);
+    Optional<Game> optionalGame = gameDBUtility.get(gameId);
+    if (optionalGame.isEmpty()) return null; // TODO: throw an exception instead
 
-    if (g.isEmpty()) return null;
-
-    Game game = g.get();
-
+    Game game = optionalGame.get();
     return game.getGameStateAsFen();
   }
 
   public boolean doesGameExist(String gameId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
-
     return optionalGame.isPresent();
   }
 
@@ -45,8 +42,7 @@ public class MakeMoveService {
 
   public boolean isUserInGame(String gameId, String connectionId, String playerId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
-
-    if (optionalGame.isEmpty()) return false;
+    if (optionalGame.isEmpty()) return false; // TODO: throw an exception instead
 
     Game game = optionalGame.get();
 
@@ -66,7 +62,8 @@ public class MakeMoveService {
 
   public String[] getPlayerConnectionIds(String gameId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
-    Game game = optionalGame.get();
+    Game game = optionalGame.get(); // TODO: throw an exception if invalid
+
     String[] connectionIds = new String[2];
     connectionIds[0] = game.getPlayers().get(0).getConnectionId();
     connectionIds[1] = game.getPlayers().get(1).getConnectionId();
@@ -77,7 +74,7 @@ public class MakeMoveService {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     if (optionalGame.isEmpty()) {
       System.out.println(" game not found.");
-      return false;
+      return false; // TODO: throw an exception instead
     }
 
     Game game = optionalGame.get();
@@ -86,20 +83,28 @@ public class MakeMoveService {
 
   public String makeMove(String moveString, String boardState, String gameId) {
     board.loadFromFen(boardState);
+
     Move move;
+    // TODO: just let the exception get thrown and catch in handler, or throw our own exception
     try {
+      // Try to build a move object
       move = new Move(moveString, board.getSideToMove());
     } catch (Exception e) {
+      // Throws an error if the move string was not in Square-To-From format (ex: "e2e4" to try to move piece at E2 to square E4)
+      // Blame the chess lib
       return "INVALID MOVE";
     }
+
+    // Check move is legal (is among the available moves)
     if (!isMoveLegal(boardState, move)) {
+      // TODO: throw our own exception probably
       return "INVALID MOVE";
     }
 
     board.doMove(move);
 
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
-    Game game = optionalGame.get();
+    Game game = optionalGame.get(); // TODO: throw an exception if invalid
 
     String nextConnectionId =
         game.getPlayers().get(0).getConnectionId().equals(game.getActivePlayerConnectionId())
