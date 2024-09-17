@@ -43,7 +43,7 @@ public class MakeMoveService {
     return board.legalMoves().contains(move);
   }
 
-  public boolean doesGameMatchUser(String gameId, String connectionId, String playerId) {
+  public boolean isUserInGame(String gameId, String connectionId, String playerId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
 
     if (optionalGame.isEmpty()) return false;
@@ -56,14 +56,15 @@ public class MakeMoveService {
 
     if (playerId.equals(player1.getPlayerId())) {
       return player1.getConnectionId().equals(connectionId);
-    } else if (playerId.equals(player2.getPlayerId())) {
+    }
+    if (playerId.equals(player2.getPlayerId())) {
       return player2.getConnectionId().equals(connectionId);
     }
 
     return false;
   }
 
-  public String[] getConnectionIds(String gameId) {
+  public String[] getPlayerConnectionIds(String gameId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     Game game = optionalGame.get();
     String[] connectionIds = new String[2];
@@ -94,12 +95,9 @@ public class MakeMoveService {
     if (!isMoveLegal(boardState, move)) {
       return "INVALID MOVE";
     }
-    try {
-      board.doMove(move);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-      return "INVALID MOVE";
-    }
+
+    board.doMove(move);
+
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     Game game = optionalGame.get();
 

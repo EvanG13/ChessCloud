@@ -41,11 +41,11 @@ public class MakeMoveHandler
     }
 
     String connectionId = event.getRequestContext().getConnectionId();
-    if (!service.doesGameMatchUser(requestData.gameId(), connectionId, requestData.playerId())) {
-      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "user is not in this game.");
+    if (!service.isUserInGame(requestData.gameId(), connectionId, requestData.playerId())) {
+      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
-    if (!service.isMovingOutOfTurn(requestData.gameId(), connectionId)) {
+    if (service.isMovingOutOfTurn(requestData.gameId(), connectionId)) {
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "It is not your turn.");
     }
 
@@ -55,11 +55,12 @@ public class MakeMoveHandler
     }
 
     String makeMoveResult = service.makeMove(requestData.move(), boardState, requestData.gameId());
-    if (makeMoveResult == "INVALID MOVE") {
+    if (makeMoveResult.equals("INVALID MOVE") ) {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move: " + requestData.move());
     }
+
     // TODO update the clock
-    String[] connectionIds = service.getConnectionIds(requestData.gameId());
+    String[] connectionIds = service.getPlayerConnectionIds(requestData.gameId());
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], makeMoveResult);
     return makeWebsocketResponse(StatusCodes.OK, makeMoveResult);
   }
