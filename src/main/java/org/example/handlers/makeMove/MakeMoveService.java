@@ -110,8 +110,6 @@ public class MakeMoveService {
         game.getPlayers().get(0).getConnectionId().equals(game.getActivePlayerConnectionId())
             ? game.getPlayers().get(1).getConnectionId()
             : game.getPlayers().get(0).getConnectionId();
-    System.out.println(
-        "current :" + game.getActivePlayerConnectionId() + " next " + nextConnectionId);
 
     gameDBUtility.patch(
         gameId,
