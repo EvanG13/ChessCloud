@@ -5,6 +5,7 @@ import static com.mongodb.client.model.Filters.*;
 import com.mongodb.client.model.Filters;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.bson.conversions.Bson;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
 import org.example.entities.Stats;
@@ -39,6 +40,12 @@ public class JoinGameService {
     }
 
     return optionalGame;
+  }
+
+  public boolean isInGame(String userId) {
+    Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
+    Optional<Game> optionalGame = gameDBUtility.get(filter);
+    return optionalGame.isPresent();
   }
 
   public void createGame(Game game) {
