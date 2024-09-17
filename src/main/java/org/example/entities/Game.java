@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
+import org.example.utils.Constants;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
 
@@ -20,8 +21,6 @@ import org.example.utils.TimeControl;
 @AllArgsConstructor
 @SuperBuilder
 public class Game extends DataTransferObject {
-  private final String STARTING_GAME_FEN =
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   @Expose private TimeControl timeControl;
   private String
       activePlayerConnectionId; // TODO consider changing this to use the color or the playerId
@@ -29,8 +28,6 @@ public class Game extends DataTransferObject {
   private List<String> moveList;
 
   @Expose private GameStatus gameStatus;
-
-  private String gameStateJSON;
 
   @Expose private List<Player> players;
 
@@ -56,9 +53,6 @@ public class Game extends DataTransferObject {
         + ", gameStatus= "
         + gameStatus
         + "\n"
-        + ", gameStateJSON= "
-        + gameStateJSON
-        + "\n"
         + ", gameStateAsFen= "
         + gameStateAsFen
         + "\n"
@@ -73,16 +67,15 @@ public class Game extends DataTransferObject {
   /**
    * Add player to existing game
    *
-   * @param player2
+   * @param player2 the second player to be added to the game
    */
   public void setup(Player player2) throws Exception {
     if (this.gameStatus.getStatus() != GameStatus.PENDING.getStatus() || players.size() != 1) {
-      // game has already started or has finished so do nothing
+      // game has already started or has finished
       throw new Exception();
     }
 
     moveList = new ArrayList<>();
-    gameStateJSON = "";
     Player player1 = players.get(0);
 
     Random rand = new Random();
@@ -101,7 +94,7 @@ public class Game extends DataTransferObject {
       player2.setIsWhite(false);
     }
     players.add(player2);
-    this.gameStateAsFen = STARTING_GAME_FEN;
+    this.gameStateAsFen = Constants.STARTING_FEN_STRING;
     this.gameStatus = GameStatus.ONGOING;
   }
 
