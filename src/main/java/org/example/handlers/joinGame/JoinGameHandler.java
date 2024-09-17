@@ -55,15 +55,13 @@ public class JoinGameHandler
 
     String connectionId = requestContext.getConnectionId();
 
-    // TODO : Check if the player is already connected to a game
-
     Gson gson = new Gson();
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
 
     String userId = joinRequestData.userId();
     Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
-      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "Unauthorized");
+      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "No user matches userId");
     }
 
     Optional<Stats> optionalStats = service.getUserStats(userId);
@@ -71,6 +69,10 @@ public class JoinGameHandler
       // all users should have stats
       return makeWebsocketResponse(
           StatusCodes.INTERNAL_SERVER_ERROR, "User doesn't have entry in Stats collection");
+    }
+
+    if (service.isInGame(userId)) {
+      return makeWebsocketResponse(StatusCodes.FORBIDDEN, "You are already in 1 game.");
     }
 
     User user = optionalUser.get();
@@ -109,7 +111,7 @@ public class JoinGameHandler
       try {
         game.setup(newPlayer);
       } catch (Exception e) {
-        return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Error in setting up game");
       }
 
       service.updateGame(game);

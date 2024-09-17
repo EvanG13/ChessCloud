@@ -15,6 +15,7 @@ import org.example.entities.Player;
 import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.Constants;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
@@ -121,7 +122,7 @@ public class JoinGameHandlerTest {
             .playerId(userId)
             .connectionId(connectId)
             .username(username)
-            .rating(1000) // new player default rating
+            .rating(Constants.BASE_RATING) // new player default rating
             .build();
     Game expected = new Game(timeControl, newPlayer);
     expected.setId(
@@ -202,5 +203,34 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
+  }
+
+  @Test
+  @DisplayName("FORBIDDEN")
+  @Order(4)
+  public void returnForbidden() {
+    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+
+    Context context = new FakeContext();
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+
+    requestContext.setConnectionId(connectId);
+    requestContext.setRouteKey("joinGame");
+
+    event.setRequestContext(requestContext);
+    event.setBody(
+        "{'action' : 'joinGame', 'timeControl': '"
+            + timeControl
+            + "', 'userId': '"
+            + userId2
+            + "'}");
+
+    APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
+    System.out.println(response.getBody());
+    assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
   }
 }
