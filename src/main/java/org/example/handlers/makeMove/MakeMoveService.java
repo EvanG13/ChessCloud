@@ -116,7 +116,15 @@ public class MakeMoveService {
         gameId,
         Updates.combine(
             Updates.set("gameStateAsFen", board.getFen()),
-            Updates.set("activePlayerConnectionId", nextConnectionId)));
+            Updates.set("activePlayerConnectionId", nextConnectionId),
+            Updates.push("moveList", move.toString())));
+
     return board.getFen();
+  }
+
+  public List<String> getMoveList(String gameId) {
+    Optional<Game> optionalGame = gameDBUtility.get(gameId);
+    Game game = optionalGame.get(); // TODO: throw an exception if invalid
+    return game.getMoveList();
   }
 }

@@ -1,13 +1,17 @@
-package org.example.handlers.makeMove;
+package org.example.handlers.getGameState;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.example.databases.MongoDBUtility;
 import org.example.entities.Game;
@@ -16,6 +20,8 @@ import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.joinGame.JoinGameHandler;
 import org.example.handlers.joinGame.JoinGameService;
+import org.example.handlers.makeMove.MakeMoveHandler;
+import org.example.handlers.makeMove.MakeMoveService;
 import org.example.statusCodes.StatusCodes;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
@@ -24,7 +30,7 @@ import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MakeMoveHandlerTest {
+public class GetGameStateTest {
   public static Gson gson;
 
   public static SocketSystemLogger socketLogger;
@@ -219,68 +225,8 @@ public class MakeMoveHandlerTest {
   }
 
   @Test
-  @DisplayName("User is not a Player")
-  @Order(3)
-  public void returnUnauthorized() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new FakeContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + wrongUserId
-            + "', 'move': '"
-            + firstMove
-            + "'}");
-
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("User is not in this game.", response.getBody());
-  }
-
-  @Test
-  @DisplayName("M1: White - invalid move")
-  @Order(4)
-  public void returnBadRequest() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new FakeContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + invalidMove
-            + "'}");
-
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid move: " + invalidMove, response.getBody());
-  }
-
-  @Test
   @DisplayName("M1: White - successful move")
-  @Order(5)
+  @Order(3)
   public void returnOk() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
@@ -311,67 +257,8 @@ public class MakeMoveHandlerTest {
   }
 
   @Test
-  @DisplayName("M2: Black - invalid move")
-  @Order(6)
-  public void returnSecondBadRequest() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new FakeContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId2);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId2
-            + "', 'move': '"
-            + secondInvalidMove
-            + "'}");
-
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Invalid move: " + secondInvalidMove, response.getBody());
-  }
-
-  @Test
-  @DisplayName("M2: White - tried to move out of turn")
-  @Order(7)
-  public void returnMovedOutOfTurn() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new FakeContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + thirdMove
-            + "'}");
-
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("It is not your turn.", response.getBody());
-  }
-
-  @Test
   @DisplayName("M2: Black - successful move")
-  @Order(8)
+  @Order(4)
   public void returnSuccessfulSecondMove() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
@@ -403,7 +290,7 @@ public class MakeMoveHandlerTest {
 
   @Test
   @DisplayName("M3: White - successful move")
-  @Order(9)
+  @Order(5)
   public void returnSuccessfulThirdMove() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
@@ -431,5 +318,43 @@ public class MakeMoveHandlerTest {
     assertEquals(
         "{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"]}",
         response.getBody());
+  }
+
+  @Test
+  @DisplayName("Get Game State")
+  @Order(6)
+  public void returnSuccessfulGameState() {
+    GetGameStateHandler getGameStateHandler =
+        new GetGameStateHandler(new GameStateService(gameUtility));
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
+    Context context = new FakeContext();
+
+    APIGatewayV2HTTPEvent.RequestContext requestContext =
+        new APIGatewayV2HTTPEvent.RequestContext();
+
+    event.setRequestContext(requestContext);
+    APIGatewayV2HTTPResponse response = getGameStateHandler.handleRequest(event, context);
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+    Game game = gameUtility.get(gameId).get();
+    assertEquals(game.toResponseJson(), response.getBody());
+  }
+
+  @Test
+  @DisplayName("User is not in a game")
+  @Order(7)
+  public void returnNotFound() {
+    GetGameStateHandler getGameStateHandler =
+        new GetGameStateHandler(new GameStateService(gameUtility));
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", wrongUserId));
+    Context context = new FakeContext();
+
+    APIGatewayV2HTTPEvent.RequestContext requestContext =
+        new APIGatewayV2HTTPEvent.RequestContext();
+
+    event.setRequestContext(requestContext);
+    APIGatewayV2HTTPResponse response = getGameStateHandler.handleRequest(event, context);
+    assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
   }
 }

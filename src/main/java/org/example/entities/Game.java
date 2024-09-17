@@ -21,11 +21,11 @@ import org.example.utils.TimeControl;
 @AllArgsConstructor
 @SuperBuilder
 public class Game extends DataTransferObject {
-  @Expose private TimeControl timeControl;
+  private TimeControl timeControl;
   private String
       activePlayerConnectionId; // TODO consider changing this to use the color or the playerId
 
-  private List<String> moveList;
+  @Expose private List<String> moveList;
 
   @Expose private GameStatus gameStatus;
 

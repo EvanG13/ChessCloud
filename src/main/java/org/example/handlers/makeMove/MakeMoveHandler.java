@@ -68,7 +68,9 @@ public class MakeMoveHandler
 
     // TODO update the clock
     String[] connectionIds = service.getPlayerConnectionIds(requestData.gameId());
+    MakeMoveResponse res =
+        new MakeMoveResponse(makeMoveResult, service.getMoveList(requestData.gameId()));
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], makeMoveResult);
-    return makeWebsocketResponse(StatusCodes.OK, makeMoveResult);
+    return makeWebsocketResponse(StatusCodes.OK, res.toJSON());
   }
 }
