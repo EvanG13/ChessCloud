@@ -37,12 +37,13 @@ public class Stats extends DataTransferObject {
     sb.append("userid = ").append(id);
 
     for (HashMap.Entry<String, GameModeStats> entry : gameModeStats.entrySet()) {
-      sb.append("\n\tgamemode = ").append(entry.getKey());
-      sb.append("\n\t\twins   = ").append(entry.getValue().getWins());
-      sb.append("\n\t\tlosses = ").append(entry.getValue().getLosses());
-      sb.append("\n\t\tdraws  = ").append(entry.getValue().getDraws());
-      sb.append("\n\t\trating = ").append(entry.getValue().getRating());
-      sb.append("\n\t\tRD = ").append(entry.getValue().getRD());
+      GameModeStats gameModeStats = entry.getValue();
+      sb.append("\n\tgamemode = ").append(entry.getKey())
+        .append("\n\t\twins   = ").append(gameModeStats.getWins())
+        .append("\n\t\tlosses = ").append(gameModeStats.getLosses())
+        .append("\n\t\tdraws  = ").append(gameModeStats.getDraws())
+        .append("\n\t\trating = ").append(gameModeStats.getRating())
+        .append("\n\t\tRD     = ").append(gameModeStats.getRD());
     }
 
     return sb.toString();
@@ -111,23 +112,21 @@ public class Stats extends DataTransferObject {
     private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
 
     public GameModeStats() {
-      this.wins = 0;
-      this.losses = 0;
-      this.draws = 0;
-      this.rating = Constants.BASE_RATING;
-      this.RD =
-          Constants
-              .BASE_RD; // relatively high uncertainty for new players allows new players to arrive
-      // at their actual rating faster
-
+      this(Constants.BASE_RATING, Constants.BASE_RD);
     }
 
     public GameModeStats(int rating) {
+      this(rating, Constants.BASE_RD);
+    }
+
+    public GameModeStats(int rating, double rd) {
       this.wins = 0;
       this.losses = 0;
       this.draws = 0;
       this.rating = rating;
-      this.RD = Constants.BASE_RD;
+      this.RD = rd;
+      // relatively high uncertainty for new players allows new players to arrive
+      // at their actual rating faster
     }
 
     // g is the adjusted impact of the opponent's rating taking into account their RD
