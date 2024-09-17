@@ -22,10 +22,10 @@ import org.example.utils.TimeControl;
 @SuperBuilder
 public class Game extends DataTransferObject {
   @Expose private TimeControl timeControl;
-  private String
-      activePlayerConnectionId; // TODO consider changing this to use the color or the playerId
 
-  private List<String> moveList;
+  @Expose private Boolean isWhitesTurn;
+
+  @Expose private List<String> moveList;
 
   @Expose private GameStatus gameStatus;
 
@@ -34,6 +34,18 @@ public class Game extends DataTransferObject {
   @Expose private Integer rating;
 
   @Expose private String gameStateAsFen;
+
+  public Game(TimeControl timeControl, Player player) {
+    this.id = new ObjectId().toString();
+
+    this.timeControl = timeControl;
+    // TODO: not omit moveList?
+    this.isWhitesTurn = true;
+    this.gameStatus = GameStatus.PENDING;
+    this.players = new ArrayList<>(){{ add(player); }};
+    this.rating = player.getRating();
+    // TODO: not omit gameStateAsFen?
+  }
 
   @Override
   public String toString() {
@@ -44,8 +56,8 @@ public class Game extends DataTransferObject {
         + ", timeControl= "
         + timeControl
         + "\n"
-        + ", activePlayerConnectionId= "
-        + activePlayerConnectionId
+        + ", isWhitesTurn= "
+        + isWhitesTurn
         + '\n'
         + ", moveList="
         + moveList
@@ -75,36 +87,25 @@ public class Game extends DataTransferObject {
       throw new Exception();
     }
 
-    moveList = new ArrayList<>();
     Player player1 = players.get(0);
-
-    Random rand = new Random();
-
-    int randInt = rand.nextInt(2);
 
     player1.setRemainingTime(timeControl.getTimeInSeconds());
     player2.setRemainingTime(timeControl.getTimeInSeconds());
+
+    Random rand = new Random();
+    int randInt = rand.nextInt(2);
     if (randInt == 0) {
       player1.setIsWhite(false);
       player2.setIsWhite(true);
-      activePlayerConnectionId = player2.getConnectionId();
     } else {
       player1.setIsWhite(true);
-      activePlayerConnectionId = player1.getConnectionId();
       player2.setIsWhite(false);
     }
-    players.add(player2);
-    this.gameStateAsFen = Constants.STARTING_FEN_STRING;
-    this.gameStatus = GameStatus.ONGOING;
-  }
 
-  public Game(TimeControl timeControl, Player player) {
-    id = new ObjectId().toString();
-    players = new ArrayList<>();
-    players.add(player);
-    this.timeControl = timeControl;
-    this.gameStatus = GameStatus.PENDING;
-    this.rating = player.getRating();
+    this.moveList = new ArrayList<>();
+    this.gameStatus = GameStatus.ONGOING;
+    this.players.add(player2);
+    this.gameStateAsFen = Constants.STARTING_FEN_STRING;
   }
 
   @Override
@@ -114,14 +115,16 @@ public class Game extends DataTransferObject {
     Game game = (Game) o;
     return Objects.equals(id, game.id)
         && timeControl == game.timeControl
-        && Objects.equals(activePlayerConnectionId, game.activePlayerConnectionId)
+        && isWhitesTurn == game.isWhitesTurn
+        && Objects.equals(moveList, game.moveList)
         && gameStatus == game.gameStatus
         && Objects.equals(players, game.players)
-        && Objects.equals(rating, game.rating);
+        && Objects.equals(rating, game.rating)
+        && Objects.equals(gameStateAsFen, game.gameStateAsFen);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, timeControl, activePlayerConnectionId, gameStatus, players, rating);
+    return Objects.hash(id, timeControl, isWhitesTurn, gameStatus, players, rating);
   }
 }
