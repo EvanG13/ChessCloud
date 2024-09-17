@@ -92,8 +92,10 @@ public class MakeMoveHandlerTest {
     password = "1223";
     password2 = "123";
 
-    User testUser = User.builder().id(userId).email(email).password(password).username(username).build();
-    User testUser2 = User.builder().id(userId2).email(email2).password(password2).username(username2).build();
+    User testUser =
+        User.builder().id(userId).email(email).password(password).username(username).build();
+    User testUser2 =
+        User.builder().id(userId2).email(email2).password(password2).username(username2).build();
     userUtility.post(testUser);
     userUtility.post(testUser2);
 
@@ -124,7 +126,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("joinGame");
 
@@ -151,7 +154,8 @@ public class MakeMoveHandlerTest {
             .build();
 
     Game expected = new Game(timeControl, newPlayer);
-    expected.setId(gameId); // since calling the constructor will autoincrement the id from the last game
+    expected.setId(
+        gameId); // since calling the constructor will autoincrement the id from the last game
 
     Optional<Game> optionalGame = gameUtility.get(gameId);
 
@@ -169,7 +173,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId2);
     requestContext.setRouteKey("joinGame");
 
@@ -223,7 +228,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
 
@@ -252,7 +258,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
 
@@ -281,7 +288,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
 
@@ -309,7 +317,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId2);
     requestContext.setRouteKey("makeMove");
 
@@ -338,7 +347,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
 
@@ -367,7 +377,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId2);
     requestContext.setRouteKey("makeMove");
 
@@ -397,7 +408,8 @@ public class MakeMoveHandlerTest {
 
     Context context = new FakeContext();
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext = new APIGatewayV2WebSocketEvent.RequestContext();
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
 

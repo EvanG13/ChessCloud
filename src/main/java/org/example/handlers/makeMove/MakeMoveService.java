@@ -90,7 +90,8 @@ public class MakeMoveService {
       // Try to build a move object
       move = new Move(moveString, board.getSideToMove());
     } catch (Exception e) {
-      // Throws an error if the move string was not in Square-To-From format (ex: "e2e4" to try to move piece at E2 to square E4)
+      // Throws an error if the move string was not in Square-To-From format (ex: "e2e4" to try to
+      // move piece at E2 to square E4)
       // Blame the chess lib
       return "INVALID MOVE";
     }
@@ -115,9 +116,7 @@ public class MakeMoveService {
         gameId,
         Updates.combine(
             Updates.set("gameStateAsFen", board.getFen()),
-            Updates.set("activePlayerConnectionId", nextConnectionId)
-        )
-    );
+            Updates.set("activePlayerConnectionId", nextConnectionId)));
     return board.getFen();
   }
 }

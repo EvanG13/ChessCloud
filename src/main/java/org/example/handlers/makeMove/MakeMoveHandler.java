@@ -41,8 +41,10 @@ public class MakeMoveHandler
     }
 
     // TODO: maybe check if the game exists? isUserInGame does this, as well as most of the others
-    // maybe like, return the game into this class, or store in the service after checking if it exists
-    // because nothing should really happen to the game to make it disappear from here until the end of the function
+    // maybe like, return the game into this class, or store in the service after checking if it
+    // exists
+    // because nothing should really happen to the game to make it disappear from here until the end
+    // of the function
 
     String connectionId = event.getRequestContext().getConnectionId();
     if (!service.isUserInGame(requestData.gameId(), connectionId, requestData.playerId())) {
@@ -59,7 +61,8 @@ public class MakeMoveHandler
     }
 
     String makeMoveResult = service.makeMove(requestData.move(), boardState, requestData.gameId());
-    if (makeMoveResult.equals("INVALID MOVE") ) { // TODO: see MakeMoveService; should probably catch exceptions
+    if (makeMoveResult.equals(
+        "INVALID MOVE")) { // TODO: see MakeMoveService; should probably catch exceptions
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Invalid move: " + requestData.move());
     }
 

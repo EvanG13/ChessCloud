@@ -80,7 +80,7 @@ public class MongoDBUtility<T extends DataTransferObject> {
   }
 
   public void patch(String id, Bson filter) {
-    getCollection().updateOne(new Document("_id", id), filter);
+    getCollection().updateOne(eq("_id", id), filter);
   }
 
   public void put(String id, T object) {

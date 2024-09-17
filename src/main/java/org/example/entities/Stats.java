@@ -38,12 +38,18 @@ public class Stats extends DataTransferObject {
 
     for (HashMap.Entry<String, GameModeStats> entry : gameModeStats.entrySet()) {
       GameModeStats gameModeStats = entry.getValue();
-      sb.append("\n\tgamemode = ").append(entry.getKey())
-        .append("\n\t\twins   = ").append(gameModeStats.getWins())
-        .append("\n\t\tlosses = ").append(gameModeStats.getLosses())
-        .append("\n\t\tdraws  = ").append(gameModeStats.getDraws())
-        .append("\n\t\trating = ").append(gameModeStats.getRating())
-        .append("\n\t\tRD     = ").append(gameModeStats.getRD());
+      sb.append("\n\tgamemode = ")
+          .append(entry.getKey())
+          .append("\n\t\twins   = ")
+          .append(gameModeStats.getWins())
+          .append("\n\t\tlosses = ")
+          .append(gameModeStats.getLosses())
+          .append("\n\t\tdraws  = ")
+          .append(gameModeStats.getDraws())
+          .append("\n\t\trating = ")
+          .append(gameModeStats.getRating())
+          .append("\n\t\tRD     = ")
+          .append(gameModeStats.getRD());
     }
 
     return sb.toString();
