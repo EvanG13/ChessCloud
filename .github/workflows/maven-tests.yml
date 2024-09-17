@@ -1,0 +1,37 @@
+name: Maven Tests
+
+on:
+  push:
+    branches:
+      - 34-ci-action-that-runs-tests-on-merge
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      FRONTEND_URL: http://localhost:8081
+      MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_STAGE: ${{ secrets.AWS_STAGE }}
+      WEB_SOCKET_BACKEND_ENDPOINT: ${{ secrets.WEB_SOCKET_BACKEND_ENDPOINT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Amazon Corretto 21 JDK with Maven dependency caching
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Run unit tests
+        run: mvn test
