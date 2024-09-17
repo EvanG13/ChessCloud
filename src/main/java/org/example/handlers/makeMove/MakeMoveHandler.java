@@ -9,6 +9,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.requestRecords.MakeMoveRequest;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -33,6 +34,11 @@ public class MakeMoveHandler
       APIGatewayV2WebSocketEvent event, Context context) {
 
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
+    try {
+      ValidateObject.requireNonNull(requestData);
+    } catch (NullPointerException e) {
+      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
+    }
 
     String connectionId = event.getRequestContext().getConnectionId();
     if (!service.doesGameMatchUser(requestData.gameId(), connectionId, requestData.playerId())) {

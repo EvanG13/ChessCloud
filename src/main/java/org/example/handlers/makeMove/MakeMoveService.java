@@ -80,7 +80,7 @@ public class MakeMoveService {
     }
 
     Game game = optionalGame.get();
-    return game.getActivePlayerConnectionId() != connectionId;
+    return !game.getActivePlayerConnectionId().equals(connectionId);
   }
 
   public String makeMove(String moveString, String boardState, String gameId) {
@@ -104,13 +104,19 @@ public class MakeMoveService {
     Game game = optionalGame.get();
 
     String nextConnectionId =
-        game.getPlayers().get(0).getConnectionId() == game.getActivePlayerConnectionId()
+        game.getPlayers().get(0).getConnectionId().equals(game.getActivePlayerConnectionId())
             ? game.getPlayers().get(1).getConnectionId()
             : game.getPlayers().get(0).getConnectionId();
     System.out.println(
         "current :" + game.getActivePlayerConnectionId() + " next " + nextConnectionId);
-    gameDBUtility.patch(gameId, Updates.set("gameStateAsFen", board.getFen()));
-    gameDBUtility.patch(gameId, Updates.set("activePlayerConnectionId", nextConnectionId));
+
+    gameDBUtility.patch(
+        gameId,
+        Updates.combine(
+            Updates.set("gameStateAsFen", board.getFen()),
+            Updates.set("activePlayerConnectionId", nextConnectionId)
+        )
+    );
     return board.getFen();
   }
 }
