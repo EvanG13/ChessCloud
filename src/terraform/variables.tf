@@ -48,7 +48,8 @@ variable "websocket_lambdas" {
     disconnect = "org.example.handlers.disconnect.DisconnectHandler::handleRequest",
     default    = "org.example.handlers.defaultHandler.DefaultHandler::handleRequest",
     message    = "org.example.handlers.message.MessageHandler::handleRequest",
-    joinGame   = "org.example.handlers.joinGame.JoinGameHandler::handleRequest"
+    joinGame   = "org.example.handlers.joinGame.JoinGameHandler::handleRequest",
+    makeMove   = "org.example.handlers.makeMove.MakeMoveHandler::handleRequest",
   }
 }
 

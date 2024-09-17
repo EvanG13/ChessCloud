@@ -23,5 +23,5 @@ components:
     GamemodeStats:
       type: object
       description: Stats for one or all tracked game modes
-      additionalProperties:
+      properties:
         $ref: '#/components/schemas/Stats'

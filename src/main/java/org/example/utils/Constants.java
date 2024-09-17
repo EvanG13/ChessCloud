@@ -1,0 +1,11 @@
+package org.example.utils;
+
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public final class Constants {
+  public static final Integer BASE_RATING = 1000;
+  public static final Double BASE_RD = 350.0;
+  public static final Double Q =
+      Math.log(10) / 400; // scaling factor constant used in calculating glicko ratings
+}
