@@ -440,29 +440,8 @@ components:
           description: The user's password
     GamemodeStats:
       type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Stats'
+      properties: {}
       description: Stats for one or all tracked game modes
-    Stats:
-      required:
-      - draws
-      - losses
-      - rating
-      - wins
-      type: object
-      properties:
-        wins:
-          type: integer
-          example: 1
-        losses:
-          type: integer
-          example: 2
-        draws:
-          type: integer
-          example: 3
-        rating:
-          type: integer
-          example: 987
     User:
       type: object
       properties:
