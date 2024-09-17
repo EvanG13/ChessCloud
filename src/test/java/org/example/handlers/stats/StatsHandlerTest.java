@@ -60,7 +60,7 @@ public class StatsHandlerTest {
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}",
+        "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0}}",
         response.getBody());
   }
 
@@ -79,7 +79,8 @@ public class StatsHandlerTest {
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals("{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}", response.getBody());
+    assertEquals(
+        "{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0}", response.getBody());
   }
 
   @DisplayName("Query \"gamemode=invalidgamemode\" (invalid)")

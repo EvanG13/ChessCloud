@@ -12,7 +12,8 @@ locals {
     disconnect = "$disconnect",
     default    = "$default",
     message    = "message",
-    joinGame   = "joinGame"
+    joinGame   = "joinGame",
+    makeMove   = "makeMove",
   }
 }
 ################################################################################

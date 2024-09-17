@@ -20,8 +20,11 @@ import org.example.utils.TimeControl;
 @AllArgsConstructor
 @SuperBuilder
 public class Game extends DataTransferObject {
+  private final String STARTING_GAME_FEN =
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   @Expose private TimeControl timeControl;
-  private String activePlayerConnectionId;
+  private String
+      activePlayerConnectionId; // TODO consider changing this to use the color or the playerId
 
   private List<String> moveList;
 
@@ -32,6 +35,8 @@ public class Game extends DataTransferObject {
   @Expose private List<Player> players;
 
   @Expose private Integer rating;
+
+  @Expose private String gameStateAsFen;
 
   @Override
   public String toString() {
@@ -53,6 +58,9 @@ public class Game extends DataTransferObject {
         + "\n"
         + ", gameStateJSON= "
         + gameStateJSON
+        + "\n"
+        + ", gameStateAsFen= "
+        + gameStateAsFen
         + "\n"
         + ", players= "
         + players
@@ -93,6 +101,7 @@ public class Game extends DataTransferObject {
       player2.setIsWhite(false);
     }
     players.add(player2);
+    this.gameStateAsFen = STARTING_GAME_FEN;
     this.gameStatus = GameStatus.ONGOING;
   }
 
