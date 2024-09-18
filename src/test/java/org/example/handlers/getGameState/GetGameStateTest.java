@@ -31,7 +31,6 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GetGameStateTest {
-  public static Gson gson;
 
   public static SocketSystemLogger socketLogger;
 
@@ -66,7 +65,6 @@ public class GetGameStateTest {
 
   @BeforeAll
   public static void setUp() {
-    gson = new Gson();
 
     socketLogger = new SocketSystemLogger();
 
@@ -149,7 +147,7 @@ public class GetGameStateTest {
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
 
     String gameJson = response.getBody();
-    gameId = gson.fromJson(gameJson, Game.class).getId();
+    gameId = (new Gson()).fromJson(gameJson, Game.class).getId();
 
     Player newPlayer =
         Player.builder()

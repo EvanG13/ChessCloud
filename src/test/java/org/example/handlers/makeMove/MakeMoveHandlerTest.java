@@ -365,7 +365,7 @@ public class MakeMoveHandlerTest {
             + "'}");
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
+    assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
     assertEquals("It is not your turn.", response.getBody());
   }
 
