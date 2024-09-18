@@ -42,3 +42,5 @@ paths:
     $ref: '../resources/register.yaml'
   /stats:
     $ref: '../resources/stats.yaml'
+  /gameState:
+    $ref: '../resources/gameState.yaml'
