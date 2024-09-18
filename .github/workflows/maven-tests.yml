@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FRONTEND_URL: http://localhost:8081
       MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_STAGE: ${{ secrets.AWS_STAGE }}
