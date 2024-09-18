@@ -15,6 +15,7 @@ public class User extends DataTransferObject {
   @Expose private String email;
   private String password;
   @Expose private String username;
+  private String random;
 
   @Override
   public String toString() {
