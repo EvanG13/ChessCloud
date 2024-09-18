@@ -12,12 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_STAGE: ${{ secrets.AWS_STAGE }}
-      WEB_SOCKET_BACKEND_ENDPOINT: ${{ secrets.WEB_SOCKET_BACKEND_ENDPOINT }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,20 +19,17 @@ jobs:
       - name: Create temp .env file
         run:
           mkdir -p src/main/resources
-          echo "" >> src/main/resources/.env
+          echo "${{ secrets.ENV_FILE }}" > src/main/resources/.env
 
-      - name: Set up Amazon Corretto 21 JDK with Maven dependency caching
+      - name: Set up Amazon Corretto 17 JDK with Maven dependency caching
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
-          java-version: '21'
+          java-version: '17'
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean package -DskipTests
 
       - name: Run unit tests
         run: mvn test
-
-      - name: Delete temp .env file
-        run: rm src/main/resources/.env
