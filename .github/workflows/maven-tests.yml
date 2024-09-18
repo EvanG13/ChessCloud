@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create temp .env file
-        run:
+        run: |
           mkdir -p src/main/resources
           echo "${{ secrets.ENV_FILE }}" > src/main/resources/.env
 
