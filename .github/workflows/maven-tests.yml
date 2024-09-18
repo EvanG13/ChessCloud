@@ -1,9 +1,6 @@
 name: Maven Tests
 
 on:
-  push:
-    branches:
-      - 34-ci-action-that-runs-tests-on-merge
   pull_request:
     branches:
       - main
