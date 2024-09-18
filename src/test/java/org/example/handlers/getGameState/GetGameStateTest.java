@@ -120,7 +120,7 @@ public class GetGameStateTest {
     statsUtility.delete(userId2);
   }
 
-  @DisplayName("GAME CREATED ✅")
+  @DisplayName("Game Created ✅")
   @Test
   @Order(1)
   public void returnGameCreated() {
@@ -168,7 +168,7 @@ public class GetGameStateTest {
   }
 
   @Test
-  @DisplayName("GAME STARTED")
+  @DisplayName("Game Started")
   @Order(2)
   public void returnGameStarted() {
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
