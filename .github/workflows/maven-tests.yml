@@ -23,6 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create temp .env file
+        run:
+          mkdir -p src/main/resources
+          echo "" >> src/main/resources/.env
+
       - name: Set up Amazon Corretto 21 JDK with Maven dependency caching
         uses: actions/setup-java@v4
         with:
@@ -35,3 +40,6 @@ jobs:
 
       - name: Run unit tests
         run: mvn test
+
+      - name: Delete temp .env file
+        run: rm src/main/resources/.env
