@@ -1,9 +1,8 @@
 package org.example.handlers.makeMove;
 
 import com.google.gson.Gson;
-import lombok.AllArgsConstructor;
-
 import java.util.List;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class MakeMoveResponse {

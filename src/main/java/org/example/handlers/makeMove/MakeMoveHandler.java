@@ -52,7 +52,7 @@ public class MakeMoveHandler
     }
 
     if (service.isMovingOutOfTurn(requestData.gameId(), connectionId)) {
-      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "It is not your turn.");
+      return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
     String boardState = service.getBoardState(requestData.gameId());

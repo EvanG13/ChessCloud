@@ -29,7 +29,6 @@ public class GetGameStateHandler
           StatusCodes.BAD_REQUEST, "Missing Event object or Event Request Headers");
     }
 
-
     String userId = event.getHeaders().get("userid");
     Optional<Game> optionalGame = service.getGame(userId);
 
