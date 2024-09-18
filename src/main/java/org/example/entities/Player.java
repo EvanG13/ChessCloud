@@ -15,12 +15,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Player {
   @Expose private String username;
-  @Expose private String playerId;
+  private String playerId;
   @Expose private Boolean isWhite;
   @Expose private Integer rating;
   @Expose private Integer remainingTime;
 
-  @Expose private String connectionId;
+  private String connectionId;
 
   @Override
   public String toString() {

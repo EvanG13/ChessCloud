@@ -1,0 +1,56 @@
+components:
+  schemas:
+    GameState:
+      type: object
+      required:
+        - id
+        - moveList
+        - gameStatus
+        - players
+        - rating
+        - gameStateAsFen
+      properties:
+        id:
+          type: string
+          description: "Unique identifier for the game."
+        moveList:
+          type: array
+          items:
+            type: string
+          description: "List of moves made in the game."
+        gameStatus:
+          $ref: '#/components/schemas/GameStatus'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+          description: "List of players participating in the game."
+        rating:
+          type: integer
+          description: "Rating of the game."
+        gameStateAsFen:
+          type: string
+          description: "The current game state in FEN notation."
+    GameStatus:
+      type: string
+      enum:
+        - PENDING
+        - ONGOING
+        - FINISHED
+      description: "Current status of the game."
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique identifier for the player."
+        name:
+          type: string
+          description: "Name of the player."
+        rating:
+          type: integer
+          description: "Player's rating in the game."
+      required:
+        - id
+        - name
+        - rating

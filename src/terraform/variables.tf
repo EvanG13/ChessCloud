@@ -27,11 +27,12 @@ variable "lambda_runtime" {
 variable "rest_lambdas" {
   type = map(string)
   default = {
-    login    = "org.example.handlers.login.LoginHandler::handleRequest",
-    logout   = "org.example.handlers.logout.LogoutHandler::handleRequest",
-    register = "org.example.handlers.register.RegisterHandler::handleRequest",
-    auth     = "org.example.handlers.auth.AuthHandler::handleRequest",
-    stats    = "org.example.handlers.stats.StatsHandler::handleRequest"
+    login     = "org.example.handlers.login.LoginHandler::handleRequest",
+    logout    = "org.example.handlers.logout.LogoutHandler::handleRequest",
+    register  = "org.example.handlers.register.RegisterHandler::handleRequest",
+    auth      = "org.example.handlers.auth.AuthHandler::handleRequest",
+    stats     = "org.example.handlers.stats.StatsHandler::handleRequest",
+    gameState = "org.example.handlers.getGameState.GetGameStateHandler::handleRequest"
   }
 }
 
@@ -44,7 +45,6 @@ variable "rest_lambdas" {
 variable "websocket_lambdas" {
   type = map(string)
   default = {
-
     disconnect = "org.example.handlers.disconnect.DisconnectHandler::handleRequest",
     default    = "org.example.handlers.defaultHandler.DefaultHandler::handleRequest",
     message    = "org.example.handlers.message.MessageHandler::handleRequest",
