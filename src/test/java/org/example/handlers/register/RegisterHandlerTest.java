@@ -14,7 +14,7 @@ import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.rest.RegisterHandler;
 import org.example.services.RegisterService;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +49,7 @@ public class RegisterHandlerTest {
                   "password": "test"
          }""");
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     when(dbUtility.get(any(Bson.class))).thenReturn(Optional.empty());
     doNothing().when(dbUtility).post(any(User.class));
@@ -66,7 +66,7 @@ public class RegisterHandlerTest {
   @DisplayName("Bad Request 😠")
   @Test
   void returnBadRequest() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
@@ -76,7 +76,7 @@ public class RegisterHandlerTest {
   @DisplayName("Conflict 🔀")
   @Test
   void returnConflict() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setBody(
         """

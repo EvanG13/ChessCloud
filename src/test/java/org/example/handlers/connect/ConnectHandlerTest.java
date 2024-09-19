@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.example.constants.StatusCodes;
 import org.example.entities.Connection;
 import org.example.handlers.websocket.ConnectHandler;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
@@ -46,7 +46,7 @@ public class ConnectHandlerTest {
 
     event.setQueryStringParameters(queryStrings);
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -73,7 +73,7 @@ public class ConnectHandlerTest {
 
     event.setQueryStringParameters(queryStrings);
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -98,7 +98,7 @@ public class ConnectHandlerTest {
 
     event.setQueryStringParameters(queryStrings);
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();

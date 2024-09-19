@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.constants.ChessConstants;
@@ -19,9 +20,12 @@ import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
+import org.example.models.requests.JoinGameRequest;
+import org.example.models.requests.MakeMoveRequest;
+import org.example.models.responses.MakeMoveResponseBody;
 import org.example.services.JoinGameService;
 import org.example.services.MakeMoveService;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
@@ -34,6 +38,7 @@ public class MakeMoveHandlerTest {
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
+  public static JoinGameHandler joinGameHandler;
   public static MakeMoveService makeMoveService;
   public static JoinGameService joinGameService;
 
@@ -59,6 +64,8 @@ public class MakeMoveHandlerTest {
   public static String password;
   public static String password2;
 
+  public static Gson gson;
+
   @BeforeAll
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
@@ -69,6 +76,8 @@ public class MakeMoveHandlerTest {
 
     makeMoveService = new MakeMoveService(gameUtility, new Board());
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
+
+    joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     firstMove = "e2e4";
     secondMove = "d7d5"; // scandinavian game
@@ -102,6 +111,8 @@ public class MakeMoveHandlerTest {
     Stats testUserStats2 = new Stats(testUser2.getId());
     statsUtility.post(testUserStats);
     statsUtility.post(testUserStats2);
+
+    gson = new Gson();
   }
 
   @AfterAll
@@ -119,11 +130,10 @@ public class MakeMoveHandlerTest {
   @Test
   @Order(1)
   public void returnGameCreated() {
-    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -131,12 +141,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId
-            + "'}");
+    JoinGameRequest request = new JoinGameRequest("joinGame", userId, timeControl);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
@@ -166,11 +172,9 @@ public class MakeMoveHandlerTest {
   @DisplayName("GAME STARTED")
   @Order(2)
   public void returnGameStarted() {
-    JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
-
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -178,12 +182,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId2
-            + "'}");
+    JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
@@ -218,7 +218,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -226,14 +226,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + wrongUserId
-            + "', 'move': '"
-            + firstMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, wrongUserId, firstMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
@@ -248,7 +242,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -256,14 +250,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + invalidMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, invalidMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -278,7 +266,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -286,20 +274,17 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + firstMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, firstMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals(
-        "{\"fen\":\"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\",\"moveList\":[\"e2e4\"]}",
-        response.getBody());
+
+    MakeMoveResponseBody expectedResponse =
+        new MakeMoveResponseBody(
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            new ArrayList<>(List.of("e2e4")));
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -309,7 +294,7 @@ public class MakeMoveHandlerTest {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -317,14 +302,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId2
-            + "', 'move': '"
-            + secondInvalidMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2, secondInvalidMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -339,7 +318,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -347,14 +326,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + thirdMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
@@ -369,7 +342,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -377,20 +350,17 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId2
-            + "', 'move': '"
-            + secondMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2, secondMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals(
-        "{\"fen\":\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2\",\"moveList\":[\"e2e4\",\"d7d5\"]}",
-        response.getBody());
+
+    MakeMoveResponseBody expectedResponse =
+        new MakeMoveResponseBody(
+            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
+            new ArrayList<>(List.of("e2e4", "d7d5")));
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -401,7 +371,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -409,19 +379,16 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + thirdMove
-            + "'}");
+    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals(
-        "{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"]}",
-        response.getBody());
+
+    MakeMoveResponseBody expectedResponse =
+        new MakeMoveResponseBody(
+            "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+            new ArrayList<>(List.of("e2e4", "d7d5", "e4d5")));
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 }

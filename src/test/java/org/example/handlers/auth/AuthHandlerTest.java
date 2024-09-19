@@ -9,7 +9,7 @@ import java.util.Map;
 import org.example.entities.Session;
 import org.example.entities.User;
 import org.example.handlers.rest.AuthHandler;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
@@ -66,7 +66,7 @@ public class AuthHandlerTest {
 
     event.setHeaders(headers);
 
-    IamPolicyResponse response = authHandler.handleRequest(event, new FakeContext());
+    IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
 
     Map<String, Object> policyDocument = response.getPolicyDocument();
@@ -89,7 +89,7 @@ public class AuthHandlerTest {
 
     event.setHeaders(headers);
 
-    IamPolicyResponse response = authHandler.handleRequest(event, new FakeContext());
+    IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
 
     Map<String, Object> policyDocument = response.getPolicyDocument();

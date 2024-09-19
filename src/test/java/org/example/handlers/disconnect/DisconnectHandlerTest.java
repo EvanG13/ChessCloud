@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.Connection;
 import org.example.handlers.websocket.DisconnectHandler;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +41,7 @@ public class DisconnectHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();

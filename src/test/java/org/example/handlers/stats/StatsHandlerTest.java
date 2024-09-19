@@ -10,13 +10,14 @@ import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.rest.StatsHandler;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class StatsHandlerTest {
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
+  public static Context context;
 
   public static String userId;
 
@@ -24,6 +25,7 @@ public class StatsHandlerTest {
   public static void setUp() {
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    context = new MockContext();
 
     userId = "test-Id";
 
@@ -53,13 +55,12 @@ public class StatsHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(Map.of("userid", userId));
 
-    Context context = new FakeContext();
-
     StatsHandler statsHandler = new StatsHandler();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
+
     assertEquals(
         "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000,\"RD\":350.0}}",
         response.getBody());
@@ -72,8 +73,6 @@ public class StatsHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(Map.of("userid", userId));
     event.setQueryStringParameters(Map.of("gamemode", "bullet"));
-
-    Context context = new FakeContext();
 
     StatsHandler statsHandler = new StatsHandler();
 
@@ -92,8 +91,6 @@ public class StatsHandlerTest {
     event.setHeaders(Map.of("userid", userId));
     event.setQueryStringParameters(Map.of("gamemode", "invalidgamemode"));
 
-    Context context = new FakeContext();
-
     StatsHandler statsHandler = new StatsHandler();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
@@ -111,8 +108,6 @@ public class StatsHandlerTest {
     event.setHeaders(Map.of("userid", userId));
     event.setQueryStringParameters(Map.of("parameter", "bullet"));
 
-    Context context = new FakeContext();
-
     StatsHandler statsHandler = new StatsHandler();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
@@ -128,8 +123,6 @@ public class StatsHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(Map.of("userid", userId));
     event.setQueryStringParameters(Map.of("gamemode", ""));
-
-    Context context = new FakeContext();
 
     StatsHandler statsHandler = new StatsHandler();
 

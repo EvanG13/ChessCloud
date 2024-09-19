@@ -27,7 +27,7 @@ import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.services.GameStateService;
 import org.example.services.JoinGameService;
 import org.example.services.MakeMoveService;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
@@ -130,7 +130,7 @@ public class GetGameStateTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -177,7 +177,7 @@ public class GetGameStateTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -225,7 +225,7 @@ public class GetGameStateTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -257,7 +257,7 @@ public class GetGameStateTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -289,7 +289,7 @@ public class GetGameStateTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -321,7 +321,7 @@ public class GetGameStateTest {
         new GetGameStateHandler(new GameStateService(gameUtility));
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(Map.of("userid", userId));
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPEvent.RequestContext requestContext =
         new APIGatewayV2HTTPEvent.RequestContext();
@@ -344,7 +344,7 @@ public class GetGameStateTest {
         new GetGameStateHandler(new GameStateService(gameUtility));
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(Map.of("userid", wrongUserId));
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPEvent.RequestContext requestContext =
         new APIGatewayV2HTTPEvent.RequestContext();

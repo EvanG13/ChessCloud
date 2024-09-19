@@ -13,7 +13,7 @@ import org.example.entities.User;
 import org.example.handlers.rest.LogoutHandler;
 import org.example.services.LogoutService;
 import org.example.services.SessionService;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ public class LogoutHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(headers);
 
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new FakeContext());
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);
@@ -62,7 +62,7 @@ public class LogoutHandlerTest {
   void returnBadRequest() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new FakeContext());
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
     Optional<Session> optionalSession = sessionUtility.get(sessionToken);

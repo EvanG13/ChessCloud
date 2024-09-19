@@ -18,7 +18,7 @@ import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.services.JoinGameService;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
@@ -97,7 +97,7 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -143,7 +143,7 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -189,7 +189,7 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -216,7 +216,7 @@ public class JoinGameHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();

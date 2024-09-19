@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.google.gson.Gson;
 import java.util.Map;
 import java.util.Optional;
 import org.bson.types.ObjectId;
@@ -13,9 +14,10 @@ import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.rest.RegisterHandler;
+import org.example.models.requests.RegisterRequest;
 import org.example.services.RegisterService;
 import org.example.utils.EncryptPassword;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
@@ -23,12 +25,13 @@ public class RegisterHandlerITTest {
   private static RegisterHandler registerHandler;
   private static MongoDBUtility<User> utility;
   private static MongoDBUtility<Stats> statsUtility;
+  private static Gson gson;
 
   @BeforeAll
   public static void setUp() {
     utility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
-
+    gson = new Gson();
     User newUser =
         User.builder()
             .id(new ObjectId().toString())
@@ -73,15 +76,10 @@ public class RegisterHandlerITTest {
   void returnSuccess() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-         {
-                  "email": "test3@gmail.com",
-                  "username": "testuser3",
-                  "password": "test"
-         }""");
+    RegisterRequest registerRequest = new RegisterRequest("test3@gmail.com", "testuser3", "test");
+    event.setBody(gson.toJson(registerRequest));
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
@@ -96,7 +94,7 @@ public class RegisterHandlerITTest {
   @DisplayName("Bad Request - Missing Event 😠")
   @Test
   void returnBadRequest() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
 
@@ -106,14 +104,10 @@ public class RegisterHandlerITTest {
   @DisplayName("Bad Request - Missing Arg 😠")
   @Test
   void returnBadRequestMissingArgs() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setBody(
-        """
-             {
-                      "email": "reg-it-test@gmail.com",
-                      "password": "test"
-             }""");
+    RegisterRequest registerRequest = new RegisterRequest("reg-it-test@gmail.com", null, "test");
+    event.setBody(gson.toJson(registerRequest));
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
@@ -124,15 +118,11 @@ public class RegisterHandlerITTest {
   @DisplayName("Conflict 🔀")
   @Test
   void returnConflict() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setBody(
-        """
-         {
-                  "email": "reg-it-test@gmail.com",
-                  "username": "testuser",
-                  "password": "test"
-         }""");
+    RegisterRequest registerRequest =
+        new RegisterRequest("reg-it-test@gmail.com", "testuser", "test");
+    event.setBody(gson.toJson(registerRequest));
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
