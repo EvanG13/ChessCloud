@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.example.utils.Constants;
-import org.example.utils.GameMode;
+import org.example.constants.ChessConstants;
+import org.example.enums.GameMode;
 
 @Getter
 @Setter
@@ -119,11 +119,11 @@ public class Stats extends DataTransferObject {
     private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
 
     public GameModeStats() {
-      this(Constants.BASE_RATING, Constants.BASE_RD);
+      this(ChessConstants.BASE_RATING, ChessConstants.BASE_RD);
     }
 
     public GameModeStats(int rating) {
-      this(rating, Constants.BASE_RD);
+      this(rating, ChessConstants.BASE_RD);
     }
 
     public GameModeStats(int rating, double rd) {
@@ -140,12 +140,19 @@ public class Stats extends DataTransferObject {
     private double g(double opponentRd) {
       return 1.0
           / Math.sqrt(
-              1 + 3 * Constants.Q * Constants.Q * opponentRd * opponentRd / (Math.PI * Math.PI));
+              1
+                  + 3
+                      * ChessConstants.Q
+                      * ChessConstants.Q
+                      * opponentRd
+                      * opponentRd
+                      / (Math.PI * Math.PI));
     }
 
     private double expectedOutcome(double opponentRating, double opponentRd) {
       double gValue = g(opponentRd);
-      return 1.0 / (1.0 + Math.exp(-gValue * (this.rating - opponentRating) / (1.0 / Constants.Q)));
+      return 1.0
+          / (1.0 + Math.exp(-gValue * (this.rating - opponentRating) / (1.0 / ChessConstants.Q)));
     }
 
     public void AddWin(int opponentRating, double opponentRd) {
@@ -173,8 +180,8 @@ public class Stats extends DataTransferObject {
       // Simplified Glicko-1 update equation
       double dSquared =
           1.0
-              / (Constants.Q
-                  * Constants.Q
+              / (ChessConstants.Q
+                  * ChessConstants.Q
                   * gValue
                   * gValue
                   * expectedOutcome
@@ -182,7 +189,7 @@ public class Stats extends DataTransferObject {
       double rdNew = 1.0 / Math.sqrt(1.0 / (RD * RD) + 1.0 / dSquared);
 
       double ratingChange =
-          Constants.Q
+          ChessConstants.Q
               / ((1.0 / (RD * RD)) + (1.0 / dSquared))
               * gValue
               * (outcome - expectedOutcome);

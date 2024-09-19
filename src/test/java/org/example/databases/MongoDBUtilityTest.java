@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.example.entities.User;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

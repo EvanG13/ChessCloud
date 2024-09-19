@@ -6,13 +6,15 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.util.Map;
 import org.bson.types.ObjectId;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.User;
-import org.example.statusCodes.StatusCodes;
-import org.example.utils.FakeContext;
+import org.example.handlers.rest.LoginHandler;
+import org.example.models.requests.LoginRequest;
+import org.example.models.responses.LoginResponseBody;
+import org.example.utils.MockContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class LoginHandlerITTest {
@@ -24,11 +26,13 @@ public class LoginHandlerITTest {
 
   private static User newUser;
 
+  private static Gson gson;
+
   @BeforeAll
   public static void setUp() {
 
     dbUtility = new MongoDBUtility<>("users", User.class);
-
+    gson = new Gson();
     newUser =
         User.builder()
             .id(new ObjectId().toString())
@@ -41,7 +45,7 @@ public class LoginHandlerITTest {
 
     loginHandler = new LoginHandler();
 
-    context = new FakeContext();
+    context = new MockContext();
   }
 
   @AfterAll
@@ -54,12 +58,8 @@ public class LoginHandlerITTest {
   public void canLogin() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-             {
-                      "email": "it-test@gmail.com",
-                      "password": "testPassword"
-                    }""");
+    LoginRequest loginRequest = new LoginRequest("it-test@gmail.com", "testPassword");
+    event.setBody(gson.toJson(loginRequest));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
@@ -72,12 +72,9 @@ public class LoginHandlerITTest {
     assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
     assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
 
-    String body = response.getBody();
-    Gson gson = new Gson();
-    JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-    String userJsonString = jsonObject.get("user").getAsString();
+    LoginResponseBody body = (new Gson()).fromJson(response.getBody(), LoginResponseBody.class);
 
-    User user = gson.fromJson(userJsonString, User.class);
+    User user = body.getUser();
 
     assertNotNull(user.getId());
     assertEquals(user.getUsername(), "TestUsername");
@@ -92,12 +89,8 @@ public class LoginHandlerITTest {
   public void returnsUnauthorized() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-                 {
-                          "email": "super-fake-email@gmail.com",
-                          "password": "testPassword"
-                        }""");
+    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", "testPassword");
+    event.setBody(gson.toJson(loginRequest));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
@@ -128,11 +121,8 @@ public class LoginHandlerITTest {
   public void nullArgumentBadRequest() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-                     {
-                              "email": "super-fake-email@gmail.com"
-                            }""");
+    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", null);
+    event.setBody(gson.toJson(loginRequest));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 

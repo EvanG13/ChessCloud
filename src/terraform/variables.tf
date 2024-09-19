@@ -27,12 +27,12 @@ variable "lambda_runtime" {
 variable "rest_lambdas" {
   type = map(string)
   default = {
-    login     = "org.example.handlers.login.LoginHandler::handleRequest",
-    logout    = "org.example.handlers.logout.LogoutHandler::handleRequest",
-    register  = "org.example.handlers.register.RegisterHandler::handleRequest",
-    auth      = "org.example.handlers.auth.AuthHandler::handleRequest",
-    stats     = "org.example.handlers.stats.StatsHandler::handleRequest",
-    gameState = "org.example.handlers.getGameState.GetGameStateHandler::handleRequest"
+    login     = "org.example.handlers.rest.LoginHandler::handleRequest",
+    logout    = "org.example.handlers.rest.LogoutHandler::handleRequest",
+    register  = "org.example.handlers.rest.RegisterHandler::handleRequest",
+    auth      = "org.example.handlers.rest.AuthHandler::handleRequest",
+    stats     = "org.example.handlers.rest.StatsHandler::handleRequest",
+    gameState = "org.example.handlers.rest.GetGameStateHandler::handleRequest"
   }
 }
 
@@ -45,11 +45,11 @@ variable "rest_lambdas" {
 variable "websocket_lambdas" {
   type = map(string)
   default = {
-    disconnect = "org.example.handlers.disconnect.DisconnectHandler::handleRequest",
-    default    = "org.example.handlers.defaultHandler.DefaultHandler::handleRequest",
-    message    = "org.example.handlers.message.MessageHandler::handleRequest",
-    joinGame   = "org.example.handlers.joinGame.JoinGameHandler::handleRequest",
-    makeMove   = "org.example.handlers.makeMove.MakeMoveHandler::handleRequest",
+    disconnect = "org.example.handlers.websocket.DisconnectHandler::handleRequest",
+    default    = "org.example.handlers.websocket.DefaultHandler::handleRequest",
+    message    = "org.example.handlers.websocket.MessageHandler::handleRequest",
+    joinGame   = "org.example.handlers.websocket.JoinGameHandler::handleRequest",
+    makeMove   = "org.example.handlers.websocket.MakeMoveHandler::handleRequest",
   }
 }
 
