@@ -17,6 +17,7 @@ import org.example.entities.User;
 import org.example.handlers.joinGame.JoinGameHandler;
 import org.example.handlers.joinGame.JoinGameService;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.Constants;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
@@ -25,8 +26,6 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MakeMoveHandlerTest {
-  public static Gson gson;
-
   public static SocketSystemLogger socketLogger;
 
   public static MongoDBUtility<Game> gameUtility;
@@ -60,8 +59,6 @@ public class MakeMoveHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-    gson = new Gson();
-
     socketLogger = new SocketSystemLogger();
 
     gameUtility = new MongoDBUtility<>("games", Game.class);
@@ -143,14 +140,14 @@ public class MakeMoveHandlerTest {
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
 
     String gameJson = response.getBody();
-    gameId = gson.fromJson(gameJson, Game.class).getId();
+    gameId = (new Gson()).fromJson(gameJson, Game.class).getId();
 
     Player newPlayer =
         Player.builder()
             .playerId(userId)
             .connectionId(connectId)
             .username(username)
-            .rating(1000) // new player default rating
+            .rating(Constants.BASE_RATING) // new player default rating
             .build();
 
     Game expected = new Game(timeControl, newPlayer);

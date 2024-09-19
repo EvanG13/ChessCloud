@@ -23,6 +23,7 @@ import org.example.handlers.joinGame.JoinGameService;
 import org.example.handlers.makeMove.MakeMoveHandler;
 import org.example.handlers.makeMove.MakeMoveService;
 import org.example.statusCodes.StatusCodes;
+import org.example.utils.Constants;
 import org.example.utils.FakeContext;
 import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
@@ -65,7 +66,6 @@ public class GetGameStateTest {
 
   @BeforeAll
   public static void setUp() {
-
     socketLogger = new SocketSystemLogger();
 
     gameUtility = new MongoDBUtility<>("games", Game.class);
@@ -154,7 +154,7 @@ public class GetGameStateTest {
             .playerId(userId)
             .connectionId(connectId)
             .username(username)
-            .rating(1000) // new player default rating
+            .rating(Constants.BASE_RATING) // new player default rating
             .build();
 
     Game expected = new Game(timeControl, newPlayer);
@@ -198,24 +198,17 @@ public class GetGameStateTest {
 
     Game game = optionalGame.get();
     assertEquals(GameStatus.ONGOING, game.getGameStatus());
-
-    String activePlayerConnectionId = game.getActivePlayerConnectionId();
+    assertTrue(game.getIsWhitesTurn());
 
     List<Player> playerList = game.getPlayers();
     assertEquals(2, playerList.size());
 
     Player player1 = playerList.get(0);
     Player player2 = playerList.get(1);
-    assertNotEquals(player1.getIsWhite(), player2.getIsWhite());
+    assertNotSame(player1.getIsWhite(), player2.getIsWhite());
 
-    if (player1.getIsWhite()) {
-      assertEquals(connectId, activePlayerConnectionId);
-      connectId2 = player2.getConnectionId();
-      userId = player1.getPlayerId();
-      userId2 = player2.getPlayerId();
-    } else {
-      assertEquals(connectId2, activePlayerConnectionId);
-      connectId = activePlayerConnectionId;
+    if (player2.getIsWhite()) {
+      connectId = player2.getConnectionId();
       connectId2 = player1.getConnectionId();
       userId = player2.getPlayerId();
       userId2 = player1.getPlayerId();
@@ -334,7 +327,10 @@ public class GetGameStateTest {
     event.setRequestContext(requestContext);
     APIGatewayV2HTTPResponse response = getGameStateHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    Game game = gameUtility.get(gameId).get();
+    Optional<Game> optionalGame = gameUtility.get(gameId);
+    assertTrue(optionalGame.isPresent());
+    Game game = optionalGame.get();
+
     assertEquals(game.toResponseJson(), response.getBody());
   }
 
