@@ -17,6 +17,7 @@ import org.example.entities.User;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.JoinGameHandler;
+import org.example.models.requests.JoinGameRequest;
 import org.example.services.JoinGameService;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
@@ -105,13 +106,9 @@ public class JoinGameHandlerTest {
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("joinGame");
 
+    JoinGameRequest request = new JoinGameRequest("joinGame", userId, timeControl);
+    event.setBody(gson.toJson(request));
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId
-            + "'}");
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
@@ -152,12 +149,8 @@ public class JoinGameHandlerTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId2
-            + "'}");
+    JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
@@ -198,11 +191,10 @@ public class JoinGameHandlerTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': 'nonexistentUserId12321321"
-            + "'}");
+
+    JoinGameRequest request =
+        new JoinGameRequest("joinGame", "nonexistentUserId12321321", timeControl);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
@@ -225,12 +217,9 @@ public class JoinGameHandlerTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId2
-            + "'}");
+
+    JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
+    event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     System.out.println(response.getBody());

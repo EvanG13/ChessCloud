@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.google.gson.Gson;
 import java.util.Map;
 import java.util.Optional;
 import org.bson.conversions.Bson;
@@ -13,6 +14,7 @@ import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.handlers.rest.RegisterHandler;
+import org.example.models.requests.RegisterRequest;
 import org.example.services.RegisterService;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
@@ -24,15 +26,15 @@ import org.junit.jupiter.api.Test;
 public class RegisterHandlerTest {
   private RegisterHandler registerHandler;
   private MongoDBUtility<User> dbUtility;
-  private MongoDBUtility<Stats> statsUtility;
+  private static Gson gson;
 
   @BeforeEach
   void setUp() {
     dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
-    statsUtility = (MongoDBUtility<Stats>) mock(MongoDBUtility.class);
+    MongoDBUtility<Stats> statsUtility = (MongoDBUtility<Stats>) mock(MongoDBUtility.class);
 
     RegisterService service = new RegisterService(dbUtility, statsUtility);
-
+    gson = new Gson();
     registerHandler = new RegisterHandler(service);
   }
 
@@ -41,13 +43,8 @@ public class RegisterHandlerTest {
   void returnSuccess() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-         {
-                  "email": "test@gmail.com",
-                  "username": "testuser",
-                  "password": "test"
-         }""");
+    RegisterRequest registerRequest = new RegisterRequest("test@gmail.com", "testuser", "test");
+    event.setBody(gson.toJson(registerRequest));
 
     Context context = new MockContext();
 
@@ -78,13 +75,9 @@ public class RegisterHandlerTest {
   void returnConflict() {
     Context context = new MockContext();
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setBody(
-        """
-         {
-                  "email": "test@gmail.com",
-                  "username": "testuser",
-                  "password": "test"
-         }""");
+
+    RegisterRequest registerRequest = new RegisterRequest("test@gmail.com", "testuser", "test");
+    event.setBody(gson.toJson(registerRequest));
 
     when(dbUtility.get(any(Bson.class)))
         .thenReturn(
