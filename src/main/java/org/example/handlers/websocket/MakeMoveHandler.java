@@ -12,7 +12,7 @@ import org.example.entities.Game;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.models.requests.MakeMoveRequest;
-import org.example.models.responses.MakeMoveResponse;
+import org.example.models.responses.MakeMoveResponseBody;
 import org.example.services.MakeMoveService;
 import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
@@ -89,7 +89,8 @@ public class MakeMoveHandler
 
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], makeMoveResult);
 
-    MakeMoveResponse res = new MakeMoveResponse(makeMoveResult, service.getMoveList(gameId));
+    MakeMoveResponseBody res =
+        new MakeMoveResponseBody(makeMoveResult, service.getMoveList(gameId));
     return makeWebsocketResponse(StatusCodes.OK, res.toJSON());
   }
 }

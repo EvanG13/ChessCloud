@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
+import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.mongodb.MongoException;
 import java.util.Map;
 import org.example.constants.StatusCodes;
@@ -43,8 +44,8 @@ public class ConnectHandler
       service.createConnection(new ConnectionRequest(username, connectionId));
     } catch (MongoException e) {
       LambdaLogger logger = context.getLogger();
-      logger.log(e.getMessage());
-      throw e;
+      logger.log(e.getMessage(), LogLevel.FATAL);
+      return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "MongoDb error");
     }
 
     return makeWebsocketResponse(StatusCodes.OK, connectionId);

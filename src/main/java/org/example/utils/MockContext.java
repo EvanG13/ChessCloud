@@ -4,10 +4,11 @@ import com.amazonaws.services.lambda.runtime.ClientContext;
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import lombok.Getter;
 
 @Getter
-public class FakeContext implements Context {
+public class MockContext implements Context {
 
   @Override
   public String getAwsRequestId() {
@@ -61,6 +62,21 @@ public class FakeContext implements Context {
 
   @Override
   public LambdaLogger getLogger() {
-    return null;
+    return new LambdaLogger() {
+      @Override
+      public void log(String message) {
+        System.out.println("LOG: " + message);
+      }
+
+      @Override
+      public void log(String message, LogLevel logLevel) {
+        System.err.println("LOG: " + message);
+      }
+
+      @Override
+      public void log(byte[] message) {
+        System.out.println("LOG: " + new String(message));
+      }
+    };
   }
 }

@@ -3,9 +3,11 @@ package org.example.handlers.rest;
 import static org.example.utils.APIGatewayResponseBuilder.makeHttpResponse;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import java.util.Map;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
@@ -39,17 +41,19 @@ public class StatsHandler
     try {
       userStats = service.getStatsByUserID(userId);
     } catch (InternalServerError e) {
+      LambdaLogger logger = context.getLogger();
+      logger.log("User " + userId + " is missing stats", LogLevel.FATAL);
       return e.makeHttpResponse();
     }
 
+    // return with ALL game modes
     if (queryParams == null) {
-      // return with ALL gamemodes
       return makeHttpResponse(StatusCodes.OK, userStats.toJSON());
     }
 
     String gameMode = queryParams.get("gamemode");
 
-    // gamemode not part of query: bad request
+    // gamemode not part of query
     if (gameMode == null) {
       return makeHttpResponse(
           StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
@@ -70,7 +74,6 @@ public class StatsHandler
           "Query parameter \"gamemode\" had an invalid value: " + gameMode);
     }
 
-    // return with QUERIED gamemode
     return makeHttpResponse(StatusCodes.OK, optionalJson.get());
   }
 }
