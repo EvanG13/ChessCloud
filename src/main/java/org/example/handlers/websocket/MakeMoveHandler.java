@@ -58,7 +58,6 @@ public class MakeMoveHandler
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
-    if (!service.isPlayersTurn(requestData.gameId(), playerId)) {
     String gameId = requestData.gameId();
     String move = requestData.move();
 
@@ -69,9 +68,9 @@ public class MakeMoveHandler
       return e.makeWebsocketResponse();
     }
 
-        if (!service.isPlayersTurn(requestData.gameId(), playerId)) {
-            return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
-        }
+    if (!service.isPlayersTurn(game, playerId)) {
+      return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
+    }
 
     String boardState = game.getGameStateAsFen();
     if (boardState == null) {

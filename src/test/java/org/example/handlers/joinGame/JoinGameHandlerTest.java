@@ -1,5 +1,7 @@
 package org.example.handlers.joinGame;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
@@ -20,8 +22,6 @@ import org.example.utils.FakeContext;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JoinGameHandlerTest {

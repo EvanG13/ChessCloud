@@ -9,7 +9,6 @@ import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.Optional;
-
 import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
 import org.example.entities.Game;

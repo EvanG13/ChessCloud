@@ -62,12 +62,12 @@ public class MakeMoveService {
     return connectionIds;
   }
 
-    public boolean isPlayersTurn(Game game, String playerId) {
-        List<Player> players = game.getPlayers();
-        Player player = players.get(0).getPlayerId().equals(playerId) ? players.get(0) : players.get(1);
+  public boolean isPlayersTurn(Game game, String playerId) {
+    List<Player> players = game.getPlayers();
+    Player player = players.get(0).getPlayerId().equals(playerId) ? players.get(0) : players.get(1);
 
-        return game.getIsWhitesTurn() == player.getIsWhite();
-    }
+    return game.getIsWhitesTurn() == player.getIsWhite();
+  }
 
   public String makeMove(String moveString, String boardState, String gameId) throws BadRequest {
     board.loadFromFen(boardState);

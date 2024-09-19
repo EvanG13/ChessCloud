@@ -35,21 +35,12 @@ public class JoinGameHandler
     this.emitter = emitter;
   }
 
-  /**
-   * @param event { <br>
-   *     action: "joinGame", "userId": "fooid", "timeControl": "BLITZ_5" <br>
-   *     }
-   * @return 409 if a player is already connected to a game <br>
-   *     200 if a game was found, and we were able to join <br>
-   *     201 if no game was found to join thus we created a game and are awaiting a second player
-   */
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
 
     if (requestContext == null || requestContext.getConnectionId() == null) {
-      System.err.println("Invalid event: missing requestContext or connectionId");
       return makeWebsocketResponse(
           StatusCodes.BAD_REQUEST, "Invalid event: missing requestContext or connectionId");
     }
@@ -67,7 +58,6 @@ public class JoinGameHandler
 
     Optional<Stats> optionalStats = service.getUserStats(userId);
     if (optionalStats.isEmpty()) {
-      // all users should have stats
       return makeWebsocketResponse(
           StatusCodes.INTERNAL_SERVER_ERROR, "User doesn't have entry in Stats collection");
     }

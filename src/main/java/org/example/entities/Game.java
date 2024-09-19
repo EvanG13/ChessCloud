@@ -42,7 +42,12 @@ public class Game extends DataTransferObject {
     // TODO: not omit moveList?
     this.isWhitesTurn = true;
     this.gameStatus = GameStatus.PENDING;
-    this.players = new ArrayList<>(){{ add(player); }};
+    this.players =
+        new ArrayList<>() {
+          {
+            add(player);
+          }
+        };
     this.rating = player.getRating();
     // TODO: not omit gameStateAsFen?
   }
@@ -103,7 +108,6 @@ public class Game extends DataTransferObject {
     }
 
     this.moveList = new ArrayList<>();
-    players.add(player2);
     this.gameStateAsFen = ChessConstants.STARTING_FEN_STRING;
     this.gameStatus = GameStatus.ONGOING;
     this.players.add(player2);
