@@ -7,15 +7,17 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.util.Map;
 import java.util.Optional;
 import org.bson.conversions.Bson;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.User;
-import org.example.statusCodes.StatusCodes;
+import org.example.handlers.rest.LoginHandler;
+import org.example.models.responses.LoginResponse;
+import org.example.services.LoginService;
 import org.example.utils.EncryptPassword;
 import org.example.utils.FakeContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,11 +69,9 @@ public class LoginHandlerTest {
     assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
     assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
 
-    String body = response.getBody();
-    Gson gson = new Gson();
-    JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-    String userJsonString = jsonObject.get("user").getAsString();
-    User user = gson.fromJson(userJsonString, User.class);
+    LoginResponse body = (new Gson()).fromJson(response.getBody(), LoginResponse.class);
+
+    User user = body.getUser();
 
     // The user response object contains the correct fields
     assertEquals(user.getId(), "foo");

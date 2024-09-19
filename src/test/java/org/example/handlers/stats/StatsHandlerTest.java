@@ -6,11 +6,12 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.entities.User;
-import org.example.statusCodes.StatusCodes;
+import org.example.handlers.rest.StatsHandler;
 import org.example.utils.FakeContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class StatsHandlerTest {

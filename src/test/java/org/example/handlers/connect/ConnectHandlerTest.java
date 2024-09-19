@@ -8,10 +8,11 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.Connection;
-import org.example.statusCodes.StatusCodes;
+import org.example.handlers.websocket.ConnectHandler;
 import org.example.utils.FakeContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

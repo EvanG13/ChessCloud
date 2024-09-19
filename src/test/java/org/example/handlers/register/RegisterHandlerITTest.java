@@ -9,12 +9,14 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import java.util.Optional;
 import org.bson.types.ObjectId;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.entities.User;
-import org.example.statusCodes.StatusCodes;
+import org.example.handlers.rest.RegisterHandler;
+import org.example.services.RegisterService;
 import org.example.utils.EncryptPassword;
 import org.example.utils.FakeContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class RegisterHandlerITTest {

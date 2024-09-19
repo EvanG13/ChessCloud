@@ -13,20 +13,22 @@ import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.ChessConstants;
+import org.example.constants.StatusCodes;
 import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
 import org.example.entities.User;
-import org.example.handlers.joinGame.JoinGameHandler;
-import org.example.handlers.joinGame.JoinGameService;
-import org.example.handlers.makeMove.MakeMoveHandler;
-import org.example.handlers.makeMove.MakeMoveService;
-import org.example.statusCodes.StatusCodes;
-import org.example.utils.Constants;
+import org.example.enums.GameStatus;
+import org.example.enums.TimeControl;
+import org.example.handlers.rest.GetGameStateHandler;
+import org.example.handlers.websocket.JoinGameHandler;
+import org.example.handlers.websocket.MakeMoveHandler;
+import org.example.services.GameStateService;
+import org.example.services.JoinGameService;
+import org.example.services.MakeMoveService;
 import org.example.utils.FakeContext;
-import org.example.utils.GameStatus;
-import org.example.utils.TimeControl;
+import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
@@ -154,7 +156,7 @@ public class GetGameStateTest {
             .playerId(userId)
             .connectionId(connectId)
             .username(username)
-            .rating(Constants.BASE_RATING) // new player default rating
+            .rating(ChessConstants.BASE_RATING) // new player default rating
             .build();
 
     Game expected = new Game(timeControl, newPlayer);
