@@ -70,7 +70,7 @@ public class MakeMoveService {
     return connectionIds;
   }
 
-  public boolean isMovingOutOfTurn(String gameId, String connectionId) {
+  public boolean isPlayersTurn(String gameId, String playerId) {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     if (optionalGame.isEmpty()) {
       System.out.println(" game not found.");
@@ -78,7 +78,10 @@ public class MakeMoveService {
     }
 
     Game game = optionalGame.get();
-    return !game.getActivePlayerConnectionId().equals(connectionId);
+    List<Player> players = game.getPlayers();
+    Player player = players.get(0).getPlayerId().equals(playerId) ? players.get(0) : players.get(1);
+
+    return game.getIsWhitesTurn() == player.getIsWhite();
   }
 
   public String makeMove(String moveString, String boardState, String gameId) {
@@ -107,18 +110,12 @@ public class MakeMoveService {
     Optional<Game> optionalGame = gameDBUtility.get(gameId);
     Game game = optionalGame.get(); // TODO: throw an exception if invalid
 
-    String nextConnectionId =
-        game.getPlayers().get(0).getConnectionId().equals(game.getActivePlayerConnectionId())
-            ? game.getPlayers().get(1).getConnectionId()
-            : game.getPlayers().get(0).getConnectionId();
-
     gameDBUtility.patch(
         gameId,
         Updates.combine(
             Updates.set("gameStateAsFen", board.getFen()),
-            Updates.set("activePlayerConnectionId", nextConnectionId),
+            Updates.set("isWhitesTurn", !game.getIsWhitesTurn()),
             Updates.push("moveList", move.toString())));
-
     return board.getFen();
   }
 

@@ -1,8 +1,5 @@
 package org.example.handlers.joinGame;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
@@ -21,6 +18,8 @@ import org.example.utils.GameStatus;
 import org.example.utils.TimeControl;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JoinGameHandlerTest {
@@ -129,7 +128,7 @@ public class JoinGameHandlerTest {
         gameId); // since calling the constructor will autoincrement the id from the last game
     // created.
     Optional<Game> optionalGame = gameUtility.get(gameId);
-    assertEquals(optionalGame.isEmpty(), false);
+    assertFalse(optionalGame.isEmpty());
     Game actual = optionalGame.get();
     assertEquals(expected, actual);
   }
@@ -159,23 +158,25 @@ public class JoinGameHandlerTest {
             + "'}");
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
-
     assertEquals(StatusCodes.OK, response.getStatusCode());
+
     Optional<Game> optionalGame = gameUtility.get(gameId);
-    assertEquals(optionalGame.isEmpty(), false);
-    Game actual = optionalGame.get();
-    List<Player> actualPlayerList = actual.getPlayers();
-    assertEquals(2, actualPlayerList.size());
-    boolean player1Color = actualPlayerList.get(0).getIsWhite();
-    boolean player2Color = actualPlayerList.get(1).getIsWhite();
-    assertNotEquals(player1Color, player2Color);
-    String activePlayerConnectionId = actual.getActivePlayerConnectionId();
-    if (player1Color) {
-      assertEquals(connectId, activePlayerConnectionId);
+    assertFalse(optionalGame.isEmpty());
+    Game game = optionalGame.get();
+    assertEquals(GameStatus.ONGOING, game.getGameStatus());
+
+    List<Player> playerList = game.getPlayers();
+    assertEquals(2, playerList.size());
+
+    Player player1 = playerList.get(0);
+    Player player2 = playerList.get(1);
+    assertNotSame(player1.getIsWhite(), player2.getIsWhite());
+
+    if (player1.getIsWhite()) {
+      assertEquals(connectId, player1.getConnectionId());
     } else {
-      assertEquals(connectId2, activePlayerConnectionId);
+      assertEquals(connectId2, player2.getConnectionId());
     }
-    assertEquals(GameStatus.ONGOING, actual.getGameStatus());
   }
 
   @Test

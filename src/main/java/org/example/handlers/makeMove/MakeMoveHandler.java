@@ -47,11 +47,13 @@ public class MakeMoveHandler
     // of the function
 
     String connectionId = event.getRequestContext().getConnectionId();
-    if (!service.isUserInGame(requestData.gameId(), connectionId, requestData.playerId())) {
+    String playerId = requestData.playerId();
+
+    if (!service.isUserInGame(requestData.gameId(), connectionId, playerId)) {
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
-    if (service.isMovingOutOfTurn(requestData.gameId(), connectionId)) {
+    if (!service.isPlayersTurn(requestData.gameId(), playerId)) {
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
