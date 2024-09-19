@@ -7,15 +7,17 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.util.Map;
 import java.util.Optional;
 import org.bson.conversions.Bson;
-import org.example.databases.MongoDBUtility;
+import org.example.constants.StatusCodes;
 import org.example.entities.User;
-import org.example.statusCodes.StatusCodes;
+import org.example.handlers.rest.LoginHandler;
+import org.example.models.responses.LoginResponseBody;
+import org.example.services.LoginService;
 import org.example.utils.EncryptPassword;
-import org.example.utils.FakeContext;
+import org.example.utils.MockContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +48,7 @@ public class LoginHandlerTest {
                   "password": "test"
                 }""");
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     when(dbUtility.get(any(Bson.class)))
         .thenReturn(
@@ -67,11 +69,9 @@ public class LoginHandlerTest {
     assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
     assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
 
-    String body = response.getBody();
-    Gson gson = new Gson();
-    JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-    String userJsonString = jsonObject.get("user").getAsString();
-    User user = gson.fromJson(userJsonString, User.class);
+    LoginResponseBody body = (new Gson()).fromJson(response.getBody(), LoginResponseBody.class);
+
+    User user = body.getUser();
 
     // The user response object contains the correct fields
     assertEquals(user.getId(), "foo");
@@ -85,7 +85,7 @@ public class LoginHandlerTest {
   @DisplayName("Bad Request \uD83D\uDE1E")
   @Test
   public void returnBadRequest() {
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
 
@@ -104,7 +104,7 @@ public class LoginHandlerTest {
               "password": "notmatching"
             }""");
 
-    Context context = new FakeContext();
+    Context context = new MockContext();
 
     when(dbUtility.get(any(Bson.class)))
         .thenReturn(

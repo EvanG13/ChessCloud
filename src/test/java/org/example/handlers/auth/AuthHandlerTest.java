@@ -6,19 +6,22 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2CustomAuthorizer
 import com.amazonaws.services.lambda.runtime.events.IamPolicyResponse;
 import java.util.HashMap;
 import java.util.Map;
-import org.example.databases.MongoDBUtility;
 import org.example.entities.Session;
-import org.example.utils.FakeContext;
+import org.example.entities.User;
+import org.example.handlers.rest.AuthHandler;
+import org.example.utils.MockContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class AuthHandlerTest {
 
   static AuthHandler authHandler;
+  static MongoDBUtility<User> userUtility;
 
   static APIGatewayV2CustomAuthorizerEvent event;
   static Map<String, String> headers;
 
-  static MongoDBUtility<Session> dbUtility;
+  static MongoDBUtility<Session> sessionUtility;
 
   static String validSessionToken;
   static String validUserId;
@@ -37,17 +40,23 @@ public class AuthHandlerTest {
 
     authHandler = new AuthHandler();
 
-    dbUtility = new MongoDBUtility<>("sessions", Session.class);
+    userUtility = new MongoDBUtility<>("users", User.class);
+    sessionUtility = new MongoDBUtility<>("sessions", Session.class);
 
     validSessionToken = "231420d4-f162-406e-8eaa-5652afb0c43d";
     validUserId = "auth-test";
+
+    User tempUser = User.builder().id(validUserId).build();
     Session session = Session.builder().id(validSessionToken).userId("auth-test").build();
-    dbUtility.post(session);
+
+    sessionUtility.post(session);
+    userUtility.post(tempUser);
   }
 
   @AfterAll
   public static void tearDown() {
-    dbUtility.delete(validSessionToken);
+    sessionUtility.delete(validSessionToken);
+    userUtility.delete(validUserId);
   }
 
   @Test
@@ -57,7 +66,7 @@ public class AuthHandlerTest {
 
     event.setHeaders(headers);
 
-    IamPolicyResponse response = authHandler.handleRequest(event, new FakeContext());
+    IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
 
     Map<String, Object> policyDocument = response.getPolicyDocument();
@@ -80,7 +89,7 @@ public class AuthHandlerTest {
 
     event.setHeaders(headers);
 
-    IamPolicyResponse response = authHandler.handleRequest(event, new FakeContext());
+    IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
 
     Map<String, Object> policyDocument = response.getPolicyDocument();
