@@ -31,13 +31,15 @@ public class LogoutHandler
 
     String sessionToken =
         event.getHeaders().get("Authorization").replace("Bearer ", "").replace("\"", "");
-    String userId = event.getHeaders().get("userid");
+    String userId = event.getHeaders().get("userId");
     service.logout(sessionToken);
     try {
       service.handleUserInGame(userId);
     } catch (StatusCodeException e) {
       System.out.println(e.getMessage());
-      return e.makeHttpResponse();
+      return e
+          .makeHttpResponse(); // TODO: since this can return a 500 status code, add that to the
+                               // yaml
     }
     return makeHttpResponse(StatusCodes.OK, "Logged out successfully");
   }
