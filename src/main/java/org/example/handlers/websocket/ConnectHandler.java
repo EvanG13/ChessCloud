@@ -3,15 +3,11 @@ package org.example.handlers.websocket;
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.amazonaws.services.lambda.runtime.logging.LogLevel;
-import com.mongodb.MongoException;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.models.requests.ConnectionRequest;
 import org.example.services.ConnectService;
 
 public class ConnectHandler
@@ -32,21 +28,10 @@ public class ConnectHandler
       APIGatewayV2WebSocketEvent event, Context context) {
 
     Map<String, String> queryParams = event.getQueryStringParameters();
-    String username = queryParams.get("username");
+    String userId = queryParams.get("userid");
     String connectionId = event.getRequestContext().getConnectionId();
 
-    if (service.doesConnectionExistByUsername(username)
-        || service.doesConnectionExistById(connectionId)) {
-      return makeWebsocketResponse(StatusCodes.CONFLICT, "This connection already exists");
-    }
-
-    try {
-      service.createConnection(new ConnectionRequest(username, connectionId));
-    } catch (MongoException e) {
-      LambdaLogger logger = context.getLogger();
-      logger.log(e.getMessage(), LogLevel.FATAL);
-      return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "MongoDb error");
-    }
+    service.updateConnectionId(userId, connectionId);
 
     return makeWebsocketResponse(StatusCodes.OK, connectionId);
   }
