@@ -10,4 +10,5 @@ import lombok.Getter;
 public class MakeMoveResponseBody extends ResponseBody {
   @Expose private String fen;
   @Expose private List<String> moveList;
+  @Expose private final String action = "MOVE_MADE";
 }
