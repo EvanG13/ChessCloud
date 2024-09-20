@@ -37,9 +37,8 @@ public class LogoutHandler
       service.handleUserInGame(userId);
     } catch (StatusCodeException e) {
       System.out.println(e.getMessage());
-      return e
-          .makeHttpResponse(); // TODO: since this can return a 500 status code, add that to the
-                               // yaml
+      return e.makeHttpResponse(); // TODO: since this can return a 500 status code, add that to the
+      // yaml
     }
     return makeHttpResponse(StatusCodes.OK, "Logged out successfully");
   }
