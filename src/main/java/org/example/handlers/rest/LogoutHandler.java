@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import org.example.constants.StatusCodes;
+import org.example.exceptions.StatusCodeException;
 import org.example.services.LogoutService;
 
 public class LogoutHandler
@@ -30,9 +31,14 @@ public class LogoutHandler
 
     String sessionToken =
         event.getHeaders().get("Authorization").replace("Bearer ", "").replace("\"", "");
-
+    String userId = event.getHeaders().get("userid");
     service.logout(sessionToken);
-
+    try {
+      service.handleUserInGame(userId);
+    } catch (StatusCodeException e) {
+      System.out.println(e.getMessage());
+      return e.makeHttpResponse();
+    }
     return makeHttpResponse(StatusCodes.OK, "Logged out successfully");
   }
 }
