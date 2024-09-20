@@ -1,15 +1,18 @@
 package org.example.handlers.connect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import org.example.constants.StatusCodes;
-import org.example.entities.Connection;
+import org.example.entities.Game;
+import org.example.entities.Player;
+import org.example.enums.TimeControl;
 import org.example.handlers.websocket.ConnectHandler;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
@@ -18,20 +21,37 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ConnectHandlerTest {
 
-  public static String username;
+  public static String userId;
+  public static String userId2;
   public static String connectId;
-  public static MongoDBUtility<Connection> utility;
+  public static String connectId2;
+  public static String newConnId;
+  public static String gameId;
+  public static MongoDBUtility<Game> utility;
 
   @BeforeAll
   public static void setUp() {
-    username = "test-connection";
-    connectId = "fake-connection-id";
-    utility = new MongoDBUtility<>("connections", Connection.class);
+    userId = "test-connection";
+    userId2 = "user2";
+    connectId = "connection-id";
+    connectId2 = "second-connection-id";
+    newConnId = "connection-id2";
+    utility = new MongoDBUtility<>("games", Game.class);
+    Player player = Player.builder().playerId(userId).connectionId(connectId).build();
+    Player player2 = Player.builder().playerId(userId2).connectionId(connectId2).build();
+    Game newGame = new Game(TimeControl.BLITZ_5, player);
+    try {
+      newGame.setup(player2);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    gameId = newGame.getId();
+    utility.post(newGame);
   }
 
   @AfterAll
   public static void tearDown() {
-    utility.delete(connectId);
+    utility.delete(gameId);
   }
 
   @DisplayName("OK ✅")
@@ -42,7 +62,7 @@ public class ConnectHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     Map<String, String> queryStrings = new HashMap<>();
-    queryStrings.put("username", username);
+    queryStrings.put("userid", userId);
 
     event.setQueryStringParameters(queryStrings);
 
@@ -59,17 +79,46 @@ public class ConnectHandlerTest {
     assertEquals(response.getStatusCode(), StatusCodes.OK);
   }
 
-  public ConnectHandlerTest() {}
-
-  @DisplayName("Conflict ✅")
-  @Order(2)
+  @DisplayName("Updated ConnectionId 😘😘")
   @Test
-  public void returnConflictId() {
+  @Order(2)
+  public void updateSuccessful() {
     ConnectHandler connectHandler = new ConnectHandler();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     Map<String, String> queryStrings = new HashMap<>();
-    queryStrings.put("username", "otherUser");
+    queryStrings.put("userid", userId);
+
+    event.setQueryStringParameters(queryStrings);
+
+    Context context = new MockContext();
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+
+    requestContext.setConnectionId(newConnId);
+
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
+    assertEquals(response.getStatusCode(), StatusCodes.OK);
+
+    Optional<Game> oGame = utility.get(gameId);
+    assertFalse(oGame.isEmpty());
+    Game game = oGame.get();
+    assertEquals(newConnId, game.getPlayers().get(0).getConnectionId());
+    assertEquals(connectId2, game.getPlayers().get(1).getConnectionId());
+  }
+
+  @DisplayName("Updated Other Player's ConnectionId 😘😘")
+  @Test
+  @Order(3)
+  public void updateSecondPlayerSuccessful() {
+    ConnectHandler connectHandler = new ConnectHandler();
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    Map<String, String> queryStrings = new HashMap<>();
+    queryStrings.put("userid", userId2);
 
     event.setQueryStringParameters(queryStrings);
 
@@ -83,33 +132,12 @@ public class ConnectHandlerTest {
     event.setRequestContext(requestContext);
 
     APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
-    assertEquals(response.getStatusCode(), StatusCodes.CONFLICT);
-  }
+    assertEquals(response.getStatusCode(), StatusCodes.OK);
 
-  @DisplayName("Conflict ✅")
-  @Order(3)
-  @Test
-  public void returnConflictUsername() {
-    ConnectHandler connectHandler = new ConnectHandler();
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    Map<String, String> queryStrings = new HashMap<>();
-    queryStrings.put("username", username);
-
-    event.setQueryStringParameters(queryStrings);
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-
-    String randomConnectionId = UUID.randomUUID().toString();
-
-    requestContext.setConnectionId(randomConnectionId);
-
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
-    assertEquals(response.getStatusCode(), StatusCodes.CONFLICT);
+    Optional<Game> oGame = utility.get(gameId);
+    assertFalse(oGame.isEmpty());
+    Game game = oGame.get();
+    assertEquals(newConnId, game.getPlayers().get(0).getConnectionId());
+    assertEquals(connectId, game.getPlayers().get(1).getConnectionId());
   }
 }
