@@ -59,7 +59,7 @@ resource "aws_apigatewayv2_route" "connect-route" {
   route_key = "$connect"
   target    = "integrations/${aws_apigatewayv2_integration.connect-integration.id}"
   request_parameter {
-    request_parameter_key = "route.request.querystring.username"
+    request_parameter_key = "route.request.querystring.userid"
     required              = true
   }
 }
