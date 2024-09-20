@@ -35,6 +35,9 @@ public class Player {
         + ", connectionId='"
         + connectionId
         + '\''
+        + ", playerId='"
+        + playerId
+        + '\''
         + rating
         + "\n"
         + '}';
