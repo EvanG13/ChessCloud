@@ -59,8 +59,7 @@ public class GameOverUtility {
       this.winningPlayerUsername = game.getPlayers().get(0).getUsername();
       this.losingPlayerUsername = game.getPlayers().get(1).getUsername();
     }
-
-    // get the stats of both players (can throw InternalServerError)
+    // can throw an InternalServerError
     this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
     this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
   }
