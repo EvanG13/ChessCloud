@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +26,7 @@ public class Stats extends DataTransferObject {
     this.gameModeStats = new HashMap<>();
     for (GameMode gameMode : GameMode.values()) {
       // case insensitive
-      gameModeStats.put(gameMode.toString().toLowerCase(), new GameModeStats());
+      gameModeStats.put(gameMode.asKey(), new GameModeStats());
     }
   }
 
@@ -56,19 +55,15 @@ public class Stats extends DataTransferObject {
   }
 
   public String toJSON() {
-    return new GsonBuilder().create().toJson(gameModeStats);
+    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(gameModeStats);
   }
 
-  public Optional<String> toJSON(String gameMode) {
-    if (gameMode == null || !doesGamemodeHaveStats(gameMode)) {
-      return Optional.empty();
-    }
-
-    return Optional.of(new GsonBuilder().create().toJson(getGamemodeStats(gameMode)));
+  public String toJSON(String gameMode) {
+    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getGamemodeStats(gameMode));
   }
 
-  public Optional<String> toJSON(GameMode gameMode) {
-    return toJSON(gameMode.toString());
+  public String toJSON(GameMode gameMode) {
+    return toJSON(gameMode.asKey());
   }
 
   public boolean doesGamemodeHaveStats(String gameMode) {
@@ -76,7 +71,7 @@ public class Stats extends DataTransferObject {
   }
 
   public boolean doesGamemodeHaveStats(GameMode gameMode) {
-    return doesGamemodeHaveStats(gameMode.toString());
+    return doesGamemodeHaveStats(gameMode.asKey());
   }
 
   public GameModeStats getGamemodeStats(String gameMode) {
@@ -84,7 +79,7 @@ public class Stats extends DataTransferObject {
   }
 
   public GameModeStats getGamemodeStats(GameMode gameMode) {
-    return getGamemodeStats(gameMode.toString());
+    return getGamemodeStats(gameMode.asKey());
   }
 
   public int getRating(String gameMode) {
@@ -92,7 +87,7 @@ public class Stats extends DataTransferObject {
   }
 
   public int getRating(GameMode gameMode) {
-    return getRating(gameMode.toString());
+    return getRating(gameMode.asKey());
   }
 
   @Override
@@ -112,10 +107,10 @@ public class Stats extends DataTransferObject {
   @AllArgsConstructor
   public static class GameModeStats {
     // TODO: Move this to its own class?
-    private Integer wins;
-    private Integer losses;
-    private Integer draws;
-    private Integer rating;
+    @Expose private Integer wins;
+    @Expose private Integer losses;
+    @Expose private Integer draws;
+    @Expose private Integer rating;
     private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
 
     public GameModeStats() {
