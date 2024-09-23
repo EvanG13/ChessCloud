@@ -1,14 +1,15 @@
 package org.example.utils;
 
+import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.entities.Game;
 import org.example.entities.Stats;
+import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
-import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.models.responses.GameOverResponseBody;
@@ -64,16 +65,9 @@ public class GameOverUtility {
     this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
   }
 
-  public void emitOutcome() {
-    try {
-      String messageJson =
-          new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername)
-              .toJSON();
-      socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
-    } catch (BadRequest exception) {
-      System.out.println("exception thrown in emitOutcome");
-      System.out.println(exception.getMessage());
-    }
+  public void emitOutcome() throws InternalServerError {
+    String messageJson = new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername).toJSON();
+    socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
   }
 
   public void archiveGame() {
@@ -87,8 +81,35 @@ public class GameOverUtility {
     gameUtility.put(game.getId(), game);
   }
 
-  public void updateRatings() {
-    // TODO: implement me!
-    System.out.println("Implement the updateRatings function -- ask caimin about this!");
+  public void updateRatings() throws InternalServerError {
+    GameMode gameMode = game.getTimeControl().getGameMode();
+
+    Stats.GameModeStats winningGameModeStats = winningPlayerStats.getGamemodeStats(gameMode);
+    Stats.GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);
+
+    switch (resultReason) {
+      // Someone abandoned the game: AFK, abandoned / logged out early on
+      case ABORTED: //return;  maybe?
+      // Someone won the game
+      case FORFEIT:
+      case TIMEOUT:
+      case CHECKMATE:
+        winningGameModeStats.AddWin(losingGameModeStats.getRating(), losingGameModeStats.getRD());
+        losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
+        break;
+      // Game was a draw
+      case REPETITION:
+      case INSUFFICIENT_MATERIAL:
+        winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
+        losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
+        break;
+      // Error if result reason not accounted for
+      default:
+        throw new InternalServerError("Unsupported ResultReason: " + resultReason);
+    }
+
+    MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    statsUtility.patch(winningPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), winningGameModeStats));
+    statsUtility.patch(losingPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), losingGameModeStats));
   }
 }

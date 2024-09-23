@@ -1,42 +1,22 @@
 package org.example.enums;
 
-public enum ResultReason {
-  ABORTED {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return "game aborted";
-    }
-  },
-  FORFEIT {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return winnerUsername + " wins by forfeit.";
-    }
-  },
-  TIMEOUT {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return winnerUsername + " wins on time.";
-    }
-  },
-  CHECKMATE {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return winnerUsername + " wins by checkmate.";
-    }
-  },
-  REPETITION {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return "draw by repetition.";
-    }
-  },
-  INSUFFICIENT_MATERIAL {
-    @Override
-    public String getMessage(String winnerUsername) {
-      return "draw by insufficient material.";
-    }
-  };
+import lombok.Getter;
 
-  public abstract String getMessage(String winnerUsername);
+@Getter
+public enum ResultReason {
+  ABORTED("game aborted"),
+
+  FORFEIT("win by opponent forfeit"),
+  TIMEOUT("win by opponent running out of time"),
+  CHECKMATE("win by checkmate"),
+
+  REPETITION("draw by repetition"),
+  INSUFFICIENT_MATERIAL("draw by insufficient material");
+
+
+  private final String message;
+
+  ResultReason(String message) {
+    this.message = message;
+  }
 }
