@@ -17,9 +17,9 @@ public class GameStateService {
     gameDBUtility = utility;
   }
 
-  public Game getGame(String userId) throws NotFound {
+  public Game getGameFromUserID(String userId) throws NotFound {
     Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
 
-    return gameDBUtility.get(filter).orElseThrow(() -> new NotFound("No game found"));
+    return gameDBUtility.get(filter).orElseThrow(() -> new NotFound("No game found for player"));
   }
 }

@@ -50,11 +50,11 @@ public class GameOverUtility {
     this.statsService = new StatsService();
     this.gameService = new GameStateService();
     // get the game object via the losingPlayerId
-    this.game = gameService.getGame(losingPlayerId); // can throw NotFound
     if (game.getPlayers().get(0).getPlayerId().equals(losingPlayerId)) {
       this.winningPlayerId = game.getPlayers().get(1).getPlayerId();
       this.winningPlayerUsername = game.getPlayers().get(1).getUsername();
       this.losingPlayerUsername = game.getPlayers().get(0).getUsername();
+    this.game = gameService.getGameFromUserID(losingPlayerId); // can throw NotFound
     } else {
       this.winningPlayerId = game.getPlayers().get(0).getPlayerId();
       this.winningPlayerUsername = game.getPlayers().get(0).getUsername();
@@ -76,9 +76,8 @@ public class GameOverUtility {
   }
 
   public void updateGame() {
-    game.setGameStatus(GameStatus.FINISHED);
     MongoDBUtility<Game> gameUtility = new MongoDBUtility<>("games", Game.class);
-    gameUtility.put(game.getId(), game);
+    gameUtility.patch(game.getId(), Updates.set("gameStatus", GameStatus.FINISHED.toString()));
   }
 
   public void updateRatings() throws InternalServerError {

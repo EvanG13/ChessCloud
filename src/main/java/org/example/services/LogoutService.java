@@ -17,12 +17,8 @@ public class LogoutService {
   }
 
   public void handleUserInGame(String userId) throws InternalServerError, NotFound {
-    try {
-      gameService.getGame(userId);
-    } catch (NotFound e) {
-      // the logging out user is not in a game and does not have to forfeit
-      return;
-    }
+    gameService.getGameFromUserID(userId);
+
     // the logging out user is in a game and therefore we make them forfeit:
     GameOverUtility gameOverUtility = new GameOverUtility(false, ResultReason.FORFEIT, userId);
     gameOverUtility.archiveGame();
