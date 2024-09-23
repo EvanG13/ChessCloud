@@ -20,7 +20,7 @@ public class LogoutService {
     gameService.getGameFromUserID(userId);
 
     // the logging out user is in a game and therefore we make them forfeit:
-    GameOverUtility gameOverUtility = new GameOverUtility(false, ResultReason.FORFEIT, userId);
+    GameOverUtility gameOverUtility = new GameOverUtility(ResultReason.FORFEIT, userId);
     gameOverUtility.archiveGame();
     gameOverUtility.emitOutcome(); // can throw InternalServerError for now
     gameOverUtility.updateGame();

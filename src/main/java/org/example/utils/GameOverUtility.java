@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.entities.Game;
+import org.example.entities.Player;
 import org.example.entities.Stats;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
@@ -23,7 +24,6 @@ import org.example.utils.socketMessenger.SocketMessenger;
 @Getter
 public class GameOverUtility {
 
-  private boolean isDraw;
   private ResultReason resultReason;
   private String losingPlayerId;
   private String winningPlayerId;
@@ -42,23 +42,24 @@ public class GameOverUtility {
    * if the game is a draw, then the eventbody coming from client should set whoever's turn it is as the losingPlayerId
    * and have them be the client that sends the socket message
    * */
-  public GameOverUtility(boolean isDraw, ResultReason resultReason, String losingPlayerId)
-      throws NotFound, InternalServerError {
-    this.isDraw = isDraw;
+  public GameOverUtility(ResultReason resultReason, String losingPlayerId) throws NotFound, InternalServerError {
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
     this.statsService = new StatsService();
     this.gameService = new GameStateService();
     // get the game object via the losingPlayerId
-    if (game.getPlayers().get(0).getPlayerId().equals(losingPlayerId)) {
-      this.winningPlayerId = game.getPlayers().get(1).getPlayerId();
-      this.winningPlayerUsername = game.getPlayers().get(1).getUsername();
-      this.losingPlayerUsername = game.getPlayers().get(0).getUsername();
     this.game = gameService.getGameFromUserID(losingPlayerId); // can throw NotFound
+
+    Player player1 = game.getPlayers().get(0);
+    Player player2 = game.getPlayers().get(1);
+    if (player1.getPlayerId().equals(losingPlayerId)) {
+      this.winningPlayerId = player2.getPlayerId();
+      this.winningPlayerUsername = player2.getUsername();
+      this.losingPlayerUsername = player1.getUsername();
     } else {
-      this.winningPlayerId = game.getPlayers().get(0).getPlayerId();
-      this.winningPlayerUsername = game.getPlayers().get(0).getUsername();
-      this.losingPlayerUsername = game.getPlayers().get(1).getUsername();
+      this.winningPlayerId = player1.getPlayerId();
+      this.winningPlayerUsername = player1.getUsername();
+      this.losingPlayerUsername = player2.getUsername();
     }
     // can throw an InternalServerError
     this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
