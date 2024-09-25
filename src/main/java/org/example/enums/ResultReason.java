@@ -13,7 +13,6 @@ public enum ResultReason {
   REPETITION("draw by repetition"),
   INSUFFICIENT_MATERIAL("draw by insufficient material");
 
-
   private final String message;
 
   ResultReason(String message) {

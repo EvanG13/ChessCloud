@@ -59,7 +59,10 @@ public class Stats extends DataTransferObject {
   }
 
   public String toJSON(String gameMode) {
-    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getGamemodeStats(gameMode));
+    return new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .create()
+        .toJson(getGamemodeStats(gameMode));
   }
 
   public String toJSON(GameMode gameMode) {

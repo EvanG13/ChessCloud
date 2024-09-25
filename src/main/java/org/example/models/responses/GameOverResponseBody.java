@@ -13,7 +13,9 @@ public class GameOverResponseBody extends ResponseBody {
   @Expose private final String winnerUsername;
   @Expose private final String loserUsername;
 
-  public GameOverResponseBody(ResultReason resultReason, String winnerUsername, String loserUsername) throws InternalServerError {
+  public GameOverResponseBody(
+      ResultReason resultReason, String winnerUsername, String loserUsername)
+      throws InternalServerError {
     this.resultReason = resultReason;
     this.winnerUsername = winnerUsername;
     this.loserUsername = loserUsername;
@@ -25,7 +27,8 @@ public class GameOverResponseBody extends ResponseBody {
       case FORFEIT:
       case TIMEOUT:
       case CHECKMATE:
-        this.displayMessage = String.format("%s won! Reason: %s", winnerUsername, resultReason.getMessage());
+        this.displayMessage =
+            String.format("%s won! Reason: %s", winnerUsername, resultReason.getMessage());
         break;
       case REPETITION:
       case INSUFFICIENT_MATERIAL:

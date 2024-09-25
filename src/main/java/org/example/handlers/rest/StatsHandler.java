@@ -55,15 +55,13 @@ public class StatsHandler
     // gamemode not part of query
     if (gameMode == null) {
       return makeHttpResponse(
-          StatusCodes.BAD_REQUEST,
-          "Query defined, but query parameter \"gamemode\" was missing");
+          StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
     }
 
     // no value for gamemode
     if (gameMode.isEmpty()) {
       return makeHttpResponse(
-          StatusCodes.BAD_REQUEST,
-          "Query parameter \"gamemode\" was missing a value");
+          StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" was missing a value");
     }
 
     // gamemode doesn't exist or is not supported

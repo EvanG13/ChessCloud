@@ -1,10 +1,9 @@
-package org.example.utils;
+package org.example.services;
 
 import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
@@ -14,15 +13,15 @@ import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.models.responses.GameOverResponseBody;
-import org.example.services.GameStateService;
-import org.example.services.StatsService;
+import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketMessenger;
 
 @AllArgsConstructor
-@SuperBuilder
 @Setter
 @Getter
-public class GameOverUtility {
+public class GameOverService {
+
+  // TODO : Investigate how to make this quicker
 
   private ResultReason resultReason;
   private String losingPlayerId;
@@ -36,19 +35,21 @@ public class GameOverUtility {
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
 
-  /*
-   * finds a game based on the losingPlayerId
-   * if the game is not found then throws NotFound exception
-   * if the game is a draw, then the eventbody coming from client should set whoever's turn it is as the losingPlayerId
-   * and have them be the client that sends the socket message
-   * */
-  public GameOverUtility(ResultReason resultReason, String losingPlayerId) throws NotFound, InternalServerError {
+  /**
+   * finds a game based on the losingPlayerId if the game is not found then throws NotFound
+   * exception if the game is a draw, then the eventbody coming from client should set whoever's
+   * turn it is as the losingPlayerId and have them be the client that sends the socket message
+   */
+  public GameOverService(
+      ResultReason resultReason, String losingPlayerId, SocketMessenger messenger)
+      throws NotFound, InternalServerError {
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
     this.statsService = new StatsService();
     this.gameService = new GameStateService();
-    // get the game object via the losingPlayerId
-    this.game = gameService.getGameFromUserID(losingPlayerId); // can throw NotFound
+
+    this.game = gameService.getGameFromUserID(losingPlayerId);
+    this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
     Player player2 = game.getPlayers().get(1);
@@ -61,13 +62,15 @@ public class GameOverUtility {
       this.winningPlayerUsername = player1.getUsername();
       this.losingPlayerUsername = player2.getUsername();
     }
-    // can throw an InternalServerError
+
     this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
     this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
   }
 
   public void emitOutcome() throws InternalServerError {
-    String messageJson = new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername).toJSON();
+    String messageJson =
+        new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername)
+            .toJSON();
     socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
   }
 
@@ -89,7 +92,8 @@ public class GameOverUtility {
 
     switch (resultReason) {
       // Someone abandoned the game: AFK, abandoned / logged out early on
-      case ABORTED: //return;  maybe?
+      case ABORTED:
+        return;
       // Someone won the game
       case FORFEIT:
       case TIMEOUT:
@@ -103,13 +107,14 @@ public class GameOverUtility {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
         break;
-      // Error if result reason not accounted for
       default:
         throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
 
     MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);
-    statsUtility.patch(winningPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), winningGameModeStats));
-    statsUtility.patch(losingPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), losingGameModeStats));
+    statsUtility.patch(
+        winningPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), winningGameModeStats));
+    statsUtility.patch(
+        losingPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), losingGameModeStats));
   }
 }

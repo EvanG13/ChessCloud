@@ -2,11 +2,9 @@ package org.example.entities;
 
 import com.google.gson.annotations.Expose;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.constants.ChessConstants;
 
 @Getter
 @Setter
@@ -17,7 +15,8 @@ public class Player {
   @Expose private String username;
   private String playerId;
   @Expose private Boolean isWhite;
-  @Expose private Integer rating;
+
+  @Expose @Builder.Default private Integer rating = ChessConstants.BASE_RATING;
   @Expose private Integer remainingTime;
 
   private String connectionId;

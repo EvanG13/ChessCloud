@@ -3,11 +3,13 @@ package org.example.entities;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
 @Getter
 @Setter
@@ -17,7 +19,8 @@ public abstract class DataTransferObject {
 
   @BsonProperty(value = "_id")
   @Expose
-  protected String id;
+  @Builder.Default
+  protected String id = new ObjectId().toString();
 
   /**
    * Converts the Object to a Json string

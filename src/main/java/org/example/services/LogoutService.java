@@ -1,33 +1,36 @@
 package org.example.services;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
-import org.example.utils.GameOverUtility;
+import org.example.utils.socketMessenger.SocketEmitter;
+import org.example.utils.socketMessenger.SocketMessenger;
 
 @AllArgsConstructor
+@Builder
+@NoArgsConstructor
 public class LogoutService {
-  private final SessionService service;
-  private final GameStateService gameService;
+  private final @Builder.Default SessionService sessionService = new SessionService();
+  private final @Builder.Default GameStateService gameService = new GameStateService();
+  private final @Builder.Default SocketMessenger socketMessenger = new SocketEmitter();
 
-  public LogoutService() {
-    service = new SessionService();
-    gameService = new GameStateService();
-  }
+  public void handleUserInGame(String userId) throws InternalServerError {
+    GameOverService gameOverService;
+    try {
+      gameOverService = new GameOverService(ResultReason.FORFEIT, userId, socketMessenger);
+    } catch (NotFound e) {
+      return;
+    }
 
-  public void handleUserInGame(String userId) throws InternalServerError, NotFound {
-    gameService.getGameFromUserID(userId);
-
-    // the logging out user is in a game and therefore we make them forfeit:
-    GameOverUtility gameOverUtility = new GameOverUtility(ResultReason.FORFEIT, userId);
-    gameOverUtility.archiveGame();
-    gameOverUtility.emitOutcome(); // can throw InternalServerError for now
-    gameOverUtility.updateGame();
-    gameOverUtility.updateRatings();
+    gameOverService.emitOutcome();
+    gameOverService.updateGame();
+    gameOverService.updateRatings();
   }
 
   public void logout(String sessionToken) {
-    service.delete(sessionToken);
+    sessionService.delete(sessionToken);
   }
 }
