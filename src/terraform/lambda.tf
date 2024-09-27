@@ -22,7 +22,7 @@ resource "aws_iam_policy" "lambda_manage_connections_policy" {
   description = "Allows Lambda to manage WebSocket connections via API Gateway"
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
         Effect   = "Allow"
@@ -92,7 +92,7 @@ resource "aws_lambda_function" "websocket_connect_lambda" {
   source_code_hash = filebase64sha256("../../${path.module}/target/chess-cloud-1.0-SNAPSHOT.jar")
 
   runtime = var.lambda_runtime
-  handler = "org.example.handlers.connect.ConnectHandler::handleRequest"
+  handler = "org.example.handlers.websocket.ConnectHandler::handleRequest"
 
   memory_size = 1536
 
