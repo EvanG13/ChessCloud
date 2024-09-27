@@ -88,8 +88,7 @@ public class Game extends DataTransferObject {
    */
   public void setup(Player player2) throws Exception {
     if (this.gameStatus.getStatus() != GameStatus.PENDING.getStatus() || players.size() != 1) {
-      // game has already started or has finished
-      throw new Exception();
+      throw new Exception("Game has already started or has finished");
     }
 
     Player player1 = players.get(0);

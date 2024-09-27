@@ -4,7 +4,6 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.bson.types.ObjectId;
 import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.models.requests.RegisterRequest;
@@ -30,7 +29,6 @@ public class RegisterService {
   public void registerUser(RegisterRequest data) {
     User newUser =
         User.builder()
-            .id(new ObjectId().toString())
             .email(data.email())
             .password(EncryptPassword.encrypt(data.password()))
             .username(data.username())

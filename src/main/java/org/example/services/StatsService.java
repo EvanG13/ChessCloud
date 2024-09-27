@@ -15,14 +15,14 @@ public class StatsService {
     this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }
 
-  public boolean doesUserExist(String id) {
-    Optional<User> optionalUser = userDBUtility.get(id);
+  public boolean doesUserExist(String userId) {
+    Optional<User> optionalUser = userDBUtility.get(userId);
     return optionalUser.isPresent();
   }
 
-  public Stats getStatsByUserID(String id) throws InternalServerError {
+  public Stats getStatsByUserID(String userId) throws InternalServerError {
     return statsDBUtility
-        .get(id)
+        .get(userId)
         .orElseThrow(() -> new InternalServerError("Missing User's Stats"));
   }
 }

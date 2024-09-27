@@ -8,44 +8,75 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
-import org.example.entities.Session;
-import org.example.entities.User;
+import org.example.entities.*;
+import org.example.enums.GameStatus;
+import org.example.enums.TimeControl;
 import org.example.handlers.rest.LogoutHandler;
+import org.example.services.GameStateService;
 import org.example.services.LogoutService;
 import org.example.services.SessionService;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.example.utils.socketMessenger.SocketSystemLogger;
+import org.junit.jupiter.api.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LogoutHandlerTest {
 
-  private static MongoDBUtility<User> userUtility;
   private static MongoDBUtility<Session> sessionUtility;
+  private static MongoDBUtility<Game> gameUtility;
+  private static MongoDBUtility<Stats> statsUtility;
+  private static MongoDBUtility<User> usersUtility;
+
   private static LogoutHandler logoutHandler;
 
-  private static final String sessionToken = "pretend-session-token";
+  private static final String gameId = "super-extreme-duper-fake-game-id";
+
+  private static final String sessionToken1 = "pretend-session-token1";
+  private static final String sessionToken2 = "pretend-session-token2";
+
+  private static final String userId = "pretend-userId";
+  private static final String user2id = "pretend-userid-2";
 
   @BeforeAll
   public static void setUp() {
     sessionUtility = new MongoDBUtility<>("sessions", Session.class);
-    Session newSession = Session.builder().id(sessionToken).userId("pretend-userId").build();
-    sessionUtility.post(newSession);
-    Optional<Session> optionalSession = sessionUtility.get(sessionToken);
-    assertFalse(optionalSession.isEmpty());
 
-    LogoutService service = new LogoutService(new SessionService(sessionUtility));
+    gameUtility = new MongoDBUtility<>("games", Game.class);
+    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    usersUtility = new MongoDBUtility<>("users", User.class);
+
+    LogoutService service =
+        LogoutService.builder()
+            .gameService(new GameStateService(gameUtility))
+            .sessionService(new SessionService(sessionUtility))
+            .socketMessenger(new SocketSystemLogger())
+            .build();
 
     logoutHandler = new LogoutHandler(service);
   }
 
-  @DisplayName("OK 🔀")
+  @AfterAll
+  public static void tearDown() {
+    gameUtility.delete(gameId);
+
+    statsUtility.delete(userId);
+    statsUtility.delete(user2id);
+
+    usersUtility.delete(userId);
+    usersUtility.delete(user2id);
+  }
+
+  @DisplayName("User can logout 🔀")
   @Test
-  void returnOk() {
+  @Order(1)
+  void userCanLogout() {
     Map<String, String> headers = new HashMap<>();
-    headers.put("Authorization", sessionToken);
-    headers.put("userId", "pretend-userId");
+    headers.put("Authorization", sessionToken1);
+    headers.put("userid", userId);
+
+    Session userOneSession = Session.builder().id(sessionToken1).userId(userId).build();
+    sessionUtility.post(userOneSession);
 
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     event.setHeaders(headers);
@@ -53,19 +84,70 @@ public class LogoutHandlerTest {
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    Optional<Session> optionalSession = sessionUtility.get(sessionToken);
+    Optional<Session> optionalSession = sessionUtility.get(sessionToken1);
     assertTrue(optionalSession.isEmpty());
   }
 
-  @DisplayName("BadRequest 🔀")
+  @DisplayName("BadRequest - Missing Headers 🔀")
   @Test
+  @Order(2)
   void returnBadRequest() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    Optional<Session> optionalSession = sessionUtility.get(sessionToken);
+  }
+
+  @DisplayName("Logout and Forfeit Game 🔀")
+  @Test
+  @Order(3)
+  void successfulLogoutForfeitsGame() {
+
+    Player player = Player.builder().playerId(userId).build();
+
+    Game newGame = new Game(TimeControl.BLITZ_5, player);
+    newGame.setId(gameId);
+
+    User user1 = User.builder().id(userId).build();
+    User user2 = User.builder().id(user2id).build();
+    usersUtility.post(user1);
+    usersUtility.post(user2);
+
+    Stats user1Stats = new Stats(userId);
+    Stats user2Stats = new Stats(user2id);
+
+    statsUtility.post(user1Stats);
+    statsUtility.post(user2Stats);
+
+    try {
+      newGame.setup(Player.builder().playerId(user2id).build());
+    } catch (Exception e) {
+      assertFalse(false, e.getMessage());
+      return;
+    }
+    gameUtility.post(newGame);
+
+    Map<String, String> headers = new HashMap<>();
+    headers.put("Authorization", sessionToken2);
+    headers.put("userid", userId);
+
+    Session userOneSession = Session.builder().id(sessionToken2).userId(userId).build();
+    sessionUtility.post(userOneSession);
+
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(headers);
+
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
+
+    Optional<Session> optionalSession = sessionUtility.get(sessionToken2);
     assertTrue(optionalSession.isEmpty());
+
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+
+    Optional<Game> optionalGame = gameUtility.get(gameId);
+    assertTrue(optionalGame.isPresent());
+
+    assertEquals(GameStatus.FINISHED, optionalGame.get().getGameStatus());
   }
 }

@@ -158,6 +158,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneralResponseModel'
+        "500":
+          description: Internal Server Error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResponseModel'
       security:
       - bearerAuth: []
       x-amazon-apigateway-integration:
@@ -676,8 +692,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/GeneralResponseModel'
-    "409":
-      description: Conflict
+    "500":
+      description: Internal Server Error
       headers:
         Access-Control-Allow-Origin:
           schema:
@@ -692,8 +708,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/GeneralResponseModel'
-    "500":
-      description: Internal Server Error
+    "409":
+      description: Conflict
       headers:
         Access-Control-Allow-Origin:
           schema:

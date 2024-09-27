@@ -17,6 +17,7 @@ public class ConnectService {
   public ConnectService() {
     this.gameMongoDBUtility = new MongoDBUtility<>("games", Game.class);
   }
+
   public void updateConnectionId(String userId, String connectionId) {
     // find out if user is in a game
     Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
