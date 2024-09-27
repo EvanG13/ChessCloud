@@ -32,12 +32,16 @@ public class SocketEmitter implements SocketMessenger {
 
   public void sendMessages(String connectionId, String secondConnectionId, String message) {
 
-    PostToConnectionRequest request =
+    PostToConnectionRequest request1 =
         new PostToConnectionRequest()
             .withConnectionId(connectionId)
+            .withData(ByteBuffer.wrap(message.getBytes()));
+    apiClient.postToConnection(request1);
+
+    PostToConnectionRequest request2 =
+        new PostToConnectionRequest()
             .withConnectionId(secondConnectionId)
             .withData(ByteBuffer.wrap(message.getBytes()));
-
-    apiClient.postToConnection(request);
+    apiClient.postToConnection(request2);
   }
 }
