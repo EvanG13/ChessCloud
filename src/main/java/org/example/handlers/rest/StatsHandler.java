@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import java.util.Map;
-import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.Stats;
 import org.example.exceptions.InternalServerError;
@@ -46,7 +45,7 @@ public class StatsHandler
       return e.makeHttpResponse();
     }
 
-    // return with ALL game modes
+    // return with stats for ALL game modes
     if (queryParams == null) {
       return makeHttpResponse(StatusCodes.OK, userStats.toJSON());
     }
@@ -59,21 +58,20 @@ public class StatsHandler
           StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
     }
 
-    // missing value for gamemode: bad request
+    // no value for gamemode
     if (gameMode.isEmpty()) {
       return makeHttpResponse(
           StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" was missing a value");
     }
 
-    Optional<String> optionalJson = userStats.toJSON(gameMode);
-
-    // invalid value for gamemode: bad request
-    if (optionalJson.isEmpty()) {
+    // gamemode doesn't exist or is not supported
+    if (!userStats.doesGamemodeHaveStats(gameMode)) {
       return makeHttpResponse(
           StatusCodes.BAD_REQUEST,
           "Query parameter \"gamemode\" had an invalid value: " + gameMode);
     }
 
-    return makeHttpResponse(StatusCodes.OK, optionalJson.get());
+    // return with stats for QUERIED game mode
+    return makeHttpResponse(StatusCodes.OK, userStats.toJSON(gameMode));
   }
 }

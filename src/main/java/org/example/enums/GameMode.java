@@ -3,5 +3,9 @@ package org.example.enums;
 public enum GameMode {
   BULLET,
   BLITZ,
-  RAPID
+  RAPID;
+
+  public String asKey() {
+    return name().toLowerCase();
+  }
 }

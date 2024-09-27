@@ -6,7 +6,9 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import java.util.Map;
 import org.example.constants.StatusCodes;
+import org.example.exceptions.InternalServerError;
 import org.example.services.LogoutService;
 
 public class LogoutHandler
@@ -28,10 +30,18 @@ public class LogoutHandler
           StatusCodes.BAD_REQUEST, "Missing Event object or Event Request Headers");
     }
 
-    String sessionToken =
-        event.getHeaders().get("Authorization").replace("Bearer ", "").replace("\"", "");
+    Map<String, String> headers = event.getHeaders();
 
+    String userId = headers.get("userid");
+
+    String sessionToken = headers.get("Authorization").replace("Bearer ", "").replace("\"", "");
     service.logout(sessionToken);
+
+    try {
+      service.handleUserInGame(userId);
+    } catch (InternalServerError e) {
+      return e.makeHttpResponse();
+    }
 
     return makeHttpResponse(StatusCodes.OK, "Logged out successfully");
   }

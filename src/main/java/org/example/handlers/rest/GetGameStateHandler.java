@@ -33,7 +33,7 @@ public class GetGameStateHandler
     String userId = event.getHeaders().get("userid");
     Game game;
     try {
-      game = service.getGame(userId);
+      game = service.getGameFromUserID(userId);
     } catch (NotFound e) {
       return e.makeHttpResponse();
     }
