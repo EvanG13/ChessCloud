@@ -13,7 +13,6 @@ public class DefaultHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    // TODO: save this to the connections mongo table
     return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Route: is not supported");
   }
 }
