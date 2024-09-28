@@ -16,13 +16,15 @@ import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
 import org.example.entities.User;
+import org.example.enums.Action;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.requests.MakeMoveRequest;
-import org.example.models.responses.MakeMoveResponseBody;
+import org.example.models.websocketResponses.MakeMoveMessageData;
+import org.example.models.websocketResponses.SocketResponseBody;
 import org.example.services.JoinGameService;
 import org.example.services.MakeMoveService;
 import org.example.utils.MockContext;
@@ -280,10 +282,11 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    MakeMoveResponseBody expectedResponse =
-        new MakeMoveResponseBody(
+    MakeMoveMessageData data =
+        new MakeMoveMessageData(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
             new ArrayList<>(List.of("e2e4")));
+    SocketResponseBody<MakeMoveMessageData> expectedResponse = new SocketResponseBody<>(Action.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
@@ -356,10 +359,11 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    MakeMoveResponseBody expectedResponse =
-        new MakeMoveResponseBody(
+    MakeMoveMessageData data =
+        new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
             new ArrayList<>(List.of("e2e4", "d7d5")));
+    SocketResponseBody<MakeMoveMessageData> expectedResponse = new SocketResponseBody<>(Action.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
@@ -385,10 +389,11 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    MakeMoveResponseBody expectedResponse =
-        new MakeMoveResponseBody(
+    MakeMoveMessageData data =
+        new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
             new ArrayList<>(List.of("e2e4", "d7d5", "e4d5")));
+    SocketResponseBody<MakeMoveMessageData> expectedResponse = new SocketResponseBody<>(Action.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 }
