@@ -7,12 +7,14 @@ import lombok.Setter;
 import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
+import org.example.enums.Action;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
-import org.example.models.responses.GameOverResponseBody;
+import org.example.models.websocketResponses.GameOverMessageData;
+import org.example.models.websocketResponses.SocketResponseBody;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -69,7 +71,9 @@ public class GameOverService {
 
   public void emitOutcome() throws InternalServerError {
     String messageJson =
-        new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername)
+        new SocketResponseBody<GameOverMessageData>(
+                Action.GAME_OVER,
+                new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
     socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
   }
@@ -91,24 +95,22 @@ public class GameOverService {
     Stats.GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);
 
     switch (resultReason) {
-      // Someone abandoned the game: AFK, abandoned / logged out early on
-      case ABORTED:
+        // Someone abandoned the game: AFK, abandoned / logged out early on
+      case ABORTED -> {
         return;
-      // Someone won the game
-      case FORFEIT:
-      case TIMEOUT:
-      case CHECKMATE:
+      }
+
+        // Someone won the game
+      case FORFEIT, TIMEOUT, CHECKMATE -> {
         winningGameModeStats.AddWin(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
-        break;
-      // Game was a draw
-      case REPETITION:
-      case INSUFFICIENT_MATERIAL:
+      }
+        // Game was a draw
+      case REPETITION, INSUFFICIENT_MATERIAL -> {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
-        break;
-      default:
-        throw new InternalServerError("Unsupported ResultReason: " + resultReason);
+      }
+      default -> throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
 
     MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);
