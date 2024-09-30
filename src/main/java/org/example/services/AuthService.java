@@ -1,8 +1,8 @@
 package org.example.services;
 
 import java.util.Optional;
-import org.example.entities.Session;
 import org.example.entities.User;
+import org.example.entities.session.Session;
 import org.example.models.requests.AuthRequest;
 import org.example.utils.MongoDBUtility;
 

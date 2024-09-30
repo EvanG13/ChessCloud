@@ -1,8 +1,7 @@
-package org.example.services;
+package org.example.entities.session;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import org.example.entities.Session;
 import org.example.models.requests.SessionRequest;
 import org.example.utils.MongoDBUtility;
 

@@ -10,9 +10,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.Stats;
+import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsService;
 import org.example.exceptions.InternalServerError;
-import org.example.services.StatsService;
 
 public class StatsHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {

@@ -13,17 +13,18 @@ import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
 import org.example.entities.Game;
 import org.example.entities.Player;
-import org.example.entities.Stats;
 import org.example.entities.User;
+import org.example.entities.stats.Stats;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.rest.GetGameStateHandler;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
+import org.example.models.requests.JoinGameRequest;
+import org.example.models.requests.MakeMoveRequest;
 import org.example.services.GameStateService;
 import org.example.services.JoinGameService;
 import org.example.services.MakeMoveService;
@@ -66,6 +67,8 @@ public class GetGameStateTest {
   public static String password;
   public static String password2;
 
+  public static Gson gson;
+
   @BeforeAll
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
@@ -93,8 +96,10 @@ public class GetGameStateTest {
 
     username = "test-username";
     username2 = "test-username2";
+
     email = "test@gmail.com";
     email2 = "test2@gmail.com";
+
     password = "1223";
     password2 = "123";
 
@@ -109,6 +114,8 @@ public class GetGameStateTest {
     Stats testUserStats2 = new Stats(testUser2.getId());
     statsUtility.post(testUserStats);
     statsUtility.post(testUserStats2);
+
+    gson = new Gson();
   }
 
   @AfterAll
@@ -122,10 +129,10 @@ public class GetGameStateTest {
     statsUtility.delete(userId2);
   }
 
-  @DisplayName("Game Created ✅")
+  @DisplayName("Player One creates game✅")
   @Test
   @Order(1)
-  public void returnGameCreated() {
+  public void canCreateGame() {
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -138,30 +145,21 @@ public class GetGameStateTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId
-            + "'}");
+    JoinGameRequest joinGameRequest = new JoinGameRequest("joinGame", userId, timeControl);
+    event.setBody(gson.toJson(joinGameRequest));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
 
     String gameJson = response.getBody();
-    gameId = (new Gson()).fromJson(gameJson, Game.class).getId();
+    gameId = gson.fromJson(gameJson, Game.class).getId();
 
     Player newPlayer =
-        Player.builder()
-            .playerId(userId)
-            .connectionId(connectId)
-            .username(username)
-            .rating(ChessConstants.BASE_RATING) // new player default rating
-            .build();
+        Player.builder().playerId(userId).connectionId(connectId).username(username).build();
 
     Game expected = new Game(timeControl, newPlayer);
-    expected.setId(
-        gameId); // since calling the constructor will autoincrement the id from the last game
+    // set the id because the constructor will autoincrement the id from the last game
+    expected.setId(gameId);
 
     Optional<Game> optionalGame = gameUtility.get(gameId);
 
@@ -170,9 +168,9 @@ public class GetGameStateTest {
   }
 
   @Test
-  @DisplayName("Game Started")
+  @DisplayName("Player 2 Joins the game")
   @Order(2)
-  public void returnGameStarted() {
+  public void canJoinOpenGame() {
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -185,12 +183,8 @@ public class GetGameStateTest {
     requestContext.setRouteKey("joinGame");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'joinGame', 'timeControl': '"
-            + timeControl
-            + "', 'userId': '"
-            + userId2
-            + "'}");
+    JoinGameRequest joinGameRequest = new JoinGameRequest("joinGame", userId2, timeControl);
+    event.setBody(gson.toJson(joinGameRequest));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
@@ -220,7 +214,7 @@ public class GetGameStateTest {
   @Test
   @DisplayName("M1: White - successful move")
   @Order(3)
-  public void returnOk() {
+  public void whiteCanMove() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -233,26 +227,23 @@ public class GetGameStateTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + firstMove
-            + "'}");
+
+    MakeMoveRequest makeMoveRequest =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(firstMove).build();
+
+    event.setBody(gson.toJson(makeMoveRequest));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\",\"moveList\":[\"e2e4\"],\"isSuccess\":true,\"message\":\"Success\"}}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\",\"moveList\":[\"e2e4\"],\"isWhiteTurn\":false,\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 
   @Test
   @DisplayName("M2: Black - successful move")
   @Order(4)
-  public void returnSuccessfulSecondMove() {
+  public void blackCanMove() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -265,26 +256,21 @@ public class GetGameStateTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId2
-            + "', 'move': '"
-            + secondMove
-            + "'}");
+    MakeMoveRequest makeMoveRequest =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondMove).build();
+    event.setBody(gson.toJson(makeMoveRequest));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2\",\"moveList\":[\"e2e4\",\"d7d5\"],\"isSuccess\":true,\"message\":\"Success\"}}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2\",\"moveList\":[\"e2e4\",\"d7d5\"],\"isWhiteTurn\":true,\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 
   @Test
   @DisplayName("M3: White - successful move")
   @Order(5)
-  public void returnSuccessfulThirdMove() {
+  public void whiteCanMakeSecondMove() {
     MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -297,19 +283,14 @@ public class GetGameStateTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    event.setBody(
-        "{'action' : 'makeMove', 'gameId': '"
-            + gameId
-            + "', 'playerId': '"
-            + userId
-            + "', 'move': '"
-            + thirdMove
-            + "'}");
+    MakeMoveRequest makeMoveRequest =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
+    event.setBody(gson.toJson(makeMoveRequest));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"],\"isSuccess\":true,\"message\":\"Success\"}}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"],\"isWhiteTurn\":false,\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 
@@ -339,7 +320,7 @@ public class GetGameStateTest {
   @Test
   @DisplayName("User is not in a game")
   @Order(7)
-  public void returnNotFound() {
+  public void userCantGetGameNotIn() {
     GetGameStateHandler getGameStateHandler =
         new GetGameStateHandler(new GameStateService(gameUtility));
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();

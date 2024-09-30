@@ -13,8 +13,8 @@ import org.example.entities.Game;
 import org.example.enums.Action;
 import org.example.enums.GameStatus;
 import org.example.models.requests.MessageRequest;
-import org.example.models.websocketResponses.ChatMessageData;
-import org.example.models.websocketResponses.SocketResponseBody;
+import org.example.models.responses.websocket.ChatMessageData;
+import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.GameStateService;
 import org.example.utils.socketMessenger.SocketEmitter;
 
