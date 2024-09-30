@@ -24,10 +24,6 @@ public class LogoutService {
     } catch (NotFound e) {
       return;
     }
-
-    gameOverService.emitOutcome();
-    gameOverService.updateGame();
-    gameOverService.updateRatings();
   }
 
   public void logout(String sessionToken) {

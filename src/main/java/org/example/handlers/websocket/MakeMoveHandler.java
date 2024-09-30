@@ -67,15 +67,33 @@ public class MakeMoveHandler
     try {
       game = service.loadGame(gameId);
     } catch (InternalServerError e) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return e.makeWebsocketResponse();
     }
 
     if (!service.isPlayersTurn(game, playerId)) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message("It is not your turn.").build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
     String boardState = game.getGameStateAsFen();
     if (boardState == null) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message("Game missing FEN").build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
     }
 
@@ -83,6 +101,12 @@ public class MakeMoveHandler
     try {
       makeMoveResult = service.makeMove(move, boardState, gameId);
     } catch (BadRequest e) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return e.makeWebsocketResponse();
     }
 

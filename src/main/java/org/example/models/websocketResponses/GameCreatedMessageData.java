@@ -1,6 +1,5 @@
 package org.example.models.websocketResponses;
 
-
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder

@@ -32,7 +32,7 @@ public class GameOverService {
   private String winningPlayerUsername;
   private Game game;
   private SocketMessenger socketMessenger;
-  private GameStateService gameService;
+  private GameService gameService;
   private StatsService statsService;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
@@ -45,12 +45,17 @@ public class GameOverService {
   public GameOverService(
       ResultReason resultReason, String losingPlayerId, SocketMessenger messenger)
       throws NotFound, InternalServerError {
+    this.gameService = new GameService();
+    this.game = gameService.getGameFromUserID(losingPlayerId);
+
+    if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
+      gameService.deleteGame(game.getId());
+      return;
+    }
+
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
     this.statsService = new StatsService();
-    this.gameService = new GameStateService();
-
-    this.game = gameService.getGameFromUserID(losingPlayerId);
     this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
@@ -67,6 +72,10 @@ public class GameOverService {
 
     this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
     this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
+
+    emitOutcome();
+    updateGame();
+    updateRatings();
   }
 
   public void emitOutcome() throws InternalServerError {
@@ -95,17 +104,17 @@ public class GameOverService {
     Stats.GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);
 
     switch (resultReason) {
-        // Someone abandoned the game: AFK, abandoned / logged out early on
+      // Someone abandoned the game: AFK, abandoned / logged out early on
       case ABORTED -> {
         return;
       }
 
-        // Someone won the game
+      // Someone won the game
       case FORFEIT, TIMEOUT, CHECKMATE -> {
         winningGameModeStats.AddWin(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
       }
-        // Game was a draw
+      // Game was a draw
       case REPETITION, INSUFFICIENT_MATERIAL -> {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
