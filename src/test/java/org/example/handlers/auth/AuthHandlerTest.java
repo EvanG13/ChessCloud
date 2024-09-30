@@ -6,8 +6,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2CustomAuthorizer
 import com.amazonaws.services.lambda.runtime.events.IamPolicyResponse;
 import java.util.HashMap;
 import java.util.Map;
-import org.example.entities.Session;
 import org.example.entities.User;
+import org.example.entities.session.Session;
 import org.example.handlers.rest.AuthHandler;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;

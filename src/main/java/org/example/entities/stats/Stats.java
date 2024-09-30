@@ -1,4 +1,4 @@
-package org.example.entities;
+package org.example.entities.stats;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.constants.ChessConstants;
+import org.example.entities.DataTransferObject;
 import org.example.enums.GameMode;
 
 @Getter

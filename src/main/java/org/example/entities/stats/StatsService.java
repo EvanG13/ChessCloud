@@ -1,7 +1,6 @@
-package org.example.services;
+package org.example.entities.stats;
 
 import java.util.Optional;
-import org.example.entities.Stats;
 import org.example.entities.User;
 import org.example.exceptions.InternalServerError;
 import org.example.utils.MongoDBUtility;

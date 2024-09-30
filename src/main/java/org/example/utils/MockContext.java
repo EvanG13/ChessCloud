@@ -70,7 +70,11 @@ public class MockContext implements Context {
 
       @Override
       public void log(String message, LogLevel logLevel) {
-        System.err.println("LOG: " + message);
+        if (logLevel.equals(LogLevel.ERROR) || logLevel.equals(LogLevel.FATAL)) {
+          System.err.println("LOG: " + message);
+        } else {
+          System.out.println("LOG: " + message);
+        }
       }
 
       @Override

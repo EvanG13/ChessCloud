@@ -1,4 +1,4 @@
-package org.example.models.responses;
+package org.example.models.responses.rest;
 
 import com.google.gson.annotations.Expose;
 import java.util.List;
