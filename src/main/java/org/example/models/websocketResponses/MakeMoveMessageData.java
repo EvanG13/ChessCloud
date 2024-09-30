@@ -10,10 +10,12 @@ import lombok.experimental.SuperBuilder;
 public class MakeMoveMessageData extends SocketMessageData {
   @Expose private String fen;
   @Expose private List<String> moveList;
+  @Expose private boolean isWhiteTurn;
 
-  public MakeMoveMessageData(String fen, List<String> moveList) {
+  public MakeMoveMessageData(String fen, List<String> moveList, boolean isWhiteTurn) {
     super();
     this.fen = fen;
     this.moveList = moveList;
+    this.isWhiteTurn = isWhiteTurn;
   }
 }
