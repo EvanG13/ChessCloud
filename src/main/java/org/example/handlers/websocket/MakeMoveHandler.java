@@ -39,13 +39,14 @@ public class MakeMoveHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-
+    System.out.println("event: " + event.getBody());
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
     try {
       ValidateObject.requireNonNull(requestData);
     } catch (NullPointerException e) {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
+    System.out.println("request data is: " + requestData);
 
     // TODO: maybe check if the game exists? isUserInGame does this, as well as most of the others
     // maybe like, return the game into this class, or store in the service after checking if it
@@ -57,6 +58,7 @@ public class MakeMoveHandler
     String playerId = requestData.playerId();
 
     if (!service.isUserInGame(requestData.gameId(), connectionId, playerId)) {
+      System.out.println("User is not in this game.");
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
@@ -73,6 +75,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
+      System.out.println("error loading game");
       return e.makeWebsocketResponse();
     }
 
@@ -83,6 +86,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
+      System.out.println("It is not your turn.");
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
@@ -94,6 +98,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
+      System.out.println("Game missing fen");
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
     }
 
@@ -107,16 +112,19 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
+      System.out.println("error in make move service.");
       return e.makeWebsocketResponse();
     }
 
     // TODO update the clock
     String[] connectionIds = service.getPlayerConnectionIds(game);
-
-    MakeMoveMessageData data = new MakeMoveMessageData(makeMoveResult, service.getMoveList(gameId));
+    boolean isWhiteTurn = !game.getIsWhitesTurn();
+    MakeMoveMessageData data =
+        new MakeMoveMessageData(makeMoveResult, service.getMoveList(gameId), isWhiteTurn);
     SocketResponseBody<MakeMoveMessageData> responseBody =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
+    System.out.println("SUCCESS.");
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());
   }
 }
