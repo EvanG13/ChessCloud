@@ -15,8 +15,8 @@ import org.example.enums.Action;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.models.requests.MakeMoveRequest;
-import org.example.models.websocketResponses.MakeMoveMessageData;
-import org.example.models.websocketResponses.SocketResponseBody;
+import org.example.models.responses.websocket.MakeMoveMessageData;
+import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.MakeMoveService;
 import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
@@ -59,15 +59,15 @@ public class MakeMoveHandler
     // of the function
 
     String connectionId = event.getRequestContext().getConnectionId();
-    String playerId = requestData.playerId();
+    String playerId = requestData.getPlayerId();
 
-    if (!service.isUserInGame(requestData.gameId(), connectionId, playerId)) {
-      logger.log("User is not in this game.", LogLevel.INFO);
+    if (!service.isUserInGame(requestData.getGameId(), connectionId, playerId)) {
+      logger.log(StatusCodes.UNAUTHORIZED + " User is not in this game.", LogLevel.INFO);
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
-    String gameId = requestData.gameId();
-    String move = requestData.move();
+    String gameId = requestData.getGameId();
+    String move = requestData.getMove();
 
     Game game;
     try {
@@ -129,6 +129,7 @@ public class MakeMoveHandler
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
     logger.log("SUCCESS.", LogLevel.INFO);
+
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());
   }
 }

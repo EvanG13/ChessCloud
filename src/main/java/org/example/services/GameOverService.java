@@ -13,8 +13,8 @@ import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
-import org.example.models.websocketResponses.GameOverMessageData;
-import org.example.models.websocketResponses.SocketResponseBody;
+import org.example.models.responses.websocket.GameOverMessageData;
+import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketMessenger;
 

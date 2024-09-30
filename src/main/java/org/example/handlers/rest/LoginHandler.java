@@ -12,7 +12,7 @@ import org.example.entities.User;
 import org.example.exceptions.Unauthorized;
 import org.example.models.requests.LoginRequest;
 import org.example.models.requests.SessionRequest;
-import org.example.models.responses.LoginResponseBody;
+import org.example.models.responses.rest.LoginResponseBody;
 import org.example.services.LoginService;
 import org.example.services.SessionService;
 import org.example.utils.ValidateObject;
