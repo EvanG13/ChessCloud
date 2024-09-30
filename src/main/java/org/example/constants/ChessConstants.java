@@ -10,4 +10,5 @@ public final class ChessConstants {
       Math.log(10) / 400; // scaling factor constant used in calculating glicko ratings
   public static final String STARTING_FEN_STRING =
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  public final Integer RATING_MARGIN = 500;
 }

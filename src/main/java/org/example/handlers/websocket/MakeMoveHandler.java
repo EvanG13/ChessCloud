@@ -9,10 +9,12 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.entities.Game;
+import org.example.enums.Action;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.models.requests.MakeMoveRequest;
-import org.example.models.responses.MakeMoveResponseBody;
+import org.example.models.websocketResponses.MakeMoveMessageData;
+import org.example.models.websocketResponses.SocketResponseBody;
 import org.example.services.MakeMoveService;
 import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
@@ -65,15 +67,33 @@ public class MakeMoveHandler
     try {
       game = service.loadGame(gameId);
     } catch (InternalServerError e) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return e.makeWebsocketResponse();
     }
 
     if (!service.isPlayersTurn(game, playerId)) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message("It is not your turn.").build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
     String boardState = game.getGameStateAsFen();
     if (boardState == null) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message("Game missing FEN").build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
     }
 
@@ -81,15 +101,22 @@ public class MakeMoveHandler
     try {
       makeMoveResult = service.makeMove(move, boardState, gameId);
     } catch (BadRequest e) {
+      MakeMoveMessageData data =
+          MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+
+      SocketResponseBody<MakeMoveMessageData> responseBody =
+          new SocketResponseBody<>(Action.MOVE_MADE, data);
+      socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       return e.makeWebsocketResponse();
     }
 
     // TODO update the clock
     String[] connectionIds = service.getPlayerConnectionIds(game);
 
-    MakeMoveResponseBody res =
-        new MakeMoveResponseBody(makeMoveResult, service.getMoveList(gameId));
-    socketMessenger.sendMessages(connectionIds[0], connectionIds[1], res.toJSON());
-    return makeWebsocketResponse(StatusCodes.OK, res.toJSON());
+    MakeMoveMessageData data = new MakeMoveMessageData(makeMoveResult, service.getMoveList(gameId));
+    SocketResponseBody<MakeMoveMessageData> responseBody =
+        new SocketResponseBody<>(Action.MOVE_MADE, data);
+    socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
+    return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());
   }
 }
