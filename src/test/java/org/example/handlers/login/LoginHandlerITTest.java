@@ -12,7 +12,7 @@ import org.example.constants.StatusCodes;
 import org.example.entities.User;
 import org.example.handlers.rest.LoginHandler;
 import org.example.models.requests.LoginRequest;
-import org.example.models.responses.LoginResponseBody;
+import org.example.models.responses.rest.LoginResponseBody;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;

@@ -23,8 +23,8 @@ import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.requests.MakeMoveRequest;
-import org.example.models.websocketResponses.MakeMoveMessageData;
-import org.example.models.websocketResponses.SocketResponseBody;
+import org.example.models.responses.websocket.MakeMoveMessageData;
+import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.JoinGameService;
 import org.example.services.MakeMoveService;
 import org.example.utils.MockContext;
@@ -161,8 +161,8 @@ public class MakeMoveHandlerTest {
             .build();
 
     Game expected = new Game(timeControl, newPlayer);
-    expected.setId(
-        gameId); // since calling the constructor will autoincrement the id from the last game
+    // since calling the constructor will autoincrement the id from the last game
+    expected.setId(gameId);
 
     Optional<Game> optionalGame = gameUtility.get(gameId);
 
@@ -228,7 +228,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, wrongUserId, firstMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(wrongUserId).move(firstMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -252,7 +253,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, invalidMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(invalidMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -276,7 +278,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, firstMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(firstMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -307,7 +310,10 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2, secondInvalidMove);
+    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2,
+    // secondInvalidMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondInvalidMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -331,7 +337,9 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -355,7 +363,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2, secondMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
@@ -387,7 +396,8 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+    MakeMoveRequest request =
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);

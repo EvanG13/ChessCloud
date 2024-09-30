@@ -13,7 +13,7 @@ import org.bson.conversions.Bson;
 import org.example.constants.StatusCodes;
 import org.example.entities.User;
 import org.example.handlers.rest.LoginHandler;
-import org.example.models.responses.LoginResponseBody;
+import org.example.models.responses.rest.LoginResponseBody;
 import org.example.services.LoginService;
 import org.example.utils.EncryptPassword;
 import org.example.utils.MockContext;
