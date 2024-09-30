@@ -245,7 +245,7 @@ public class GetGameStateTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"fen\":\"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\",\"moveList\":[\"e2e4\"],\"action\":\"MOVE_MADE\"}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\",\"moveList\":[\"e2e4\"],\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 
@@ -277,7 +277,7 @@ public class GetGameStateTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"fen\":\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2\",\"moveList\":[\"e2e4\",\"d7d5\"],\"action\":\"MOVE_MADE\"}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2\",\"moveList\":[\"e2e4\",\"d7d5\"],\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 
@@ -309,7 +309,7 @@ public class GetGameStateTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(
-        "{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"],\"action\":\"MOVE_MADE\"}",
+        "{\"action\":\"MOVE_MADE\",\"data\":{\"fen\":\"rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2\",\"moveList\":[\"e2e4\",\"d7d5\",\"e4d5\"],\"isSuccess\":true,\"message\":\"Success\"}}",
         response.getBody());
   }
 

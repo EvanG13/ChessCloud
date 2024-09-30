@@ -13,8 +13,12 @@ import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
 import org.example.entities.User;
+import org.example.enums.Action;
 import org.example.enums.GameMode;
 import org.example.models.requests.JoinGameRequest;
+import org.example.models.websocketResponses.GameCreatedMessageData;
+import org.example.models.websocketResponses.GameStartedMessageData;
+import org.example.models.websocketResponses.SocketResponseBody;
 import org.example.services.JoinGameService;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
@@ -53,16 +57,43 @@ public class JoinGameHandler
     String userId = joinRequestData.userId();
     Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder()
+              .isSuccess(false)
+              .message("No user matches userId")
+              .build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(Action.GAME_CREATED, data);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "No user matches userId");
     }
 
     Optional<Stats> optionalStats = service.getUserStats(userId);
     if (optionalStats.isEmpty()) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder()
+              .isSuccess(false)
+              .message("User doesn't have entry in Stats collection")
+              .build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(Action.GAME_CREATED, data);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+
       return makeWebsocketResponse(
           StatusCodes.INTERNAL_SERVER_ERROR, "User doesn't have entry in Stats collection");
     }
 
     if (service.isInGame(userId)) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder()
+              .isSuccess(false)
+              .message("You are already in 1 game.")
+              .build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(Action.GAME_CREATED, data);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "You are already in 1 game.");
     }
 
@@ -92,30 +123,46 @@ public class JoinGameHandler
 
       statusCode = StatusCodes.CREATED;
       body = newGame.toResponseJson();
-
-      emitter.sendMessage(connectionId, "Created new game. Waiting for someone to join");
+      GameCreatedMessageData messageData = new GameCreatedMessageData();
+      SocketResponseBody<GameCreatedMessageData> responseBody =
+          new SocketResponseBody<>(Action.GAME_CREATED, messageData);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
     } else {
       // Pending game exists for the requested time control
       // Join pending game
-
+      GameStartedMessageData data;
+      SocketResponseBody<GameStartedMessageData> responseBody;
       Game game = optionalGame.get();
       try {
         game.setup(newPlayer);
       } catch (Exception e) {
-        return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Error in setting up game");
+        data =
+            GameStartedMessageData.builder()
+                .isSuccess(false)
+                .message("Error in setting up game.")
+                .build();
+        responseBody = new SocketResponseBody<>(Action.GAME_START, data);
+        emitter.sendMessages(
+            game.getPlayers().get(0).getConnectionId(),
+            game.getPlayers().get(1).getConnectionId(),
+            responseBody.toJSON());
+        return makeWebsocketResponse(
+            StatusCodes.INTERNAL_SERVER_ERROR, "Error in setting up game.");
       }
 
       service.updateGame(game);
 
-      // Notify both players that the game is
-      String gameJson = game.toResponseJson();
+      // Notify both players that the game is starting
+      data = new GameStartedMessageData(game);
+      responseBody = new SocketResponseBody<>(Action.GAME_START, data);
+      String resJson = responseBody.toJSON();
       emitter.sendMessages(
           game.getPlayers().get(0).getConnectionId(),
           game.getPlayers().get(1).getConnectionId(),
-          "game is started: \n" + gameJson);
+          resJson);
 
       statusCode = StatusCodes.OK;
-      body = gameJson;
+      body = resJson;
     }
 
     return makeWebsocketResponse(statusCode, body);

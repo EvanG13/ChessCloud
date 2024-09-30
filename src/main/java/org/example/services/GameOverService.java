@@ -7,12 +7,14 @@ import lombok.Setter;
 import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.Stats;
+import org.example.enums.Action;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
-import org.example.models.responses.GameOverResponseBody;
+import org.example.models.websocketResponses.GameOverMessageData;
+import org.example.models.websocketResponses.SocketResponseBody;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -30,7 +32,7 @@ public class GameOverService {
   private String winningPlayerUsername;
   private Game game;
   private SocketMessenger socketMessenger;
-  private GameStateService gameService;
+  private GameService gameService;
   private StatsService statsService;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
@@ -43,12 +45,17 @@ public class GameOverService {
   public GameOverService(
       ResultReason resultReason, String losingPlayerId, SocketMessenger messenger)
       throws NotFound, InternalServerError {
+    this.gameService = new GameService();
+    this.game = gameService.getGameFromUserID(losingPlayerId);
+
+    if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
+      gameService.deleteGame(game.getId());
+      return;
+    }
+
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
     this.statsService = new StatsService();
-    this.gameService = new GameStateService();
-
-    this.game = gameService.getGameFromUserID(losingPlayerId);
     this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
@@ -65,11 +72,17 @@ public class GameOverService {
 
     this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
     this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
+
+    emitOutcome();
+    updateGame();
+    updateRatings();
   }
 
   public void emitOutcome() throws InternalServerError {
     String messageJson =
-        new GameOverResponseBody(resultReason, winningPlayerUsername, losingPlayerUsername)
+        new SocketResponseBody<GameOverMessageData>(
+                Action.GAME_OVER,
+                new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
     socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
   }
@@ -92,23 +105,21 @@ public class GameOverService {
 
     switch (resultReason) {
       // Someone abandoned the game: AFK, abandoned / logged out early on
-      case ABORTED:
+      case ABORTED -> {
         return;
+      }
+
       // Someone won the game
-      case FORFEIT:
-      case TIMEOUT:
-      case CHECKMATE:
+      case FORFEIT, TIMEOUT, CHECKMATE -> {
         winningGameModeStats.AddWin(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
-        break;
+      }
       // Game was a draw
-      case REPETITION:
-      case INSUFFICIENT_MATERIAL:
+      case REPETITION, INSUFFICIENT_MATERIAL -> {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
-        break;
-      default:
-        throw new InternalServerError("Unsupported ResultReason: " + resultReason);
+      }
+      default -> throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
 
     MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);

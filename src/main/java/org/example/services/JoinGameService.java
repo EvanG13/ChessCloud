@@ -6,6 +6,7 @@ import com.mongodb.client.model.Filters;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.conversions.Bson;
+import org.example.constants.ChessConstants;
 import org.example.entities.Game;
 import org.example.entities.Stats;
 import org.example.entities.User;
@@ -18,7 +19,6 @@ public class JoinGameService {
   private final MongoDBUtility<Game> gameDBUtility;
   private final MongoDBUtility<User> userDBUtility;
   private final MongoDBUtility<Stats> statsDBUtility;
-  private final int RATING_MARGIN = 500;
 
   public JoinGameService() {
     this.gameDBUtility = new MongoDBUtility<>("games", Game.class);
@@ -32,8 +32,8 @@ public class JoinGameService {
             Filters.and(
                 eq("timeControl", timeControl),
                 eq("gameStatus", GameStatus.PENDING),
-                gte("rating", rating - RATING_MARGIN),
-                lte("rating", rating + RATING_MARGIN)));
+                gte("rating", rating - ChessConstants.RATING_MARGIN),
+                lte("rating", rating + ChessConstants.RATING_MARGIN)));
 
     if (optionalGame.isEmpty()) {
       return Optional.empty();
