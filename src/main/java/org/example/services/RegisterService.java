@@ -4,8 +4,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.example.entities.Stats;
 import org.example.entities.User;
+import org.example.entities.stats.Stats;
 import org.example.models.requests.RegisterRequest;
 import org.example.utils.EncryptPassword;
 import org.example.utils.MongoDBUtility;

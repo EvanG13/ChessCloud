@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.entities.Game;
 import org.example.entities.Player;
-import org.example.entities.Stats;
+import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsService;
 import org.example.enums.Action;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
@@ -39,7 +40,7 @@ public class GameOverService {
 
   /**
    * finds a game based on the losingPlayerId if the game is not found then throws NotFound
-   * exception if the game is a draw, then the eventbody coming from client should set whoever's
+   * exception if the game is a draw, then the event body coming from client should set whoever's
    * turn it is as the losingPlayerId and have them be the client that sends the socket message
    */
   public GameOverService(
@@ -78,7 +79,7 @@ public class GameOverService {
     updateRatings();
   }
 
-  public void emitOutcome() throws InternalServerError {
+  private void emitOutcome() throws InternalServerError {
     String messageJson =
         new SocketResponseBody<GameOverMessageData>(
                 Action.GAME_OVER,
@@ -92,6 +93,7 @@ public class GameOverService {
     System.out.println("Implement the archiveGame function!");
   }
 
+  // TODO : Send this game to a finished game collection
   public void updateGame() {
     MongoDBUtility<Game> gameUtility = new MongoDBUtility<>("games", Game.class);
     gameUtility.patch(game.getId(), Updates.set("gameStatus", GameStatus.FINISHED.toString()));
