@@ -3,9 +3,11 @@ package org.example.handlers.websocket;
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
+import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.entities.Game;
@@ -39,14 +41,16 @@ public class MakeMoveHandler
   @Override
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
-    System.out.println("event: " + event.getBody());
+    LambdaLogger logger = context.getLogger();
+    logger.log("event: " + event.getBody(), LogLevel.INFO);
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
     try {
       ValidateObject.requireNonNull(requestData);
     } catch (NullPointerException e) {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
-    System.out.println("request data is: " + requestData);
+
+    logger.log("request data is: " + requestData, LogLevel.INFO);
 
     // TODO: maybe check if the game exists? isUserInGame does this, as well as most of the others
     // maybe like, return the game into this class, or store in the service after checking if it
@@ -58,7 +62,7 @@ public class MakeMoveHandler
     String playerId = requestData.playerId();
 
     if (!service.isUserInGame(requestData.gameId(), connectionId, playerId)) {
-      System.out.println("User is not in this game.");
+      logger.log("User is not in this game.", LogLevel.INFO);
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "User is not in this game.");
     }
 
@@ -75,7 +79,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
-      System.out.println("error loading game");
+      logger.log("error loading game", LogLevel.ERROR);
       return e.makeWebsocketResponse();
     }
 
@@ -86,7 +90,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
-      System.out.println("It is not your turn.");
+      logger.log("It is not your turn.", LogLevel.ERROR);
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
@@ -98,7 +102,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
-      System.out.println("Game missing fen");
+      logger.log("Game missing fen", LogLevel.FATAL);
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
     }
 
@@ -112,7 +116,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
-      System.out.println("error in make move service.");
+      logger.log("error in make move service.", LogLevel.ERROR);
       return e.makeWebsocketResponse();
     }
 
@@ -124,7 +128,7 @@ public class MakeMoveHandler
     SocketResponseBody<MakeMoveMessageData> responseBody =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
-    System.out.println("SUCCESS.");
+    logger.log("SUCCESS.", LogLevel.INFO);
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());
   }
 }
