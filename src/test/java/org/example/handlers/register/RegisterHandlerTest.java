@@ -1,90 +1,121 @@
 package org.example.handlers.register;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import com.google.gson.Gson;
-import java.util.Map;
-import java.util.Optional;
-import org.bson.conversions.Bson;
 import org.example.constants.StatusCodes;
-import org.example.entities.User;
 import org.example.entities.stats.Stats;
-import org.example.handlers.rest.RegisterHandler;
+import org.example.entities.stats.StatsService;
+import org.example.entities.user.User;
+import org.example.entities.user.UserService;
+import org.example.enums.GameMode;
+import org.example.exceptions.InternalServerError;
+import org.example.exceptions.NotFound;
 import org.example.models.requests.RegisterRequest;
-import org.example.services.RegisterService;
-import org.example.utils.MockContext;
-import org.example.utils.MongoDBUtility;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.example.utils.BaseTest;
+import org.example.utils.EncryptPassword;
+import org.example.utils.TestUtils;
+import org.junit.jupiter.api.*;
 
-@SuppressWarnings("unchecked")
-public class RegisterHandlerTest {
-  private RegisterHandler registerHandler;
-  private MongoDBUtility<User> dbUtility;
-  private static Gson gson;
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class RegisterHandlerTest extends BaseTest {
+  private static final String endpoint = "/register";
 
-  @BeforeEach
-  void setUp() {
-    dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
-    MongoDBUtility<Stats> statsUtility = (MongoDBUtility<Stats>) mock(MongoDBUtility.class);
+  private static UserService userService;
+  private static StatsService statsService;
 
-    RegisterService service = new RegisterService(dbUtility, statsUtility);
-    gson = new Gson();
-    registerHandler = new RegisterHandler(service);
+  private static TestUtils<String> testUtils;
+
+  private static User expectedUser;
+  private static Stats expectedStats;
+
+  private static String registeredUserId;
+  private static String registeredUserStatsId;
+
+  @BeforeAll
+  public static void setUp() {
+    userService = new UserService();
+    statsService = new StatsService();
+
+    expectedUser =
+        User.builder()
+            .email("reg-it-test@gmail.com")
+            .password(EncryptPassword.encrypt("test"))
+            .username("TestUsername")
+            .build();
+
+    expectedStats = new Stats(expectedUser.getId());
+
+    testUtils = new TestUtils<>();
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    userService.deleteUser(registeredUserId);
+    statsService.deleteStats(registeredUserStatsId);
   }
 
   @DisplayName("OK 👍")
   @Test
+  @Order(1)
   void returnSuccess() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    RegisterRequest registerRequest =
+        new RegisterRequest(expectedUser.getEmail(), expectedUser.getUsername(), "test");
 
-    RegisterRequest registerRequest = new RegisterRequest("test@gmail.com", "testuser", "test");
-    event.setBody(gson.toJson(registerRequest));
+    String response = testUtils.post(registerRequest, endpoint, StatusCodes.OK);
+    assertEquals("Successfully registered", response);
 
-    Context context = new MockContext();
+    User actualUser;
+    try {
+      actualUser = userService.getByEmail(expectedUser.getEmail());
+    } catch (NotFound e) {
+      fail("User was not successfully registered");
+      return;
+    }
+    registeredUserId = actualUser.getId();
 
-    when(dbUtility.get(any(Bson.class))).thenReturn(Optional.empty());
-    doNothing().when(dbUtility).post(any(User.class));
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    assertEquals(expectedUser.getEmail(), actualUser.getEmail());
+    assertEquals(expectedUser.getUsername(), actualUser.getUsername());
+    assertTrue(EncryptPassword.verify("test", actualUser.getPassword()));
 
-    Map<String, String> headers = response.getHeaders();
-    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
-    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
-    assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
+    Stats actualStats;
+    try {
+      actualStats = statsService.getStatsByUserID(actualUser.getId());
+    } catch (InternalServerError e) {
+      fail("Registered User " + actualUser.getEmail() + " is missing stats");
+      return;
+    }
+    registeredUserStatsId = actualStats.getId();
 
-    assertEquals(StatusCodes.OK, response.getStatusCode());
+    assertEquals(actualUser.getId(), actualStats.getId());
+    assertEquals(
+        expectedStats.getGamemodeStats(GameMode.BLITZ),
+        actualStats.getGamemodeStats(GameMode.BLITZ));
+    assertEquals(
+        expectedStats.getGamemodeStats(GameMode.BULLET),
+        actualStats.getGamemodeStats(GameMode.BULLET));
+    assertEquals(
+        expectedStats.getGamemodeStats(GameMode.RAPID),
+        actualStats.getGamemodeStats(GameMode.RAPID));
   }
 
-  @DisplayName("Bad Request 😠")
+  @DisplayName("Conflict - User already registered by the same email 🔀")
   @Test
-  void returnBadRequest() {
-    Context context = new MockContext();
+  @Order(2)
+  void userAlreadyRegisteredByThisEmail() {
+    RegisterRequest registerRequest =
+        new RegisterRequest(expectedUser.getEmail(), expectedUser.getUsername(), "test");
 
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    String response = testUtils.post(registerRequest, endpoint, StatusCodes.CONFLICT);
+    assertEquals("Email already exists", response);
   }
 
-  @DisplayName("Conflict 🔀")
+  @DisplayName("Bad Request - Missing Arg 😠")
   @Test
-  void returnConflict() {
-    Context context = new MockContext();
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+  @Order(3)
+  void returnBadRequestMissingArgs() {
+    RegisterRequest registerRequest = new RegisterRequest(expectedUser.getEmail(), null, "test");
 
-    RegisterRequest registerRequest = new RegisterRequest("test@gmail.com", "testuser", "test");
-    event.setBody(gson.toJson(registerRequest));
-
-    when(dbUtility.get(any(Bson.class)))
-        .thenReturn(
-            Optional.of(
-                User.builder().id("1").email("test@gmail.com").username("testuser").build()));
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.CONFLICT, response.getStatusCode());
+    String response = testUtils.post(registerRequest, endpoint, StatusCodes.BAD_REQUEST);
+    assertEquals("Missing argument(s)", response);
   }
 }
