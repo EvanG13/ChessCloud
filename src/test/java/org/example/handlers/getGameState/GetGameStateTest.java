@@ -8,14 +8,14 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.game.Game;
+import org.example.entities.game.GameService;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.GameStatus;
@@ -38,7 +38,7 @@ public class GetGameStateTest {
 
   public static SocketSystemLogger socketLogger;
 
-  public static MongoDBUtility<Game> gameUtility;
+  public static GameService gameUtility;
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
@@ -73,11 +73,11 @@ public class GetGameStateTest {
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
 
-    gameUtility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new GameService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
 
-    makeMoveService = new MakeMoveService(gameUtility, new Board());
+    makeMoveService = new MakeMoveService(gameUtility);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
 
     firstMove = "e2e4";

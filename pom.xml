@@ -263,6 +263,13 @@
             <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.tors42</groupId>
+            <artifactId>chariot</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

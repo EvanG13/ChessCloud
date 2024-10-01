@@ -2,7 +2,7 @@ package org.example.services;
 
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
-import org.example.entities.Game;
+import org.example.entities.game.Game;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 

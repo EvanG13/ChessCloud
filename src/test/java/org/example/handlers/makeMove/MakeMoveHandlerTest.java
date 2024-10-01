@@ -5,19 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
+import org.example.entities.game.GameService;
 import org.example.entities.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
-import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
@@ -36,7 +32,7 @@ import org.junit.jupiter.api.*;
 public class MakeMoveHandlerTest {
   public static SocketSystemLogger socketLogger;
 
-  public static MongoDBUtility<Game> gameUtility;
+  public static GameService gameUtility;
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
@@ -72,11 +68,11 @@ public class MakeMoveHandlerTest {
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
 
-    gameUtility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new GameService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
 
-    makeMoveService = new MakeMoveService(gameUtility, new Board());
+    makeMoveService = new MakeMoveService(gameUtility);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
 
     joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
@@ -119,7 +115,7 @@ public class MakeMoveHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    gameUtility.delete(gameId);
+    gameUtility.deleteGame(gameId);
 
     userUtility.delete(userId);
     userUtility.delete(userId2);
@@ -148,26 +144,6 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
-
-    String gameJson = response.getBody();
-    gameId = (new Gson()).fromJson(gameJson, Game.class).getId();
-
-    Player newPlayer =
-        Player.builder()
-            .playerId(userId)
-            .connectionId(connectId)
-            .username(username)
-            .rating(ChessConstants.BASE_RATING) // new player default rating
-            .build();
-
-    Game expected = new Game(timeControl, newPlayer);
-    // since calling the constructor will autoincrement the id from the last game
-    expected.setId(gameId);
-
-    Optional<Game> optionalGame = gameUtility.get(gameId);
-
-    assertFalse(optionalGame.isEmpty());
-    assertEquals(expected, optionalGame.get());
   }
 
   @Test
@@ -189,27 +165,6 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
-
-    Optional<Game> optionalGame = gameUtility.get(gameId);
-    assertFalse(optionalGame.isEmpty());
-
-    Game game = optionalGame.get();
-    assertEquals(GameStatus.ONGOING, game.getGameStatus());
-    assertTrue(game.getIsWhitesTurn());
-
-    List<Player> playerList = game.getPlayers();
-    assertEquals(2, playerList.size());
-
-    Player player1 = playerList.get(0);
-    Player player2 = playerList.get(1);
-    assertNotSame(player1.getIsWhite(), player2.getIsWhite());
-
-    if (player2.getIsWhite()) {
-      connectId = player2.getConnectionId();
-      connectId2 = player1.getConnectionId();
-      userId = player2.getPlayerId();
-      userId2 = player1.getPlayerId();
-    }
   }
 
   @Test

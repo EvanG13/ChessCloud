@@ -9,7 +9,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
+import org.example.entities.game.Game;
 import org.example.enums.Action;
 import org.example.enums.GameStatus;
 import org.example.models.requests.MessageRequest;

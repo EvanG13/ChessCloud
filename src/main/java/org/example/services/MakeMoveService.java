@@ -1,56 +1,61 @@
 package org.example.services;
 
-import com.github.bhlangonijr.chesslib.Board;
-import com.github.bhlangonijr.chesslib.move.Move;
+import chariot.util.Board;
 import com.mongodb.client.model.Updates;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.game.Game;
+import org.example.entities.game.GameService;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
-import org.example.utils.MongoDBUtility;
+import org.example.exceptions.NotFound;
+import org.example.exceptions.Unauthorized;
 
 @AllArgsConstructor
 public class MakeMoveService {
 
-  private MongoDBUtility<Game> gameDBUtility;
+  private GameService gameService;
 
   private Board board;
 
   public MakeMoveService() {
-    gameDBUtility = new MongoDBUtility<>("games", Game.class);
-    board = new Board();
+    gameService = new GameService();
   }
 
-  public Game loadGame(String gameId) throws InternalServerError {
-    return gameDBUtility.get(gameId).orElseThrow(() -> new InternalServerError("Game not found"));
+  public MakeMoveService(GameService gameService) {
+    this.gameService = gameService;
   }
 
-  public boolean isMoveLegal(String boardState, Move move) {
-    board.loadFromFen(boardState);
-    return board.legalMoves().contains(move);
+  private boolean isMoveLegal(String move) {
+    return board.validMoves().stream().map(Board.Move::uci).toList().contains(move);
   }
 
-  public boolean isUserInGame(String gameId, String connectionId, String playerId) {
-    Optional<Game> optionalGame = gameDBUtility.get(gameId);
-    if (optionalGame.isEmpty()) return false; // TODO: throw an exception instead
-
-    Game game = optionalGame.get();
+  public Game loadGame(String gameId, String connectionId, String playerId)
+      throws NotFound, Unauthorized, InternalServerError {
+    Game game = gameService.get(gameId);
 
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
 
+    int index = -1;
     if (playerId.equals(player1.getPlayerId())) {
-      return player1.getConnectionId().equals(connectionId);
-    }
-    if (playerId.equals(player2.getPlayerId())) {
-      return player2.getConnectionId().equals(connectionId);
+      index = 0;
+    } else if (playerId.equals(player2.getPlayerId())) {
+      index = 1;
     }
 
-    return false;
+    if (index == -1) {
+      throw new Unauthorized("User is not in this Game");
+    }
+
+    if (!players.get(index).getConnectionId().equals(connectionId)) {
+      throw new InternalServerError("Connection IDs dont match");
+    }
+
+    board = Board.fromFEN(game.getGameStateAsFen());
+    return game;
   }
 
   public String[] getPlayerConnectionIds(Game game) {
@@ -69,38 +74,25 @@ public class MakeMoveService {
     return game.getIsWhitesTurn() == player.getIsWhite();
   }
 
-  public String makeMove(String moveString, String boardState, String gameId) throws BadRequest {
-    board.loadFromFen(boardState);
-
-    Move move;
-    try {
-      move = new Move(moveString, board.getSideToMove());
-    } catch (Exception e) {
-      throw new BadRequest(moveString + " is invalid syntax");
+  public Game makeMove(String moveUCI, Game game) throws BadRequest {
+    if (!isMoveLegal(moveUCI)) {
+      throw new BadRequest("Illegal Move: " + moveUCI);
     }
 
-    // Check move is legal (is among the available moves)
-    if (!isMoveLegal(boardState, move)) {
-      throw new BadRequest("Illegal Move: " + moveString);
-    }
+    board.play(moveUCI);
 
-    board.doMove(move);
-
-    Optional<Game> optionalGame = gameDBUtility.get(gameId);
-    Game game = optionalGame.get(); // TODO: throw an exception if invalid
-
-    gameDBUtility.patch(
-        gameId,
+    String updatedGameFen = board.toFEN();
+    gameService.patch(
+        game.getId(),
         Updates.combine(
-            Updates.set("gameStateAsFen", board.getFen()),
+            Updates.set("gameStateAsFen", updatedGameFen),
             Updates.set("isWhitesTurn", !game.getIsWhitesTurn()),
-            Updates.push("moveList", move.toString())));
-    return board.getFen();
-  }
+            Updates.push("moveList", moveUCI)));
 
-  public List<String> getMoveList(String gameId) {
-    Optional<Game> optionalGame = gameDBUtility.get(gameId);
-    Game game = optionalGame.get(); // TODO: throw an exception if invalid
-    return game.getMoveList();
+    game.getMoveList().add(moveUCI);
+    game.setGameStateAsFen(updatedGameFen);
+    game.setIsWhitesTurn(!game.getIsWhitesTurn());
+
+    return game;
   }
 }

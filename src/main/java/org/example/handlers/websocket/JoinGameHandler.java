@@ -9,12 +9,13 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
 import org.example.entities.Player;
+import org.example.entities.game.Game;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
 import org.example.enums.GameMode;
+import org.example.exceptions.NotFound;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.responses.websocket.GameCreatedMessageData;
 import org.example.models.responses.websocket.GameStartedMessageData;
@@ -56,6 +57,7 @@ public class JoinGameHandler
 
     String userId = joinRequestData.userId();
     Optional<User> optionalUser = service.getUser(userId);
+
     if (optionalUser.isEmpty()) {
       GameStartedMessageData data =
           GameStartedMessageData.builder()
@@ -85,6 +87,7 @@ public class JoinGameHandler
     }
 
     if (service.isInGame(userId)) {
+      // TODO : consider just returning the game they are already in
       GameStartedMessageData data =
           GameStartedMessageData.builder()
               .isSuccess(false)
@@ -101,9 +104,6 @@ public class JoinGameHandler
     Stats stats = optionalStats.get();
     GameMode gameMode = joinRequestData.timeControl().getGameMode();
 
-    Optional<Game> optionalGame =
-        service.getPendingGame(joinRequestData.timeControl(), stats.getRating(gameMode));
-
     Player newPlayer =
         Player.builder()
             .playerId(userId)
@@ -112,9 +112,16 @@ public class JoinGameHandler
             .rating(stats.getRating(gameMode))
             .build();
 
+    Game game;
+    try {
+      game = service.getPendingGame(joinRequestData.timeControl(), stats.getRating(gameMode));
+    } catch (NotFound e) {
+      game = null;
+    }
+
     String body;
     int statusCode;
-    if (optionalGame.isEmpty()) {
+    if (game == null) {
       // No pending game for the requested time control
       // Create new game with requested time control
 
@@ -132,7 +139,6 @@ public class JoinGameHandler
       // Join pending game
       GameStartedMessageData data;
       SocketResponseBody<GameStartedMessageData> responseBody;
-      Game game = optionalGame.get();
       try {
         game.setup(newPlayer);
       } catch (Exception e) {

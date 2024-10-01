@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.*;
+import org.example.entities.game.Game;
 import org.example.entities.session.Session;
 import org.example.entities.session.SessionService;
 import org.example.entities.stats.Stats;

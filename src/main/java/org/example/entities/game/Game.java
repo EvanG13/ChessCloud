@@ -1,4 +1,4 @@
-package org.example.entities;
+package org.example.entities.game;
 
 import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
+import org.example.entities.DataTransferObject;
+import org.example.entities.Player;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 

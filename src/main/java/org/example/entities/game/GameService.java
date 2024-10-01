@@ -1,8 +1,7 @@
-package org.example.services;
+package org.example.entities.game;
 
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
-import org.example.entities.Game;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
@@ -25,5 +24,25 @@ public class GameService {
 
   public void deleteGame(String gameId) {
     gameDBUtility.delete(gameId);
+  }
+
+  public Game get(String id) throws NotFound {
+    return gameDBUtility.get(id).orElseThrow(() -> new NotFound("Game not found"));
+  }
+
+  public Game get(Bson filters) throws NotFound {
+    return gameDBUtility.get(filters).orElseThrow(() -> new NotFound("Game not found"));
+  }
+
+  public void patch(String id, Bson filter) {
+    gameDBUtility.patch(id, filter);
+  }
+
+  public void post(Game game) {
+    gameDBUtility.post(game);
+  }
+
+  public void put(String id, Game game) {
+    gameDBUtility.put(id, game);
   }
 }
