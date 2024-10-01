@@ -1,7 +1,7 @@
 package org.example.entities.stats;
 
 import java.util.Optional;
-import org.example.entities.User;
+import org.example.entities.user.User;
 import org.example.exceptions.InternalServerError;
 import org.example.utils.MongoDBUtility;
 
@@ -23,5 +23,9 @@ public class StatsService {
     return statsDBUtility
         .get(userId)
         .orElseThrow(() -> new InternalServerError("Missing User's Stats"));
+  }
+
+  public void deleteStats(String id) {
+    statsDBUtility.delete(id);
   }
 }
