@@ -3,7 +3,7 @@ package org.example.services;
 import static com.mongodb.client.model.Filters.eq;
 
 import lombok.AllArgsConstructor;
-import org.example.entities.User;
+import org.example.entities.user.User;
 import org.example.exceptions.Unauthorized;
 import org.example.utils.EncryptPassword;
 import org.example.utils.MongoDBUtility;

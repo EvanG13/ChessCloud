@@ -1,95 +1,85 @@
 package org.example.handlers.login;
 
+import static org.example.utils.TestUtils.assertCorsHeaders;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import java.util.Map;
-import java.util.Optional;
-import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.example.constants.StatusCodes;
-import org.example.entities.User;
+import org.example.entities.user.User;
+import org.example.entities.user.UserDbService;
 import org.example.handlers.rest.LoginHandler;
+import org.example.models.requests.LoginRequest;
 import org.example.models.responses.rest.LoginResponseBody;
-import org.example.services.LoginService;
-import org.example.utils.EncryptPassword;
 import org.example.utils.MockContext;
-import org.example.utils.MongoDBUtility;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-@SuppressWarnings("unchecked")
 public class LoginHandlerTest {
-  private LoginHandler loginHandler;
-  private MongoDBUtility<User> dbUtility;
+  private static LoginHandler loginHandler;
 
-  @BeforeEach
-  public void setUp() {
-    dbUtility = (MongoDBUtility<User>) mock(MongoDBUtility.class);
+  private static Context context;
 
-    LoginService service = new LoginService(dbUtility);
+  private static UserDbService userDbService;
 
-    loginHandler = new LoginHandler(service);
+  private static User newUser;
+
+  private static Gson gson;
+
+  @BeforeAll
+  public static void setUp() {
+
+    userDbService = new UserDbService();
+    gson = new Gson();
+    newUser =
+        User.builder()
+            .id(new ObjectId().toString())
+            .email("it-test@gmail.com")
+            .password("$2a$12$MwPTs6UFjy7NAge3HxHwEOTUvX2M6bXpqkHCozjisNTCpcaQ9ZiyC")
+            .username("TestUsername")
+            .build();
+
+    userDbService.createUser(newUser);
+
+    loginHandler = new LoginHandler();
+
+    context = new MockContext();
   }
 
-  @DisplayName("OK ✅")
+  @AfterAll
+  public static void tearDown() {
+    userDbService.deleteUser(newUser.getId());
+  }
+
+  @DisplayName("OK")
   @Test
-  public void returnSuccess() {
+  public void canLogin() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-         {
-                  "email": "test@gmail.com",
-                  "password": "test"
-                }""");
+    LoginRequest loginRequest = new LoginRequest("it-test@gmail.com", "testPassword");
+    event.setBody(gson.toJson(loginRequest));
 
-    Context context = new MockContext();
-
-    when(dbUtility.get(any(Bson.class)))
-        .thenReturn(
-            Optional.of(
-                User.builder()
-                    .id("foo")
-                    .email("nonexistingemail@example.com")
-                    .password(EncryptPassword.encrypt("test"))
-                    .username("fake")
-                    .build()));
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
     assertTrue(response.getBody().contains("token"));
     assertTrue(response.getBody().contains("user"));
 
     Map<String, String> headers = response.getHeaders();
-    assertEquals(headers.get("Access-Control-Allow-Origin"), "*");
-    assertEquals(headers.get("Access-Control-Allow-Methods"), "POST,OPTIONS");
-    assertEquals(headers.get("Access-Control-Allow-Headers"), "*");
+    assertCorsHeaders(headers);
 
     LoginResponseBody body = (new Gson()).fromJson(response.getBody(), LoginResponseBody.class);
 
     User user = body.getUser();
 
-    // The user response object contains the correct fields
-    assertEquals(user.getId(), "foo");
-    assertEquals(user.getUsername(), "fake");
-    assertEquals(user.getEmail(), "nonexistingemail@example.com");
+    assertNotNull(user.getId());
+    assertEquals(user.getUsername(), "TestUsername");
+    assertEquals(user.getEmail(), "it-test@gmail.com");
     assertNull(user.getPassword());
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-  }
-
-  @DisplayName("Bad Request \uD83D\uDE1E")
-  @Test
-  public void returnBadRequest() {
-    Context context = new MockContext();
-
-    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @DisplayName("Unauthorized \uD83D\uDD25")
@@ -97,27 +87,43 @@ public class LoginHandlerTest {
   public void returnsUnauthorized() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    event.setBody(
-        """
-            {
-              "email": "nonexistingemail@example.com",
-              "password": "notmatching"
-            }""");
-
-    Context context = new MockContext();
-
-    when(dbUtility.get(any(Bson.class)))
-        .thenReturn(
-            Optional.of(
-                User.builder()
-                    .id("foo")
-                    .email("nonexistingemail@example.com")
-                    .password("password123")
-                    .username("fake")
-                    .build()));
+    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", "testPassword");
+    event.setBody(gson.toJson(loginRequest));
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
 
+    Map<String, String> headers = response.getHeaders();
+    assertCorsHeaders(headers);
+
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
+  }
+
+  @DisplayName("Bad Request - Missing Event \uD83D\uDE1E")
+  @Test
+  public void canReturnBadRequest() {
+
+    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertCorsHeaders(headers);
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @DisplayName("Bad Request \uD83D\uDE1E")
+  @Test
+  public void nullArgumentBadRequest() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+
+    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", null);
+    event.setBody(gson.toJson(loginRequest));
+
+    APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
+
+    Map<String, String> headers = response.getHeaders();
+    assertCorsHeaders(headers);
+
+    assertEquals("Missing argument(s)", response.getBody());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 }

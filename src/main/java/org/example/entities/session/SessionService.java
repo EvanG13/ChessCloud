@@ -23,6 +23,10 @@ public class SessionService {
     return sessionId;
   }
 
+  public void deleteByUserId(String userid) {
+    dbUtility.delete("userId", userid);
+  }
+
   public void delete(String sessionId) {
     dbUtility.delete(sessionId);
   }

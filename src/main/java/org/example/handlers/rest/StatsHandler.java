@@ -11,18 +11,18 @@ import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsService;
+import org.example.entities.stats.StatsDbService;
 import org.example.exceptions.InternalServerError;
 
 public class StatsHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
-  private final StatsService service;
+  private final StatsDbService service;
 
   public StatsHandler() {
-    service = new StatsService();
+    service = new StatsDbService();
   }
 
-  public StatsHandler(StatsService service) {
+  public StatsHandler(StatsDbService service) {
     this.service = service;
   }
 
