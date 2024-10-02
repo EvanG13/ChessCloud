@@ -5,11 +5,11 @@ import org.example.entities.user.User;
 import org.example.exceptions.InternalServerError;
 import org.example.utils.MongoDBUtility;
 
-public class StatsService {
+public class StatsDbService {
   private final MongoDBUtility<User> userDBUtility;
   private final MongoDBUtility<Stats> statsDBUtility;
 
-  public StatsService() {
+  public StatsDbService() {
     this.userDBUtility = new MongoDBUtility<>("users", User.class);
     this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }

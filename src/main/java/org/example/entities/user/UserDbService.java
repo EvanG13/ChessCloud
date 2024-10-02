@@ -5,10 +5,10 @@ import static com.mongodb.client.model.Filters.eq;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
-public class UserService {
+public class UserDbService {
   MongoDBUtility<User> mongoDBUtility;
 
-  public UserService() {
+  public UserDbService() {
     this.mongoDBUtility = new MongoDBUtility<>("users", User.class);
   }
 
