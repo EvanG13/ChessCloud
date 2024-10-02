@@ -18,9 +18,8 @@ import org.example.utils.BaseTest;
 import org.example.utils.IntegrationTestUtils;
 import org.junit.jupiter.api.*;
 
-@Disabled
 @Tag("Integration")
-public class StatsHandlerIntegrationTest extends BaseTest {
+public class StatsHandlerIT extends BaseTest {
   private static final String endpoint = "/stats";
   private static Map<String, String> authHeaders;
 

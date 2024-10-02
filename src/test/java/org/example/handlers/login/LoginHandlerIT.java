@@ -11,9 +11,8 @@ import org.example.utils.BaseTest;
 import org.example.utils.IntegrationTestUtils;
 import org.junit.jupiter.api.*;
 
-@Disabled
 @Tag("Integration")
-public class LoginHandlerIntegrationTest extends BaseTest {
+public class LoginHandlerIT extends BaseTest {
 
   private static final String endpoint = "/login";
 

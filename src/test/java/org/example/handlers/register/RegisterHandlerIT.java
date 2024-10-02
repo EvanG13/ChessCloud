@@ -16,10 +16,8 @@ import org.example.utils.EncryptPassword;
 import org.example.utils.IntegrationTestUtils;
 import org.junit.jupiter.api.*;
 
-@Disabled
-@Tag("Integration")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class RegisterHandlerIntegrationTest extends BaseTest {
+public class RegisterHandlerIT extends BaseTest {
   private static final String endpoint = "/register";
 
   private static UserDbService userDbService;
