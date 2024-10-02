@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.example.entities.Game;
 import org.example.entities.Player;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsService;
+import org.example.entities.stats.StatsDbService;
 import org.example.enums.Action;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
@@ -34,7 +34,7 @@ public class GameOverService {
   private Game game;
   private SocketMessenger socketMessenger;
   private GameService gameService;
-  private StatsService statsService;
+  private StatsDbService statsDbService;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
 
@@ -56,7 +56,7 @@ public class GameOverService {
 
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
-    this.statsService = new StatsService();
+    this.statsDbService = new StatsDbService();
     this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
@@ -71,8 +71,8 @@ public class GameOverService {
       this.losingPlayerUsername = player2.getUsername();
     }
 
-    this.winningPlayerStats = statsService.getStatsByUserID(winningPlayerId);
-    this.losingPlayerStats = statsService.getStatsByUserID(losingPlayerId);
+    this.winningPlayerStats = statsDbService.getStatsByUserID(winningPlayerId);
+    this.losingPlayerStats = statsDbService.getStatsByUserID(losingPlayerId);
 
     emitOutcome();
     updateGame();

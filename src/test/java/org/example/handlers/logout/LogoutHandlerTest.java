@@ -12,6 +12,7 @@ import org.example.entities.*;
 import org.example.entities.session.Session;
 import org.example.entities.session.SessionService;
 import org.example.entities.stats.Stats;
+import org.example.entities.user.User;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.handlers.rest.LogoutHandler;

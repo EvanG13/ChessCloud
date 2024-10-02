@@ -353,7 +353,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GamemodeStats'
+                $ref: '#/components/schemas/GameModeStats'
         "400":
           description: Bad Request
           headers:
@@ -573,7 +573,7 @@ components:
         password:
           type: string
           description: The user's password
-    GamemodeStats:
+    GameModeStats:
       type: object
       properties: {}
       description: Stats for one or all tracked game modes

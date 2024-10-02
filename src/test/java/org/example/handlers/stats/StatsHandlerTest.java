@@ -7,24 +7,25 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.User;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsDbService;
+import org.example.entities.user.User;
+import org.example.entities.user.UserDbService;
 import org.example.handlers.rest.StatsHandler;
 import org.example.utils.MockContext;
-import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class StatsHandlerTest {
-  public static MongoDBUtility<User> userUtility;
-  public static MongoDBUtility<Stats> statsUtility;
+  public static UserDbService userDbService;
+  public static StatsDbService statsDbService;
   public static Context context;
 
   public static String userId;
 
   @BeforeAll
   public static void setUp() {
-    userUtility = new MongoDBUtility<>("users", User.class);
-    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    userDbService = new UserDbService();
+    statsDbService = new StatsDbService();
     context = new MockContext();
 
     userId = "test-Id";
@@ -36,16 +37,16 @@ public class StatsHandlerTest {
             .password("1223")
             .username("test-username")
             .build();
-    userUtility.post(testUser);
+    userDbService.createUser(testUser);
 
     Stats testUserStats = new Stats(testUser.getId());
-    statsUtility.post(testUserStats);
+    statsDbService.post(testUserStats);
   }
 
   @AfterAll
   public static void tearDown() {
-    userUtility.delete(userId);
-    statsUtility.delete(userId);
+    userDbService.deleteUser(userId);
+    statsDbService.deleteStats(userId);
   }
 
   @DisplayName("No Query")
@@ -60,8 +61,6 @@ public class StatsHandlerTest {
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-
-    System.out.println(response.getBody());
 
     assertEquals(
         "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}",
