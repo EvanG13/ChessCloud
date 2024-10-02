@@ -1,9 +1,9 @@
 package org.example.entities.user;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
-
-import static com.mongodb.client.model.Filters.eq;
 
 public class UserService {
   MongoDBUtility<User> mongoDBUtility;

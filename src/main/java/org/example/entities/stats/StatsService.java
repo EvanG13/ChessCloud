@@ -28,4 +28,8 @@ public class StatsService {
   public void deleteStats(String id) {
     statsDBUtility.delete(id);
   }
+
+  public void post(Stats stats) {
+    statsDBUtility.post(stats);
+  }
 }

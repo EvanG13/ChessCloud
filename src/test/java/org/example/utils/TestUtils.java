@@ -2,6 +2,7 @@ package org.example.utils;
 
 import static io.restassured.RestAssured.given;
 
+import io.restassured.response.Response;
 import java.util.Map;
 
 public final class TestUtils<T> {
@@ -34,5 +35,34 @@ public final class TestUtils<T> {
         .headers(corsHeaders)
         .extract()
         .asString();
+  }
+
+  public Response get(Map<String, String> headers, String endpoint, int statusCode) {
+    return given()
+        .headers(headers)
+        .when()
+        .get(endpoint)
+        .then()
+        .statusCode(statusCode)
+        .headers(corsHeaders)
+        .extract()
+        .response();
+  }
+
+  public Response get(
+      Map<String, String> headers,
+      Map<String, String> queryStrings,
+      String endpoint,
+      int statusCode) {
+    return given()
+        .headers(headers)
+        .queryParams(queryStrings)
+        .when()
+        .get(endpoint)
+        .then()
+        .statusCode(statusCode)
+        .headers(corsHeaders)
+        .extract()
+        .response();
   }
 }
