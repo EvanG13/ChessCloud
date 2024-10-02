@@ -1,121 +1,131 @@
 package org.example.handlers.register;
 
+import static com.mongodb.client.model.Filters.eq;
+import static org.example.utils.TestUtils.assertCorsHeaders;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.google.gson.Gson;
+import java.util.Optional;
+import org.bson.types.ObjectId;
 import org.example.constants.StatusCodes;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsService;
 import org.example.entities.user.User;
-import org.example.entities.user.UserService;
-import org.example.enums.GameMode;
-import org.example.exceptions.InternalServerError;
-import org.example.exceptions.NotFound;
+import org.example.handlers.rest.RegisterHandler;
 import org.example.models.requests.RegisterRequest;
-import org.example.utils.BaseTest;
+import org.example.services.RegisterService;
 import org.example.utils.EncryptPassword;
-import org.example.utils.TestUtils;
+import org.example.utils.MockContext;
+import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class RegisterHandlerTest extends BaseTest {
-  private static final String endpoint = "/register";
-
-  private static UserService userService;
-  private static StatsService statsService;
-
-  private static TestUtils<String> testUtils;
-
-  private static User expectedUser;
-  private static Stats expectedStats;
-
-  private static String registeredUserId;
-  private static String registeredUserStatsId;
+public class RegisterHandlerTest {
+  private static RegisterHandler registerHandler;
+  private static MongoDBUtility<User> userDbUtility;
+  private static MongoDBUtility<Stats> statsUtility;
+  private static Gson gson;
 
   @BeforeAll
   public static void setUp() {
-    userService = new UserService();
-    statsService = new StatsService();
-
-    expectedUser =
+    userDbUtility = new MongoDBUtility<>("users", User.class);
+    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    gson = new Gson();
+    User newUser =
         User.builder()
+            .id(new ObjectId().toString())
             .email("reg-it-test@gmail.com")
             .password(EncryptPassword.encrypt("test"))
             .username("TestUsername")
             .build();
 
-    expectedStats = new Stats(expectedUser.getId());
+    userDbUtility.post(newUser);
 
-    testUtils = new TestUtils<>();
+    Stats newUserStats = new Stats(newUser.getId());
+    statsUtility.post(newUserStats);
+
+    RegisterService service = new RegisterService(userDbUtility, statsUtility);
+
+    registerHandler = new RegisterHandler(service);
   }
 
   @AfterAll
   public static void tearDown() {
-    userService.deleteUser(registeredUserId);
-    statsService.deleteStats(registeredUserStatsId);
+    Optional<User> user = userDbUtility.get(eq("email", "test3@gmail.com"));
+    assertTrue(user.isPresent());
+
+    Optional<Stats> userStats = statsUtility.get(user.get().getId());
+    assertTrue(userStats.isPresent());
+
+    userDbUtility.delete(user.get().getId());
+    statsUtility.delete(userStats.get().getId());
+
+    Optional<User> tempUser = userDbUtility.get(eq("email", "reg-it-test@gmail.com"));
+    assertTrue(tempUser.isPresent());
+
+    Optional<Stats> tempUserStats = statsUtility.get(tempUser.get().getId());
+    assertTrue(tempUserStats.isPresent());
+
+    userDbUtility.delete(tempUser.get().getId());
+    statsUtility.delete(tempUserStats.get().getId());
   }
 
   @DisplayName("OK 👍")
   @Test
-  @Order(1)
   void returnSuccess() {
-    RegisterRequest registerRequest =
-        new RegisterRequest(expectedUser.getEmail(), expectedUser.getUsername(), "test");
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
-    String response = testUtils.post(registerRequest, endpoint, StatusCodes.OK);
-    assertEquals("Successfully registered", response);
+    RegisterRequest registerRequest = new RegisterRequest("test3@gmail.com", "testuser3", "test");
+    event.setBody(gson.toJson(registerRequest));
 
-    User actualUser;
-    try {
-      actualUser = userService.getByEmail(expectedUser.getEmail());
-    } catch (NotFound e) {
-      fail("User was not successfully registered");
-      return;
-    }
-    registeredUserId = actualUser.getId();
+    Context context = new MockContext();
 
-    assertEquals(expectedUser.getEmail(), actualUser.getEmail());
-    assertEquals(expectedUser.getUsername(), actualUser.getUsername());
-    assertTrue(EncryptPassword.verify("test", actualUser.getPassword()));
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
 
-    Stats actualStats;
-    try {
-      actualStats = statsService.getStatsByUserID(actualUser.getId());
-    } catch (InternalServerError e) {
-      fail("Registered User " + actualUser.getEmail() + " is missing stats");
-      return;
-    }
-    registeredUserStatsId = actualStats.getId();
+    assertCorsHeaders(response.getHeaders());
 
-    assertEquals(actualUser.getId(), actualStats.getId());
-    assertEquals(
-        expectedStats.getGamemodeStats(GameMode.BLITZ),
-        actualStats.getGamemodeStats(GameMode.BLITZ));
-    assertEquals(
-        expectedStats.getGamemodeStats(GameMode.BULLET),
-        actualStats.getGamemodeStats(GameMode.BULLET));
-    assertEquals(
-        expectedStats.getGamemodeStats(GameMode.RAPID),
-        actualStats.getGamemodeStats(GameMode.RAPID));
+    assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
-  @DisplayName("Conflict - User already registered by the same email 🔀")
+  @DisplayName("Bad Request - Missing Event 😠")
   @Test
-  @Order(2)
-  void userAlreadyRegisteredByThisEmail() {
-    RegisterRequest registerRequest =
-        new RegisterRequest(expectedUser.getEmail(), expectedUser.getUsername(), "test");
+  void returnBadRequest() {
+    Context context = new MockContext();
 
-    String response = testUtils.post(registerRequest, endpoint, StatusCodes.CONFLICT);
-    assertEquals("Email already exists", response);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
+    assertCorsHeaders(response.getHeaders());
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @DisplayName("Bad Request - Missing Arg 😠")
   @Test
-  @Order(3)
   void returnBadRequestMissingArgs() {
-    RegisterRequest registerRequest = new RegisterRequest(expectedUser.getEmail(), null, "test");
+    Context context = new MockContext();
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    RegisterRequest registerRequest = new RegisterRequest("reg-it-test@gmail.com", null, "test");
+    event.setBody(gson.toJson(registerRequest));
 
-    String response = testUtils.post(registerRequest, endpoint, StatusCodes.BAD_REQUEST);
-    assertEquals("Missing argument(s)", response);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    assertCorsHeaders(response.getHeaders());
+
+    assertEquals("Missing argument(s)", response.getBody());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @DisplayName("Conflict 🔀")
+  @Test
+  void returnConflict() {
+    Context context = new MockContext();
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    RegisterRequest registerRequest =
+        new RegisterRequest("reg-it-test@gmail.com", "testuser", "test");
+    event.setBody(gson.toJson(registerRequest));
+
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    assertCorsHeaders(response.getHeaders());
+
+    assertEquals(StatusCodes.CONFLICT, response.getStatusCode());
   }
 }

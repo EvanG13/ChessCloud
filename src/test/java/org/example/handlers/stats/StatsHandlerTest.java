@@ -2,41 +2,31 @@ package org.example.handlers.stats;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import io.restassured.response.Response;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionService;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsService;
+import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
-import org.example.entities.user.UserService;
-import org.example.enums.GameMode;
-import org.example.models.requests.SessionRequest;
-import org.example.utils.BaseTest;
-import org.example.utils.TestUtils;
+import org.example.entities.user.UserDbService;
+import org.example.handlers.rest.StatsHandler;
+import org.example.utils.MockContext;
 import org.junit.jupiter.api.*;
 
-public class StatsHandlerTest extends BaseTest {
-  private static final String endpoint = "/stats";
-  private static Map<String, String> authHeaders;
+public class StatsHandlerTest {
+  public static UserDbService userDbService;
+  public static StatsDbService statsDbService;
+  public static Context context;
 
-  private static UserService userService;
-  private static StatsService statsService;
-  private static SessionService sessionService;
-
-  private static String userId;
-
-  private static TestUtils<JsonObject> testUtils;
-
-  private static Gson gson;
+  public static String userId;
 
   @BeforeAll
   public static void setUp() {
-    userService = new UserService();
-    statsService = new StatsService();
-    sessionService = new SessionService();
+    userDbService = new UserDbService();
+    statsDbService = new StatsDbService();
+    context = new MockContext();
 
     userId = "test-Id";
 
@@ -47,82 +37,98 @@ public class StatsHandlerTest extends BaseTest {
             .password("1223")
             .username("test-username")
             .build();
-    userService.createUser(testUser);
-    String sessionToken = sessionService.createSession(new SessionRequest(userId));
+    userDbService.createUser(testUser);
 
-    authHeaders =
-        Map.of(
-            "userid", userId,
-            "Authorization", sessionToken);
-
-    Stats testUserStats = new Stats(userId);
-    statsService.post(testUserStats);
-
-    testUtils = new TestUtils<>();
-    gson = new Gson();
+    Stats testUserStats = new Stats(testUser.getId());
+    statsDbService.post(testUserStats);
   }
 
   @AfterAll
   public static void tearDown() {
-    userService.deleteUser(userId);
-    statsService.deleteStats(userId);
-    sessionService.deleteByUserId(userId);
+    userDbService.deleteUser(userId);
+    statsDbService.deleteStats(userId);
   }
 
   @DisplayName("No Query")
   @Test
+  @Order(1)
   public void returnNoQuery() {
-    Response response = testUtils.get(authHeaders, endpoint, StatusCodes.OK);
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
 
-    JsonObject expectedStats = gson.fromJson((new Stats(userId)).toJSON(), JsonObject.class);
-    JsonObject actualStats = gson.fromJson(response.asPrettyString(), JsonObject.class);
+    StatsHandler statsHandler = new StatsHandler();
 
-    assertEquals(expectedStats.toString(), actualStats.toString());
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+
+    assertEquals(
+        "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}",
+        response.getBody());
   }
 
   @DisplayName("Query \"gamemode=bullet\" (valid)")
   @Test
+  @Order(2)
   public void returnQueryBullet() {
-    Map<String, String> queryStrings = Map.of("gamemode", "bullet");
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
+    event.setQueryStringParameters(Map.of("gamemode", "bullet"));
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.OK);
+    StatsHandler statsHandler = new StatsHandler();
 
-    JsonObject expectedStats =
-        gson.fromJson((new Stats(userId)).toJSON(GameMode.BULLET), JsonObject.class);
-    JsonObject actualStats = gson.fromJson(response.asPrettyString(), JsonObject.class);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
 
-    assertEquals(expectedStats.toString(), actualStats.toString());
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+    assertEquals("{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}", response.getBody());
   }
 
   @DisplayName("Query \"gamemode=invalidgamemode\" (invalid)")
   @Test
+  @Order(3)
   public void returnQueryInvalidGamemode() {
-    Map<String, String> queryStrings = Map.of("gamemode", "invalidgamemode");
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
+    event.setQueryStringParameters(Map.of("gamemode", "invalidgamemode"));
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
+    StatsHandler statsHandler = new StatsHandler();
 
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
     assertEquals(
-        "Query parameter \"gamemode\" had an invalid value: invalidgamemode",
-        response.asPrettyString());
+        "Query parameter \"gamemode\" had an invalid value: invalidgamemode", response.getBody());
   }
 
   @DisplayName("Invalid query parameter")
   @Test
+  @Order(4)
   public void returnInvalidQueryParameter() {
-    Map<String, String> queryStrings = Map.of("param", "bullet");
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
+    event.setQueryStringParameters(Map.of("parameter", "bullet"));
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
+    StatsHandler statsHandler = new StatsHandler();
 
-    assertEquals(
-        "Query defined, but query parameter \"gamemode\" was missing", response.asPrettyString());
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Query defined, but query parameter \"gamemode\" was missing", response.getBody());
   }
 
   @DisplayName("Query \"gamemode=\" (invalid)")
   @Test
+  @Order(5)
   public void returnQueryBlankGamemode() {
-    Map<String, String> queryStrings = Map.of("gamemode", "");
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    event.setHeaders(Map.of("userid", userId));
+    event.setQueryStringParameters(Map.of("gamemode", ""));
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
-    assertEquals("Query parameter \"gamemode\" was missing a value", response.asPrettyString());
+    StatsHandler statsHandler = new StatsHandler();
+
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Query parameter \"gamemode\" was missing a value", response.getBody());
   }
 }
