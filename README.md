@@ -22,7 +22,7 @@ skip tests: ``mvn clean package -DskipTests``
    ```
 3. Open up the `pom.xml` file at the `root` of the project
 4. Paste the new dependency at the bottom of the `<dependencies>` section
-5. ``mvn install``
+5. ``mvn clean package``
 6. Reload Project and the new dependencies should be visible inside your `External Libraries` directory
 7. Please commit the `pom.xml` file as its own **separate** commit. We do not want it lost within your large PR
 8. Enjoy :sunglasses:
@@ -34,27 +34,26 @@ secret
 key, frontend url and connection string.
 
 ```text
-FRONTEND_URL=foofrontendurl
 MONGODB_CONNECTION_STRING=fakeconnectionstring
 AWS_REGION=foo-region
 AWS_STAGE=foo-stage
 WEB_SOCKET_BACKEND_ENDPOINT=foowebsocketendpoint
+REST_BACKEND_ENDPOINT=foorestendpoint
 ```
-
-### Check that dependencies are installed correctly
-
-`` mvn test -Dgroups=dependency-check``
 
 ## Testing
 
-This project utilizes **[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for Unit and Integration tests
+This project utilizes **[REST Assured](https://rest-assured.io/)** for Integration Tests and *
+*[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for both Unit and
+Integration tests
 
 ### Running Tests
 
 #### 1. Command line
 
-- all tests - ``mvn test``
-- target tag - ``mvn test -Dgroups=foo-tag-name``
+- All tests - ``mvn verify``
+- unit tests - ``mvn test``
+- integration tests - ``mvn failsafe:integration-test``
 
 #### 2. IDE
 
