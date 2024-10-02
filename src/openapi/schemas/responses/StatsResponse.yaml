@@ -20,7 +20,7 @@ components:
         - losses
         - draws
         - rating
-    GamemodeStats:
+    GameModeStats:
       type: object
       description: Stats for one or all tracked game modes
       properties:

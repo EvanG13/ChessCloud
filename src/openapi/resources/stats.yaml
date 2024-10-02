@@ -22,7 +22,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../schemas/responses/StatsResponse.yaml#/components/schemas/GamemodeStats'
+            $ref: '../schemas/responses/StatsResponse.yaml#/components/schemas/GameModeStats'
       headers:
         Access-Control-Allow-Origin:
           schema:
