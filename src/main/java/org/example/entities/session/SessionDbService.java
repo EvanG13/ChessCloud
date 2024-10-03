@@ -7,11 +7,11 @@ import org.example.models.requests.SessionRequest;
 import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
-public class SessionService {
+public class SessionDbService {
 
   private final MongoDBUtility<Session> dbUtility;
 
-  public SessionService() {
+  public SessionDbService() {
     this.dbUtility = new MongoDBUtility<>("sessions", Session.class);
   }
 
