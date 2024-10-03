@@ -154,12 +154,13 @@ public class LogoutHandlerTest {
 
     Game game;
     try {
-      sessionUtility.get(sessionToken2);
       game = gameUtility.get(gameId);
     } catch (NotFound e) {
-      fail(e.getMessage());
+      fail("Game not found");
       return;
     }
+
+    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken2));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals(GameStatus.FINISHED, game.getGameStatus());

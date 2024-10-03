@@ -11,11 +11,14 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import org.example.constants.StatusCodes;
+import org.example.entities.Player;
+import org.example.entities.game.Game;
 import org.example.entities.game.GameService;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
 import org.example.enums.TimeControl;
+import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.models.requests.JoinGameRequest;
@@ -151,10 +154,8 @@ public class MakeMoveHandlerTest {
   @Test
   @DisplayName("GAME STARTED")
   @Order(2)
-  public void returnGameStarted() {
+  public void returnGameStarted() throws NotFound {
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -165,7 +166,8 @@ public class MakeMoveHandlerTest {
     JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
     event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
+    APIGatewayV2WebSocketResponse response =
+        joinGameHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Type responseType = new TypeToken<SocketResponseBody<GameStartedMessageData>>() {}.getType();
@@ -175,6 +177,21 @@ public class MakeMoveHandlerTest {
     GameStartedMessageData data = body.getData();
 
     gameId = data.getGameId();
+
+    Game game = gameUtility.get(gameId);
+    List<Player> playerList = game.getPlayers();
+    assertEquals(2, playerList.size());
+
+    Player player1 = playerList.get(0);
+    Player player2 = playerList.get(1);
+    assertNotSame(player1.getIsWhite(), player2.getIsWhite());
+
+    if (player2.getIsWhite()) {
+      connectId = player2.getConnectionId();
+      connectId2 = player1.getConnectionId();
+      userId = player2.getPlayerId();
+      userId2 = player1.getPlayerId();
+    }
   }
 
   @Test
@@ -252,7 +269,7 @@ public class MakeMoveHandlerTest {
 
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
             new ArrayList<>(List.of("e2e4")),
             false);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
@@ -275,8 +292,7 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2,
-    // secondInvalidMove);
+
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondInvalidMove).build();
     event.setBody(gson.toJson(request));
@@ -302,7 +318,7 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
     event.setBody(gson.toJson(request));
@@ -337,7 +353,7 @@ public class MakeMoveHandlerTest {
 
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
+            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
             new ArrayList<>(List.of("e2e4", "d7d5")),
             true);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =

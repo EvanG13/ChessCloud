@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.enums.Action;
@@ -84,8 +83,6 @@ public class MakeMoveHandler
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log("It is not your turn.", LogLevel.ERROR);
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-      logger.log(gson.toJson(game), LogLevel.INFO);
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
@@ -110,7 +107,7 @@ public class MakeMoveHandler
       SocketResponseBody<MakeMoveMessageData> responseBody =
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
-      logger.log("error in make move service.", LogLevel.ERROR);
+      logger.log(e.getMessage(), LogLevel.ERROR);
       return e.makeWebsocketResponse();
     }
 

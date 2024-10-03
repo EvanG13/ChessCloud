@@ -79,11 +79,9 @@ public class MakeMoveService {
       throw new BadRequest("Illegal Move: " + moveUCI);
     }
 
-    System.out.println("inital board " + board.toFEN());
     board = board.play(moveUCI);
 
-    String updatedGameFen = board.toFEN();
-    System.out.println("resulting board " + updatedGameFen);
+    String updatedGameFen = board.toStandardFEN();
     gameService.patch(
         game.getId(),
         Updates.combine(

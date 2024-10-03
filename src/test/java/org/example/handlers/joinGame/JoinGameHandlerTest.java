@@ -246,7 +246,6 @@ public class JoinGameHandlerTest {
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
-    System.out.println(response.getBody());
     assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
   }
 }
