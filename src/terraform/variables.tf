@@ -15,7 +15,7 @@ variable "profile" {
 }
 
 variable "lambda_runtime" {
-  default = "java17"
+  default = "java21"
 }
 
 /**
