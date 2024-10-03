@@ -1,6 +1,5 @@
 package org.example.entities.game;
 
-import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,19 +22,19 @@ import org.example.enums.TimeControl;
 @AllArgsConstructor
 @SuperBuilder
 public class Game extends DataTransferObject {
-  @Expose private TimeControl timeControl;
+  private TimeControl timeControl;
 
-  @Expose private Boolean isWhitesTurn;
+  private Boolean isWhitesTurn;
 
-  @Expose private List<String> moveList;
+  private List<String> moveList;
 
-  @Expose private GameStatus gameStatus;
+  private GameStatus gameStatus;
 
-  @Expose private List<Player> players;
+  private List<Player> players;
 
-  @Expose private Integer rating;
+  private Integer rating;
 
-  @Expose private String gameStateAsFen;
+  private String gameStateAsFen;
 
   public Game(TimeControl timeControl, Player player) {
     this.id = new ObjectId().toString();

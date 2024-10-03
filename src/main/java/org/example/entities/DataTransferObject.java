@@ -2,7 +2,6 @@ package org.example.entities;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +9,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
+import org.example.annotations.CustomExclusionPolicy;
 
 @Getter
 @Setter
@@ -18,7 +18,6 @@ import org.bson.types.ObjectId;
 public abstract class DataTransferObject {
 
   @BsonProperty(value = "_id")
-  @Expose
   @Builder.Default
   protected String id = new ObjectId().toString();
 
@@ -28,7 +27,8 @@ public abstract class DataTransferObject {
    * @return Json string
    */
   public String toResponseJson() {
-    Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    Gson gsonBuilder =
+        new GsonBuilder().setExclusionStrategies(new CustomExclusionPolicy()).create();
 
     return gsonBuilder.toJson(this, getClass());
   }

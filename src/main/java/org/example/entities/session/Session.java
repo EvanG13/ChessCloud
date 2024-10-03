@@ -1,6 +1,5 @@
 package org.example.entities.session;
 
-import com.google.gson.annotations.Expose;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import org.example.entities.DataTransferObject;
 @NoArgsConstructor
 @SuperBuilder
 public class Session extends DataTransferObject {
-  @Expose private String userId;
+  private String userId;
 
   public String toString() {
     return this.id + " " + this.userId;
