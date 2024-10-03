@@ -263,6 +263,13 @@
             <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.tors42</groupId>
+            <artifactId>chariot</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
@@ -273,8 +280,8 @@
     </repositories>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipSwaggerCodegen>false</skipSwaggerCodegen>
         <skipSpotifyFormat>false</skipSpotifyFormat>

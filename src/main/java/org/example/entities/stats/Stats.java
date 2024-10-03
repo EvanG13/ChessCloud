@@ -1,7 +1,6 @@
 package org.example.entities.stats;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -9,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.example.annotations.CustomExclusionPolicy;
+import org.example.annotations.GsonExcludeField;
 import org.example.constants.ChessConstants;
 import org.example.entities.DataTransferObject;
 import org.example.enums.GameMode;
@@ -19,7 +20,7 @@ import org.example.enums.GameMode;
 @NoArgsConstructor
 @SuperBuilder
 public class Stats extends DataTransferObject {
-  @Expose private HashMap<String, GameModeStats> gameModeStats;
+  private HashMap<String, GameModeStats> gameModeStats;
 
   public Stats(String userId) {
     this.id = userId;
@@ -56,12 +57,15 @@ public class Stats extends DataTransferObject {
   }
 
   public String toJSON() {
-    return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(gameModeStats);
+    return new GsonBuilder()
+        .setExclusionStrategies(new CustomExclusionPolicy())
+        .create()
+        .toJson(gameModeStats);
   }
 
   public String toJSON(String gameMode) {
     return new GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
+        .setExclusionStrategies(new CustomExclusionPolicy())
         .create()
         .toJson(getGamemodeStats(gameMode));
   }
@@ -111,10 +115,12 @@ public class Stats extends DataTransferObject {
   @AllArgsConstructor
   public static class GameModeStats {
     // TODO: Move this to its own class?
-    @Expose private Integer wins;
-    @Expose private Integer losses;
-    @Expose private Integer draws;
-    @Expose private Integer rating;
+    private Integer wins;
+    private Integer losses;
+    private Integer draws;
+    private Integer rating;
+
+    @GsonExcludeField
     private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
 
     public GameModeStats() {

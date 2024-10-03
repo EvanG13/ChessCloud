@@ -2,7 +2,7 @@ package org.example.services;
 
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
-import org.example.entities.Game;
+import org.example.entities.game.Game;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
@@ -13,8 +13,8 @@ public class GameStateService {
     gameDBUtility = new MongoDBUtility<>("games", Game.class);
   }
 
-  public GameStateService(MongoDBUtility<Game> utility) {
-    gameDBUtility = utility;
+  public GameStateService(MongoDBUtility<Game> gameDBUtility) {
+    this.gameDBUtility = gameDBUtility;
   }
 
   public Game getGameFromUserID(String userId) throws NotFound {

@@ -7,7 +7,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
+import org.example.entities.game.Game;
 import org.example.exceptions.NotFound;
 import org.example.services.GameStateService;
 

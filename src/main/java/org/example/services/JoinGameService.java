@@ -7,45 +7,45 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.conversions.Bson;
 import org.example.constants.ChessConstants;
-import org.example.entities.Game;
+import org.example.entities.game.Game;
+import org.example.entities.game.GameDbService;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
+import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
 public class JoinGameService {
-  private final MongoDBUtility<Game> gameDBUtility;
+  private final GameDbService gameDBUtility;
   private final MongoDBUtility<User> userDBUtility;
   private final MongoDBUtility<Stats> statsDBUtility;
 
   public JoinGameService() {
-    this.gameDBUtility = new MongoDBUtility<>("games", Game.class);
+    this.gameDBUtility = new GameDbService();
     this.userDBUtility = new MongoDBUtility<>("users", User.class);
     this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }
 
-  public Optional<Game> getPendingGame(TimeControl timeControl, int rating) {
-    Optional<Game> optionalGame =
-        gameDBUtility.get(
-            Filters.and(
-                eq("timeControl", timeControl),
-                eq("gameStatus", GameStatus.PENDING),
-                gte("rating", rating - ChessConstants.RATING_MARGIN),
-                lte("rating", rating + ChessConstants.RATING_MARGIN)));
-
-    if (optionalGame.isEmpty()) {
-      return Optional.empty();
-    }
-
-    return optionalGame;
+  public Game getPendingGame(TimeControl timeControl, int rating) throws NotFound {
+    return gameDBUtility.get(
+        Filters.and(
+            eq("timeControl", timeControl),
+            eq("gameStatus", GameStatus.PENDING),
+            gte("rating", rating - ChessConstants.RATING_MARGIN),
+            lte("rating", rating + ChessConstants.RATING_MARGIN)));
   }
 
   public boolean isInGame(String userId) {
     Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
-    Optional<Game> optionalGame = gameDBUtility.get(filter);
-    return optionalGame.isPresent();
+    try {
+      gameDBUtility.get(filter);
+    } catch (NotFound e) {
+      return false;
+    }
+
+    return true;
   }
 
   public void createGame(Game game) {

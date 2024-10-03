@@ -1,18 +1,18 @@
 package org.example.models.responses.websocket;
 
-import com.google.gson.annotations.Expose;
 import java.util.List;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.example.entities.move.Move;
 
 @Getter
 @SuperBuilder
 public class MakeMoveMessageData extends SocketMessageData {
-  @Expose private String fen;
-  @Expose private List<String> moveList;
-  @Expose private boolean isWhiteTurn;
+  private String fen;
+  private List<Move> moveList;
+  private boolean isWhiteTurn;
 
-  public MakeMoveMessageData(String fen, List<String> moveList, boolean isWhiteTurn) {
+  public MakeMoveMessageData(String fen, List<Move> moveList, boolean isWhiteTurn) {
     super();
     this.fen = fen;
     this.moveList = moveList;
