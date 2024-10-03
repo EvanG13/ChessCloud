@@ -47,13 +47,16 @@ public class MessageHandler
     }
     String connectionId = requestContext.getConnectionId();
     MessageRequest messageRequest = (new Gson()).fromJson(event.getBody(), MessageRequest.class);
+
     String userId = messageRequest.userId();
     String chatMessage = messageRequest.chatMessage();
+    String username = messageRequest.username();
+
     Game game;
     ChatMessageData data;
     SocketResponseBody<ChatMessageData> responseBody;
     try {
-      game = gameService.getGameFromUserID(userId); // throws NOT FOUND
+      game = gameService.getGameFromUserID(userId);
     } catch (Exception e) {
       LambdaLogger logger = context.getLogger();
       logger.log(e.getMessage());
@@ -62,14 +65,14 @@ public class MessageHandler
       emitter.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.NOT_FOUND, "Game not found");
     }
-    if (game.getGameStatus().equals(GameStatus.ONGOING) || game.getPlayers().size() != 2) {
+    if (!game.getGameStatus().equals(GameStatus.ONGOING) || game.getPlayers().size() != 2) {
       data =
           ChatMessageData.builder().isSuccess(false).message("Cannot find chat recipient.").build();
       responseBody = new SocketResponseBody<>(Action.CHAT_MESSAGE, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Cannot find chat recipient.");
     }
-    data = new ChatMessageData(chatMessage);
+    data = new ChatMessageData(username + ": " + chatMessage);
     responseBody = new SocketResponseBody<>(Action.CHAT_MESSAGE, data);
     emitter.sendMessages(
         game.getPlayers().get(0).getConnectionId(),

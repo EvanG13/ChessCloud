@@ -9,6 +9,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.enums.Action;
@@ -41,15 +42,12 @@ public class MakeMoveHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     LambdaLogger logger = context.getLogger();
-    logger.log("event: " + event.getBody(), LogLevel.INFO);
     MakeMoveRequest requestData = (new Gson()).fromJson(event.getBody(), MakeMoveRequest.class);
     try {
       ValidateObject.requireNonNull(requestData);
     } catch (NullPointerException e) {
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
-
-    logger.log("request data is: " + requestData, LogLevel.INFO);
 
     // TODO: maybe check if the game exists? isUserInGame does this, as well as most of the others
     // maybe like, return the game into this class, or store in the service after checking if it
@@ -86,6 +84,8 @@ public class MakeMoveHandler
           new SocketResponseBody<>(Action.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log("It is not your turn.", LogLevel.ERROR);
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      logger.log(gson.toJson(game), LogLevel.INFO);
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
     }
 
@@ -122,7 +122,6 @@ public class MakeMoveHandler
     SocketResponseBody<MakeMoveMessageData> responseBody =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
-    logger.log("SUCCESS.", LogLevel.INFO);
 
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());
   }

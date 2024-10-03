@@ -6,11 +6,12 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.GameService;
-import org.example.entities.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
@@ -19,6 +20,7 @@ import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.requests.MakeMoveRequest;
+import org.example.models.responses.websocket.GameStartedMessageData;
 import org.example.models.responses.websocket.MakeMoveMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.JoinGameService;
@@ -165,6 +167,14 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
+
+    Type responseType = new TypeToken<SocketResponseBody<GameStartedMessageData>>() {}.getType();
+    SocketResponseBody<GameStartedMessageData> body =
+        gson.fromJson(response.getBody(), responseType);
+
+    GameStartedMessageData data = body.getData();
+
+    gameId = data.getGameId();
   }
 
   @Test
@@ -189,7 +199,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("User is not in this game.", response.getBody());
+    assertEquals("User is not in this Game", response.getBody());
   }
 
   @Test
@@ -273,7 +283,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals(secondInvalidMove + " is invalid syntax", response.getBody());
+    assertEquals("Illegal Move: " + secondInvalidMove, response.getBody());
   }
 
   @Test
