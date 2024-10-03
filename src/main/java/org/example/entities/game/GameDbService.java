@@ -5,14 +5,14 @@ import org.bson.conversions.Bson;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
-public class GameService {
+public class GameDbService {
   MongoDBUtility<Game> gameDBUtility;
 
-  public GameService() {
+  public GameDbService() {
     gameDBUtility = new MongoDBUtility<>("games", Game.class);
   }
 
-  public GameService(MongoDBUtility<Game> utility) {
+  public GameDbService(MongoDBUtility<Game> utility) {
     gameDBUtility = utility;
   }
 

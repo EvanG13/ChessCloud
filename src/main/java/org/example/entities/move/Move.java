@@ -1,9 +1,14 @@
 package org.example.entities.move;
 
+import lombok.*;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
 public class Move {
-  String moveAsToFrom;
+  String moveAsUCI;
   String moveAsSan;
   Integer duration;
-
-  public Move(String moveAsToFrom, String gameFen, int duration) {}
 }

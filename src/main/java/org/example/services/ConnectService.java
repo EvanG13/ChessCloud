@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.conversions.Bson;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
+import org.example.entities.player.Player;
 import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor

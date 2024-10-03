@@ -7,9 +7,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.HashMap;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.*;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
+import org.example.entities.player.Player;
 import org.example.entities.session.Session;
 import org.example.entities.session.SessionDbService;
 import org.example.entities.stats.Stats;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.*;
 public class LogoutHandlerTest {
 
   private static SessionDbService sessionUtility;
-  private static GameService gameUtility;
+  private static GameDbService gameUtility;
   private static StatsDbService statsUtility;
   private static UserDbService usersUtility;
 
@@ -48,7 +48,7 @@ public class LogoutHandlerTest {
   public static void setUp() {
     sessionUtility = new SessionDbService();
 
-    gameUtility = new GameService();
+    gameUtility = new GameDbService();
     statsUtility = new StatsDbService();
     usersUtility = new UserDbService();
 

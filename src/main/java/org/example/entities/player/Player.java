@@ -1,25 +1,19 @@
-package org.example.entities;
+package org.example.entities.player;
 
-import com.google.gson.annotations.Expose;
 import java.util.Objects;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.example.constants.ChessConstants;
+import org.example.annotations.GsonExcludeField;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Player {
-  @Expose private String username;
-  private String playerId;
-  @Expose private Boolean isWhite;
+public class Player extends BasePlayer {
 
-  @Expose @Builder.Default private Integer rating = ChessConstants.BASE_RATING;
-  @Expose private Integer remainingTime;
-
-  private String connectionId;
+  private Integer remainingTime;
+  @GsonExcludeField private String connectionId;
 
   @Override
   public String toString() {

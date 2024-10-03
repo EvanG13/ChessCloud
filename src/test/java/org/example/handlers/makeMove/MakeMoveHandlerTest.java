@@ -8,12 +8,13 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.example.constants.StatusCodes;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
+import org.example.entities.move.Move;
+import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
@@ -37,7 +38,7 @@ import org.junit.jupiter.api.*;
 public class MakeMoveHandlerTest {
   public static SocketSystemLogger socketLogger;
 
-  public static GameService gameUtility;
+  public static GameDbService gameUtility;
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
@@ -73,7 +74,7 @@ public class MakeMoveHandlerTest {
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
 
-    gameUtility = new GameService();
+    gameUtility = new GameDbService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
 
@@ -267,10 +268,11 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-            new ArrayList<>(List.of("e2e4")),
+            Arrays.asList(moveOne),
             false);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
@@ -351,10 +353,13 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-            new ArrayList<>(List.of("e2e4", "d7d5")),
+            Arrays.asList(moveOne, moveTwo),
             true);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
@@ -384,10 +389,15 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
+
+    Move moveThree = Move.builder().moveAsUCI("e4d5").moveAsSan("exd5").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
-            new ArrayList<>(List.of("e2e4", "d7d5", "e4d5")),
+            Arrays.asList(moveOne, moveTwo, moveThree),
             false);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);

@@ -9,6 +9,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
+import java.util.Date;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.enums.Action;
@@ -98,8 +99,9 @@ public class MakeMoveHandler
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
     }
 
+    Date date = new Date(event.getRequestContext().getRequestTimeEpoch());
     try {
-      game = service.makeMove(move, game);
+      game = service.makeMove(move, game, date);
     } catch (BadRequest e) {
       MakeMoveMessageData data =
           MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();

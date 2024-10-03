@@ -9,8 +9,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
+import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;

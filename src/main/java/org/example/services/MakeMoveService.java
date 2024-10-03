@@ -2,11 +2,13 @@ package org.example.services;
 
 import chariot.util.Board;
 import com.mongodb.client.model.Updates;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
+import org.example.entities.move.Move;
+import org.example.entities.player.Player;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
@@ -15,16 +17,16 @@ import org.example.exceptions.Unauthorized;
 @AllArgsConstructor
 public class MakeMoveService {
 
-  private GameService gameService;
+  private GameDbService gameDbService;
 
   private Board board;
 
   public MakeMoveService() {
-    gameService = new GameService();
+    gameDbService = new GameDbService();
   }
 
-  public MakeMoveService(GameService gameService) {
-    this.gameService = gameService;
+  public MakeMoveService(GameDbService gameDbService) {
+    this.gameDbService = gameDbService;
   }
 
   private boolean isMoveLegal(String move) {
@@ -33,7 +35,7 @@ public class MakeMoveService {
 
   public Game loadGame(String gameId, String connectionId, String playerId)
       throws NotFound, Unauthorized, InternalServerError {
-    Game game = gameService.get(gameId);
+    Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
@@ -74,22 +76,28 @@ public class MakeMoveService {
     return game.getIsWhitesTurn() == player.getIsWhite();
   }
 
-  public Game makeMove(String moveUCI, Game game) throws BadRequest {
+  public Game makeMove(String moveUCI, Game game, Date time) throws BadRequest {
     if (!isMoveLegal(moveUCI)) {
       throw new BadRequest("Illegal Move: " + moveUCI);
     }
 
+    String san = board.toSAN(moveUCI);
     board = board.play(moveUCI);
+    Date lastModified = game.getLastModified();
+
+    int t = (int) (time.getTime() - lastModified.getTime());
+    Move move = Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration(Math.max(t, 0)).build();
 
     String updatedGameFen = board.toStandardFEN();
-    gameService.patch(
+    gameDbService.patch(
         game.getId(),
         Updates.combine(
             Updates.set("gameStateAsFen", updatedGameFen),
             Updates.set("isWhitesTurn", !game.getIsWhitesTurn()),
-            Updates.push("moveList", moveUCI)));
+            Updates.set("lastModified", time),
+            Updates.push("moveList", move)));
 
-    game.getMoveList().add(moveUCI);
+    game.getMoveList().add(move);
     game.setGameStateAsFen(updatedGameFen);
     game.setIsWhitesTurn(!game.getIsWhitesTurn());
 

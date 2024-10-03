@@ -4,9 +4,9 @@ import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
+import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.enums.Action;
@@ -34,7 +34,7 @@ public class GameOverService {
   private String winningPlayerUsername;
   private Game game;
   private SocketMessenger socketMessenger;
-  private GameService gameService;
+  private GameDbService gameDbService;
   private StatsDbService statsDbService;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
@@ -47,11 +47,11 @@ public class GameOverService {
   public GameOverService(
       ResultReason resultReason, String losingPlayerId, SocketMessenger messenger)
       throws NotFound, InternalServerError {
-    this.gameService = new GameService();
-    this.game = gameService.getGameFromUserID(losingPlayerId);
+    this.gameDbService = new GameDbService();
+    this.game = gameDbService.getGameFromUserID(losingPlayerId);
 
     if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
-      gameService.deleteGame(game.getId());
+      gameDbService.deleteGame(game.getId());
       return;
     }
 

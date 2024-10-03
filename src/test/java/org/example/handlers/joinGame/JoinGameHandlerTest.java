@@ -10,9 +10,9 @@ import com.google.gson.Gson;
 import java.util.List;
 import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
-import org.example.entities.Player;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
+import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.GameStatus;
@@ -47,7 +47,7 @@ public class JoinGameHandlerTest {
   public static String email2;
   public static String password;
   public static String password2;
-  public static GameService gameUtility;
+  public static GameDbService gameUtility;
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
@@ -77,7 +77,7 @@ public class JoinGameHandlerTest {
     password2 = "123";
     timeControl = TimeControl.BLITZ_5;
     timeControl2 = TimeControl.BULLET_1;
-    gameUtility = new GameService();
+    gameUtility = new GameDbService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);

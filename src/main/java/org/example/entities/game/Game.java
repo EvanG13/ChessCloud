@@ -1,7 +1,7 @@
 package org.example.entities.game;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 import lombok.AllArgsConstructor;
@@ -11,8 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
-import org.example.entities.DataTransferObject;
-import org.example.entities.Player;
+import org.example.entities.player.Player;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 
@@ -21,23 +20,19 @@ import org.example.enums.TimeControl;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Game extends DataTransferObject {
-  private TimeControl timeControl;
+public class Game extends BaseGame<Player> {
 
   private Boolean isWhitesTurn;
 
-  private List<String> moveList;
+  private Date lastModified;
 
   private GameStatus gameStatus;
-
-  private List<Player> players;
-
-  private Integer rating;
 
   private String gameStateAsFen;
 
   public Game(TimeControl timeControl, Player player) {
     this.id = new ObjectId().toString();
+    this.lastModified = new Date();
 
     this.timeControl = timeControl;
     // TODO: not omit moveList?
@@ -119,10 +114,10 @@ public class Game extends DataTransferObject {
     if (o == null || getClass() != o.getClass()) return false;
     Game game = (Game) o;
     return Objects.equals(id, game.id)
-        && timeControl == game.timeControl
-        && isWhitesTurn == game.isWhitesTurn
+        && Objects.equals(timeControl, game.timeControl)
+        && Objects.equals(isWhitesTurn, game.isWhitesTurn)
         && Objects.equals(moveList, game.moveList)
-        && gameStatus == game.gameStatus
+        && Objects.equals(gameStatus, game.gameStatus)
         && Objects.equals(players, game.players)
         && Objects.equals(rating, game.rating)
         && Objects.equals(gameStateAsFen, game.gameStateAsFen);
@@ -130,6 +125,7 @@ public class Game extends DataTransferObject {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, timeControl, isWhitesTurn, gameStatus, players, rating);
+    return Objects.hash(
+        id, timeControl, isWhitesTurn, gameStatus, players, rating, moveList, gameStateAsFen);
   }
 }

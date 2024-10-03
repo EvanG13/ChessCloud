@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import org.bson.conversions.Bson;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameService;
+import org.example.entities.game.GameDbService;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.GameStatus;
@@ -18,12 +18,12 @@ import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
 public class JoinGameService {
-  private final GameService gameDBUtility;
+  private final GameDbService gameDBUtility;
   private final MongoDBUtility<User> userDBUtility;
   private final MongoDBUtility<Stats> statsDBUtility;
 
   public JoinGameService() {
-    this.gameDBUtility = new GameService();
+    this.gameDBUtility = new GameDbService();
     this.userDBUtility = new MongoDBUtility<>("users", User.class);
     this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
   }
