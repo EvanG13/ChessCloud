@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionService;
+import org.example.entities.session.SessionDbService;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
@@ -25,7 +25,7 @@ public class StatsHandlerIT extends BaseTest {
 
   private static UserDbService userDbService;
   private static StatsDbService statsDbService;
-  private static SessionService sessionService;
+  private static SessionDbService sessionDbService;
 
   private static String userId;
 
@@ -37,7 +37,7 @@ public class StatsHandlerIT extends BaseTest {
   public static void setUp() {
     userDbService = new UserDbService();
     statsDbService = new StatsDbService();
-    sessionService = new SessionService();
+    sessionDbService = new SessionDbService();
 
     userId = "test-Id";
 
@@ -49,7 +49,7 @@ public class StatsHandlerIT extends BaseTest {
             .username("test-username")
             .build();
     userDbService.createUser(testUser);
-    String sessionToken = sessionService.createSession(new SessionRequest(userId));
+    String sessionToken = sessionDbService.createSession(new SessionRequest(userId));
 
     authHeaders =
         Map.of(
@@ -67,7 +67,7 @@ public class StatsHandlerIT extends BaseTest {
   public static void tearDown() {
     userDbService.deleteUser(userId);
     statsDbService.deleteStats(userId);
-    sessionService.deleteByUserId(userId);
+    sessionDbService.deleteByUserId(userId);
   }
 
   @DisplayName("No Query")

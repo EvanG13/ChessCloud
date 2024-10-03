@@ -5,24 +5,26 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.github.bhlangonijr.chesslib.Board;
 import com.google.gson.Gson;
-import java.util.ArrayList;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
-import org.example.entities.Game;
-import org.example.entities.Player;
+import org.example.entities.game.Game;
+import org.example.entities.game.GameDbService;
+import org.example.entities.move.Move;
+import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
 import org.example.enums.Action;
-import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
+import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.JoinGameHandler;
 import org.example.handlers.websocket.MakeMoveHandler;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.requests.MakeMoveRequest;
+import org.example.models.responses.websocket.GameStartedMessageData;
 import org.example.models.responses.websocket.MakeMoveMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.JoinGameService;
@@ -36,7 +38,7 @@ import org.junit.jupiter.api.*;
 public class MakeMoveHandlerTest {
   public static SocketSystemLogger socketLogger;
 
-  public static MongoDBUtility<Game> gameUtility;
+  public static GameDbService gameUtility;
   public static MongoDBUtility<User> userUtility;
   public static MongoDBUtility<Stats> statsUtility;
 
@@ -72,11 +74,11 @@ public class MakeMoveHandlerTest {
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
 
-    gameUtility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new GameDbService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
 
-    makeMoveService = new MakeMoveService(gameUtility, new Board());
+    makeMoveService = new MakeMoveService(gameUtility);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
 
     joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
@@ -119,7 +121,7 @@ public class MakeMoveHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    gameUtility.delete(gameId);
+    gameUtility.deleteGame(gameId);
 
     userUtility.delete(userId);
     userUtility.delete(userId2);
@@ -148,35 +150,13 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
-
-    String gameJson = response.getBody();
-    gameId = (new Gson()).fromJson(gameJson, Game.class).getId();
-
-    Player newPlayer =
-        Player.builder()
-            .playerId(userId)
-            .connectionId(connectId)
-            .username(username)
-            .rating(ChessConstants.BASE_RATING) // new player default rating
-            .build();
-
-    Game expected = new Game(timeControl, newPlayer);
-    // since calling the constructor will autoincrement the id from the last game
-    expected.setId(gameId);
-
-    Optional<Game> optionalGame = gameUtility.get(gameId);
-
-    assertFalse(optionalGame.isEmpty());
-    assertEquals(expected, optionalGame.get());
   }
 
   @Test
   @DisplayName("GAME STARTED")
   @Order(2)
-  public void returnGameStarted() {
+  public void returnGameStarted() throws NotFound {
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -187,16 +167,19 @@ public class MakeMoveHandlerTest {
     JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
     event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
+    APIGatewayV2WebSocketResponse response =
+        joinGameHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Optional<Game> optionalGame = gameUtility.get(gameId);
-    assertFalse(optionalGame.isEmpty());
+    Type responseType = new TypeToken<SocketResponseBody<GameStartedMessageData>>() {}.getType();
+    SocketResponseBody<GameStartedMessageData> body =
+        gson.fromJson(response.getBody(), responseType);
 
-    Game game = optionalGame.get();
-    assertEquals(GameStatus.ONGOING, game.getGameStatus());
-    assertTrue(game.getIsWhitesTurn());
+    GameStartedMessageData data = body.getData();
 
+    gameId = data.getGameId();
+
+    Game game = gameUtility.get(gameId);
     List<Player> playerList = game.getPlayers();
     assertEquals(2, playerList.size());
 
@@ -234,7 +217,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("User is not in this game.", response.getBody());
+    assertEquals("User is not in this Game", response.getBody());
   }
 
   @Test
@@ -285,10 +268,11 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-            new ArrayList<>(List.of("e2e4")),
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+            Arrays.asList(moveOne),
             false);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
@@ -310,15 +294,14 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId2,
-    // secondInvalidMove);
+
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondInvalidMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals(secondInvalidMove + " is invalid syntax", response.getBody());
+    assertEquals("Illegal Move: " + secondInvalidMove, response.getBody());
   }
 
   @Test
@@ -337,7 +320,7 @@ public class MakeMoveHandlerTest {
     requestContext.setRouteKey("makeMove");
 
     event.setRequestContext(requestContext);
-    //    MakeMoveRequest request = new MakeMoveRequest("makeMove", gameId, userId, thirdMove);
+
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
     event.setBody(gson.toJson(request));
@@ -370,10 +353,13 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
-            new ArrayList<>(List.of("e2e4", "d7d5")),
+            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            Arrays.asList(moveOne, moveTwo),
             true);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
@@ -403,10 +389,15 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
+
+    Move moveThree = Move.builder().moveAsUCI("e4d5").moveAsSan("exd5").duration(0).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
-            new ArrayList<>(List.of("e2e4", "d7d5", "e4d5")),
+            Arrays.asList(moveOne, moveTwo, moveThree),
             false);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);

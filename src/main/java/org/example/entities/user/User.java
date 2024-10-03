@@ -1,11 +1,11 @@
 package org.example.entities.user;
 
-import com.google.gson.annotations.Expose;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.example.annotations.GsonExcludeField;
 import org.example.entities.DataTransferObject;
 
 @Getter
@@ -13,9 +13,9 @@ import org.example.entities.DataTransferObject;
 @NoArgsConstructor
 @SuperBuilder
 public class User extends DataTransferObject {
-  @Expose private String email;
-  private String password;
-  @Expose private String username;
+  private String email;
+  @GsonExcludeField private String password;
+  private String username;
 
   @Override
   public String toString() {
