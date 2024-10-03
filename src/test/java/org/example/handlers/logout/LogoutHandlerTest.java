@@ -11,7 +11,7 @@ import org.example.entities.*;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameService;
 import org.example.entities.session.Session;
-import org.example.entities.session.SessionService;
+import org.example.entities.session.SessionDbService;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LogoutHandlerTest {
 
-  private static SessionService sessionUtility;
+  private static SessionDbService sessionUtility;
   private static GameService gameUtility;
   private static StatsDbService statsUtility;
   private static UserDbService usersUtility;
@@ -46,7 +46,7 @@ public class LogoutHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-    sessionUtility = new SessionService();
+    sessionUtility = new SessionDbService();
 
     gameUtility = new GameService();
     statsUtility = new StatsDbService();
@@ -55,7 +55,7 @@ public class LogoutHandlerTest {
     LogoutService service =
         LogoutService.builder()
             .gameService(new GameStateService())
-            .sessionService(sessionUtility)
+            .sessionDbService(sessionUtility)
             .socketMessenger(new SocketSystemLogger())
             .build();
 
