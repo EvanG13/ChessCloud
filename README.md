@@ -43,8 +43,8 @@ REST_BACKEND_ENDPOINT=foorestendpoint
 
 ## Testing
 
-This project utilizes **[REST Assured](https://rest-assured.io/)** for Integration Tests and *
-*[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for both Unit and
+This project utilizes **[REST Assured](https://rest-assured.io/)** for Integration Tests and
+**[JUnit 5](https://junit.org/junit5/docs/current/user-guide/)** for both Unit and
 Integration tests
 
 ### Running Tests
