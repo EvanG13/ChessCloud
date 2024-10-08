@@ -64,7 +64,14 @@ public class AuthHandlerTest {
     headers.put("Authorization", validSessionToken);
     headers.put("userid", validUserId);
 
+    APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext =
+        new APIGatewayV2CustomAuthorizerEvent.RequestContext();
+    APIGatewayV2CustomAuthorizerEvent.Http http = new APIGatewayV2CustomAuthorizerEvent.Http();
+    http.setMethod("GET");
+    requestContext.setHttp(http);
+
     event.setHeaders(headers);
+    event.setRequestContext(requestContext);
 
     IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);

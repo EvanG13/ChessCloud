@@ -40,11 +40,15 @@ public class Player extends BasePlayer {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+
     Player player = (Player) o;
-    return Objects.equals(isWhite, player.isWhite)
-        && Objects.equals(remainingTime, player.remainingTime)
-        && Objects.equals(username, player.username)
-        && Objects.equals(rating, player.rating)
+    return Objects.equals(remainingTime, player.remainingTime)
         && Objects.equals(connectionId, player.connectionId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), remainingTime, connectionId);
   }
 }
