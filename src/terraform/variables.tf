@@ -27,12 +27,13 @@ variable "lambda_runtime" {
 variable "rest_lambdas" {
   type = map(string)
   default = {
-    login     = "org.example.handlers.rest.LoginHandler::handleRequest",
-    logout    = "org.example.handlers.rest.LogoutHandler::handleRequest",
-    register  = "org.example.handlers.rest.RegisterHandler::handleRequest",
-    auth      = "org.example.handlers.rest.AuthHandler::handleRequest",
-    stats     = "org.example.handlers.rest.StatsHandler::handleRequest",
-    gameState = "org.example.handlers.rest.GetGameStateHandler::handleRequest"
+    login        = "org.example.handlers.rest.LoginHandler::handleRequest",
+    logout       = "org.example.handlers.rest.LogoutHandler::handleRequest",
+    register     = "org.example.handlers.rest.RegisterHandler::handleRequest",
+    auth         = "org.example.handlers.rest.AuthHandler::handleRequest",
+    stats        = "org.example.handlers.rest.StatsHandler::handleRequest",
+    gameState    = "org.example.handlers.rest.GetGameStateHandler::handleRequest",
+    archivedGame = "org.example.handlers.rest.getArchivedGame.GetArchivedGameHandler::handleRequest"
   }
 }
 
