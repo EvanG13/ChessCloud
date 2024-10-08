@@ -1,0 +1,27 @@
+type: object
+properties:
+  resultReason:
+    $ref: '../schemas.yaml#/components/schemas/ResultReason'
+  winner:
+    type: string
+    description: "The player who won the game."
+    example: "player1"
+  timeControl:
+    $ref: '../schemas.yaml#/components/schemas/TimeControl'
+  created:
+    type: string
+    format: date-time
+    description: "Date when the game was created."
+    example: "2023-08-15T13:15:30Z"
+  moveList:
+    type: array
+    items:
+      $ref: '../schemas.yaml#/components/schemas/Move'
+  players:
+    type: array
+    items:
+      $ref: '../schemas.yaml#/components/schemas/ArchivedPlayer'
+  rating:
+    type: integer
+    description: "Rating of the game."
+    example: 1000

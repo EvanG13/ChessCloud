@@ -1,28 +1,28 @@
 get:
-  summary: stats
-  description: post win/loss/draw/rating
+  summary: Game State
+  description: Get Game State
   x-amazon-apigateway-integration:
     type: "aws_proxy"
     httpMethod: "POST"
-    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:stats/invocations"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:archivedGame/invocations"
   security:
     - bearerAuth: [ ]
   parameters:
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/userId"
-    - in: query
-      name: gamemode
+    - in: path
+      name: gameId
+      description: Archived Game id
+      required: true
       schema:
         type: string
-      required: false
-      description: Specific game mode to retrieve stats for (optional)
   responses:
     200:
-      description: Post Stats Successful
+      description: Game State Successfully found
       content:
         application/json:
           schema:
-            $ref: '../schemas/responses/StatsResponse.yaml#/components/schemas/GameModeStats'
+            $ref: '../schemas/responses/ArchivedGameResponse.yaml'
       headers:
         Access-Control-Allow-Origin:
           schema:
@@ -35,8 +35,6 @@ get:
             type: "string"
     400:
       $ref: '../schemas/responses/Responses.yaml#/components/responses/400'
-    500:
-      $ref: '../schemas/responses/Responses.yaml#/components/responses/500'
 options:
   summary: CORS support
   description: Enable CORS by returning correct headers
