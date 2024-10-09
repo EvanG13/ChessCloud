@@ -1,0 +1,15 @@
+type: object
+properties:
+  username:
+    type: string
+  rating:
+    type: integer
+  isWhite:
+    type: boolean
+  isWinner:
+    type: boolean
+required:
+  - username
+  - rating
+  - isWhite
+  - isWinner

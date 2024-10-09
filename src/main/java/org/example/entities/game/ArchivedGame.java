@@ -2,6 +2,7 @@ package org.example.entities.game;
 
 import java.util.Objects;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.entities.player.ArchivedPlayer;
@@ -10,23 +11,30 @@ import org.example.enums.ResultReason;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
 public class ArchivedGame extends BaseGame<ArchivedPlayer> {
 
   private ResultReason resultReason;
 
-  private String winner;
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("ArchivedGame { ");
-    sb.append("id=").append(id);
-    sb.append(", timeControl=").append(timeControl);
-    sb.append(", created=").append(created);
-    sb.append(", moveList=").append(moveList != null ? moveList.toString() : "[]");
-    sb.append(", players=").append(players != null ? players.toString() : "[]");
-    sb.append(", rating=").append(rating);
-    sb.append(" }");
+    sb.append("ArchivedGame { ")
+        .append("id=")
+        .append(id)
+        .append(", timeControl=")
+        .append(timeControl)
+        .append(", created=")
+        .append(created)
+        .append(", moveList=")
+        .append(moveList != null ? moveList.toString() : "[]")
+        .append(", players=")
+        .append(players != null ? players.toString() : "[]")
+        .append(", rating=")
+        .append(rating)
+        .append(", resultReason=")
+        .append(resultReason)
+        .append(" }");
 
     return sb.toString();
   }
@@ -35,19 +43,14 @@ public class ArchivedGame extends BaseGame<ArchivedPlayer> {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
 
-    ArchivedGame archivedGame = (ArchivedGame) o;
-
-    return Objects.equals(id, archivedGame.id)
-        && Objects.equals(timeControl, archivedGame.timeControl)
-        && Objects.equals(created, archivedGame.created)
-        && Objects.equals(moveList, archivedGame.moveList)
-        && Objects.equals(players, archivedGame.players)
-        && Objects.equals(rating, archivedGame.rating);
+    ArchivedGame that = (ArchivedGame) o;
+    return resultReason == that.resultReason;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, timeControl, created, moveList, players, rating);
+    return Objects.hash(super.hashCode(), resultReason);
   }
 }

@@ -37,6 +37,23 @@ public final class IntegrationTestUtils<T> {
         .asString();
   }
 
+  public Response get(
+      Map<String, String> headers,
+      String endpoint,
+      Map<String, String> pathParams,
+      int statusCode) {
+    return given()
+        .headers(headers)
+        .pathParams(pathParams)
+        .when()
+        .get(endpoint)
+        .then()
+        .statusCode(statusCode)
+        .headers(corsHeaders)
+        .extract()
+        .response();
+  }
+
   public Response get(Map<String, String> headers, String endpoint, int statusCode) {
     return given()
         .headers(headers)
