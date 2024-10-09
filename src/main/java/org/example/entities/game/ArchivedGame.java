@@ -15,6 +15,7 @@ import org.example.enums.ResultReason;
 public class ArchivedGame extends BaseGame<ArchivedPlayer> {
 
   private ResultReason resultReason;
+  private Integer numMoves;
 
   @Override
   public String toString() {
@@ -30,6 +31,8 @@ public class ArchivedGame extends BaseGame<ArchivedPlayer> {
         .append(moveList != null ? moveList.toString() : "[]")
         .append(", players=")
         .append(players != null ? players.toString() : "[]")
+        .append("numMoves=")
+        .append(numMoves)
         .append(", rating=")
         .append(rating)
         .append(", resultReason=")
