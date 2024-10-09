@@ -9,8 +9,8 @@ post:
   security:
     - bearerAuth: [ ]
   parameters:
-    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/authHeader"
-    - $ref: "../schemas/requests/AuthEndpointParams.yaml#/components/parameters/userId"
+    - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/authHeader"
+    - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/userId"
   #########################################################################################
   responses:
     200:

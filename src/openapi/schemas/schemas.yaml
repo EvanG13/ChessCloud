@@ -1,0 +1,56 @@
+components:
+  schemas:
+    ResultReason:
+      type: string
+      enum:
+        - ABORTED
+        - FORFEIT
+        - TIMEOUT
+        - CHECKMATE
+        - REPETITION
+        - INSUFFICIENT_MATERIAL
+      description: "The reason for the result of the game."
+      example: "CHECKMATE"
+    TimeControl:
+      type: string
+      enum:
+        - BLITZ_5
+        - BLITZ_10
+        - BULLET_3
+        - BULLET_1
+      description: "Enumeration representing different time controls for a game."
+    Move:
+      type: object
+      properties:
+        notation:
+          type: string
+          description: "The move in standard algebraic notation."
+          example: "e4"
+        timestamp:
+          type: string
+          format: date-time
+          description: "The timestamp when the move was made."
+          example: "2024-10-07T10:20:30Z"
+    ArchivedPlayer:
+      type: object
+      properties:
+        username:
+          type: string
+          description: "The username of the player."
+          example: "test-username"
+        isWhite:
+          type: boolean
+          description: "Indicates if the player is playing as white."
+          example: true
+        remainingTime:
+          type: integer
+          description: "The remaining time for the player in seconds."
+          example: 300
+        connectionId:
+          type: string
+          description: "The connection ID for the player's WebSocket."
+          example: "fake-connection-id"
+        playerId:
+          type: string
+          description: "Unique identifier for the player."
+          example: "test-Id"

@@ -48,35 +48,6 @@ public class Game extends BaseGame<Player> {
     // TODO: not omit gameStateAsFen?
   }
 
-  @Override
-  public String toString() {
-    return "Game{"
-        + "id= "
-        + id
-        + "\n"
-        + ", timeControl= "
-        + timeControl
-        + "\n"
-        + ", isWhitesTurn= "
-        + isWhitesTurn
-        + '\n'
-        + ", moveList="
-        + moveList
-        + "\n"
-        + ", gameStatus= "
-        + gameStatus
-        + "\n"
-        + ", gameStateAsFen= "
-        + gameStateAsFen
-        + "\n"
-        + ", players= "
-        + players
-        + "\n, rating= "
-        + rating
-        + "\n"
-        + '}';
-  }
-
   /**
    * Add player to existing game
    *
@@ -87,7 +58,7 @@ public class Game extends BaseGame<Player> {
       throw new Exception("Game has already started or has finished");
     }
 
-    Player player1 = players.get(0);
+    Player player1 = players.getFirst();
 
     player1.setRemainingTime(timeControl.getTimeInSeconds());
     player2.setRemainingTime(timeControl.getTimeInSeconds());
@@ -109,23 +80,36 @@ public class Game extends BaseGame<Player> {
   }
 
   @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("Game{");
+    sb.append("id='").append(id).append('\'');
+    sb.append(", rating=").append(rating);
+    sb.append(", players=").append(players);
+    sb.append(", moveList=").append(moveList);
+    sb.append(", created=").append(created);
+    sb.append(", timeControl=").append(timeControl);
+    sb.append(", gameStateAsFen='").append(gameStateAsFen).append('\'');
+    sb.append(", gameStatus=").append(gameStatus);
+    sb.append(", lastModified=").append(lastModified);
+    sb.append(", isWhitesTurn=").append(isWhitesTurn);
+    sb.append('}');
+    return sb.toString();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
     Game game = (Game) o;
-    return Objects.equals(id, game.id)
-        && Objects.equals(timeControl, game.timeControl)
-        && Objects.equals(isWhitesTurn, game.isWhitesTurn)
-        && Objects.equals(moveList, game.moveList)
-        && Objects.equals(gameStatus, game.gameStatus)
-        && Objects.equals(players, game.players)
-        && Objects.equals(rating, game.rating)
+    return Objects.equals(isWhitesTurn, game.isWhitesTurn)
+        && Objects.equals(lastModified, game.lastModified)
+        && gameStatus == game.gameStatus
         && Objects.equals(gameStateAsFen, game.gameStateAsFen);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        id, timeControl, isWhitesTurn, gameStatus, players, rating, moveList, gameStateAsFen);
+    return Objects.hash(super.hashCode(), isWhitesTurn, lastModified, gameStatus, gameStateAsFen);
   }
 }

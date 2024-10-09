@@ -1,9 +1,12 @@
 package org.example.services;
 
+import chariot.*;
+import chariot.util.Board;
 import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
@@ -38,6 +41,7 @@ public class GameOverService {
   private StatsDbService statsDbService;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
+  private ArchivedGameDbService archiveService;
 
   /**
    * finds a game based on the losingPlayerId if the game is not found then throws NotFound
@@ -54,7 +58,7 @@ public class GameOverService {
       gameDbService.deleteGame(game.getId());
       return;
     }
-
+    this.archiveService = ArchivedGameDbService.builder().build();
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
     this.statsDbService = new StatsDbService();
@@ -80,6 +84,11 @@ public class GameOverService {
     updateRatings();
   }
 
+  private boolean isGameOver(String FEN) {
+    Board board = Board.fromFEN(game.getGameStateAsFen());
+    return board.ended();
+  }
+
   private void emitOutcome() throws InternalServerError {
     String messageJson =
         new SocketResponseBody<GameOverMessageData>(
@@ -90,7 +99,7 @@ public class GameOverService {
   }
 
   public void archiveGame() {
-    // TODO: implement me!
+    archiveService.archiveGame(this.game, winningPlayerUsername);
     System.out.println("Implement the archiveGame function!");
   }
 

@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 import org.bson.types.ObjectId;
 import org.example.constants.StatusCodes;
+import org.example.entities.session.SessionDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
 import org.example.handlers.rest.LoginHandler;
@@ -24,6 +25,7 @@ public class LoginHandlerTest {
   private static Context context;
 
   private static UserDbService userDbService;
+  private static SessionDbService sessionDbService;
 
   private static User newUser;
 
@@ -31,7 +33,7 @@ public class LoginHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-
+    sessionDbService = new SessionDbService();
     userDbService = new UserDbService();
     gson = new Gson();
     newUser =
@@ -52,6 +54,7 @@ public class LoginHandlerTest {
   @AfterAll
   public static void tearDown() {
     userDbService.deleteUser(newUser.getId());
+    sessionDbService.deleteByUserId(newUser.getId());
   }
 
   @DisplayName("OK")

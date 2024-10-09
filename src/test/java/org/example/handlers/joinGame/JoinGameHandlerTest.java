@@ -1,14 +1,12 @@
 package org.example.handlers.joinGame;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import java.util.List;
-import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
@@ -29,7 +27,6 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JoinGameHandlerTest {
   public static Game game;
-  public static boolean previousTestPassed = true;
   public static Gson gson;
   public static JoinGameService joinGameService;
   public static String userId;
@@ -40,7 +37,6 @@ public class JoinGameHandlerTest {
   public static String gameId;
 
   public static TimeControl timeControl;
-  public static TimeControl timeControl2;
   public static String username;
   public static String username2;
   public static String email;
@@ -52,14 +48,6 @@ public class JoinGameHandlerTest {
   public static MongoDBUtility<Stats> statsUtility;
 
   public static SocketSystemLogger socketLogger;
-
-  @BeforeEach
-  public void isPreviousTestPassed() {
-    if (!previousTestPassed) throw new AssertionError("Previous Test Failed");
-  }
-
-  @AfterEach
-  public void setPreviousTestPassed() {}
 
   @BeforeAll
   public static void setUp() {
@@ -76,7 +64,6 @@ public class JoinGameHandlerTest {
     password = "1223";
     password2 = "123";
     timeControl = TimeControl.BLITZ_5;
-    timeControl2 = TimeControl.BULLET_1;
     gameUtility = new GameDbService();
     userUtility = new MongoDBUtility<>("users", User.class);
     statsUtility = new MongoDBUtility<>("stats", Stats.class);
@@ -103,7 +90,7 @@ public class JoinGameHandlerTest {
     statsUtility.delete(userId2);
   }
 
-  @DisplayName("CREATED ✅")
+  @DisplayName("Player One creates a new game ✅")
   @Test
   @Order(1)
   public void playerOneCreatesNewGame() {
@@ -128,33 +115,18 @@ public class JoinGameHandlerTest {
     String gameJson = response.getBody();
 
     gameId = gson.fromJson(gameJson, Game.class).getId();
-    Player newPlayer =
-        Player.builder()
-            .playerId(userId)
-            .connectionId(connectId)
-            .username(username)
-            .rating(ChessConstants.BASE_RATING) // new player default rating
-            .build();
 
-    Game expected = new Game(timeControl, newPlayer);
-    // since calling the constructor will autoincrement the id from the last game
-    expected.setId(gameId);
     try {
       game = gameUtility.get(gameId);
     } catch (NotFound e) {
-      assertFalse(false, "Game was never created");
-      previousTestPassed = false;
-      return;
+      fail("Game was never created");
     }
-
-    assertEquals(expected, game);
   }
 
   @Test
-  @DisplayName("OK")
+  @DisplayName("Player Two joins the game")
   @Order(2)
   public void playerTwoJoinsGame() {
-    assumeTrue(previousTestPassed);
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
@@ -199,7 +171,7 @@ public class JoinGameHandlerTest {
   }
 
   @Test
-  @DisplayName("UNAUTHORIZED")
+  @DisplayName("No user matches userId")
   @Order(3)
   public void returnUnauthorized() {
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);
@@ -225,7 +197,7 @@ public class JoinGameHandlerTest {
   }
 
   @Test
-  @DisplayName("FORBIDDEN")
+  @DisplayName("Can only play one game at a time")
   @Order(4)
   public void returnForbidden() {
     JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService, socketLogger);

@@ -9,19 +9,23 @@ import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
 import org.example.enums.GameStatus;
 import org.example.exceptions.BadRequest;
+import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
 @Builder
 public class ArchivedGameDbService {
   @Builder.Default
-  private MongoDBUtility<ArchivedGame> archivedGameDbService =
+  private final MongoDBUtility<ArchivedGame> archivedGameDbUtility =
       new MongoDBUtility<>("archived_games", ArchivedGame.class);
 
-  private ArchivedGame archiveGame(@NonNull Game game) {
-    boolean didPlayerOneWin = false;
-    boolean didPlayerTwoWin = false;
-    ArchivedPlayer one = archivePlayer(game.players.getFirst(), didPlayerOneWin);
-    ArchivedPlayer two = archivePlayer(game.players.getFirst(), didPlayerTwoWin);
+  public ArchivedGame archiveGame(@NonNull Game game, String winningUsername) {
+
+    ArchivedPlayer one =
+        archivePlayer(
+            game.players.getFirst(), game.players.getFirst().getUsername().equals(winningUsername));
+    ArchivedPlayer two =
+        archivePlayer(
+            game.players.getLast(), game.players.getLast().getUsername().equals(winningUsername));
     return ArchivedGame.builder()
         .id(game.getId())
         .created(new Date())
@@ -32,7 +36,7 @@ public class ArchivedGameDbService {
         .build();
   }
 
-  private ArchivedPlayer archivePlayer(@NonNull Player player, Boolean isWinner) {
+  public ArchivedPlayer archivePlayer(@NonNull Player player, Boolean isWinner) {
     return ArchivedPlayer.builder()
         .playerId(player.getPlayerId())
         .username(player.getUsername())
@@ -43,14 +47,22 @@ public class ArchivedGameDbService {
   }
 
   public void addFinishedGameToArchive(@NonNull ArchivedGame archivedGame) {
-    archivedGameDbService.post(archivedGame);
+    archivedGameDbUtility.post(archivedGame);
   }
 
-  public void addFinishedGameToArchive(@NonNull Game game) throws BadRequest {
+  public void addFinishedGameToArchive(@NonNull Game game, String winner) throws BadRequest {
     if (game.getGameStatus() != GameStatus.FINISHED) {
       throw new BadRequest("Can not archive a game that is not finished");
     }
 
-    archivedGameDbService.post(archiveGame(game));
+    archivedGameDbUtility.post(archiveGame(game, winner));
+  }
+
+  public ArchivedGame getArchivedGame(String id) throws NotFound {
+    return archivedGameDbUtility.get(id).orElseThrow(() -> new NotFound("No Archive Game found"));
+  }
+
+  public void deleteArchivedGame(String id) {
+    archivedGameDbUtility.delete(id);
   }
 }
