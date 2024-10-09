@@ -61,7 +61,7 @@ public class GetArchivedGameHandlerIT extends BaseTest {
     game.setGameStatus(GameStatus.FINISHED);
 
     gameId = game.getId();
-    archivedGameDbService.addFinishedGameToArchive(game);
+    archivedGameDbService.addFinishedGameToArchive(game, testUser.getUsername());
   }
 
   @AfterAll

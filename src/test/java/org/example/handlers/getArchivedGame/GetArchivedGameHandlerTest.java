@@ -36,7 +36,7 @@ public class GetArchivedGameHandlerTest {
 
     game.setGameStatus(GameStatus.FINISHED);
 
-    expected = archivedGameDbService.archiveGame(game);
+    expected = archivedGameDbService.archiveGame(game, "user1");
     handler = new GetArchivedGameHandler();
 
     archivedGameDbService.addFinishedGameToArchive(expected);
