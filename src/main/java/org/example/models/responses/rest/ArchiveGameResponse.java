@@ -20,5 +20,4 @@ public class ArchiveGameResponse extends ResponseBody {
   private List<ArchivedPlayer> players;
   private Integer rating;
   private ResultReason resultReason;
-  private String winner;
 }

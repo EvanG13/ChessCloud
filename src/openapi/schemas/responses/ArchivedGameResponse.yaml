@@ -2,10 +2,6 @@ type: object
 properties:
   resultReason:
     $ref: '../schemas.yaml#/components/schemas/ResultReason'
-  winner:
-    type: string
-    description: "The player who won the game."
-    example: "player1"
   timeControl:
     $ref: '../schemas.yaml#/components/schemas/TimeControl'
   created:

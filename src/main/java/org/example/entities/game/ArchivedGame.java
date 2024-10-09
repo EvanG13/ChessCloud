@@ -16,8 +16,6 @@ public class ArchivedGame extends BaseGame<ArchivedPlayer> {
 
   private ResultReason resultReason;
 
-  private String winner;
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -34,8 +32,6 @@ public class ArchivedGame extends BaseGame<ArchivedPlayer> {
         .append(players != null ? players.toString() : "[]")
         .append(", rating=")
         .append(rating)
-        .append(", winner=")
-        .append(winner)
         .append(", resultReason=")
         .append(resultReason)
         .append(" }");
@@ -50,11 +46,11 @@ public class ArchivedGame extends BaseGame<ArchivedPlayer> {
     if (!super.equals(o)) return false;
 
     ArchivedGame that = (ArchivedGame) o;
-    return resultReason == that.resultReason && Objects.equals(winner, that.winner);
+    return resultReason == that.resultReason;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), resultReason, winner);
+    return Objects.hash(super.hashCode(), resultReason);
   }
 }
