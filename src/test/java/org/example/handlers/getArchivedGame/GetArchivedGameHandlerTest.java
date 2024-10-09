@@ -63,7 +63,7 @@ public class GetArchivedGameHandlerTest {
   }
 
   @Test
-  public void missingQueryParams() {
+  public void missingPathParams() {
     APIGatewayV2HTTPResponse response =
         handler.handleRequest(new APIGatewayV2HTTPEvent(), new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
