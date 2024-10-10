@@ -69,7 +69,6 @@ public class ArchivedGameDbService {
   }
 
   public List<ArchivedGame> listArchivedGames(String userId, TimeControl timeControl) {
-    System.out.println("time control: " + timeControl + "userid: " + userId);
     return archivedGameDbUtility.list(
         Filters.and(
             eq("timeControl", timeControl),
