@@ -12,6 +12,7 @@ import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
 import org.example.enums.GameStatus;
+import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.models.requests.SessionRequest;
 import org.example.models.responses.rest.ArchiveGameResponse;
@@ -61,7 +62,7 @@ public class GetArchivedGameHandlerIT extends BaseTest {
     game.setGameStatus(GameStatus.FINISHED);
 
     gameId = game.getId();
-    archivedGameDbService.addFinishedGameToArchive(game, testUser.getUsername());
+    archivedGameDbService.archiveGame(game, testUser.getUsername(), ResultReason.CHECKMATE);
   }
 
   @AfterAll
