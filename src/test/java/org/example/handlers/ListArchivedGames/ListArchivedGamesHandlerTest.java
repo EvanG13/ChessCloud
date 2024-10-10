@@ -15,6 +15,7 @@ import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.enums.GameStatus;
+import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.handlers.rest.getArchivedGame.ListArchivedGamesHandler;
 import org.example.models.responses.rest.ListArchivedGamesResponse;
@@ -43,8 +44,8 @@ public class ListArchivedGamesHandlerTest {
     players.add(Player.builder().playerId("id2").username("user2").build());
     game.setPlayers(players);
     game2.setPlayers(players);
-    ArchivedGame ar1 = archivedGameDbService.archiveGame(game, "user1");
-    ArchivedGame ar2 = archivedGameDbService.archiveGame(game2, "user2");
+    ArchivedGame ar1 = archivedGameDbService.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
+    ArchivedGame ar2 = archivedGameDbService.toArchivedGame(game2, "user2", ResultReason.ABORTED);
     handler = new ListArchivedGamesHandler();
     List<ArchivedGame> archivedGameList = new ArrayList<>();
     List<ArchivedGame> archivedGameList2 = new ArrayList<>();
@@ -53,8 +54,8 @@ public class ListArchivedGamesHandlerTest {
     archivedGameList2.add(ar1);
     archivedGameList2.add(ar2);
     expectedWithTwoGames = new ListArchivedGamesResponse(archivedGameList2);
-    archivedGameDbService.addFinishedGameToArchive(ar1);
-    archivedGameDbService.addFinishedGameToArchive(ar2);
+    archivedGameDbService.archiveGame(ar1);
+    archivedGameDbService.archiveGame(ar2);
   }
 
   @AfterAll
