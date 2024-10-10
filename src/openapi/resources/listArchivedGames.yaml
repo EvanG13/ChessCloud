@@ -1,28 +1,34 @@
 get:
-  summary: Game State
-  description: Get Game State
+  summary: list archived games
+  description: array of archivedGame objects without the moveList field
   x-amazon-apigateway-integration:
     type: "aws_proxy"
     httpMethod: "POST"
-    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:archivedGame/invocations"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:listArchivedGames/invocations"
   security:
     - bearerAuth: [ ]
   parameters:
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/userId"
+    - in: query
+      name: timeControl
+      schema:
+        type: string
+      required: false
+      description: Specific game mode to retrieve games for (optional)
     - in: path
-      name: gameId
+      name: userId
       description: Archived Game id
-      required: true
+      required: false
       schema:
         type: string
   responses:
     200:
-      description: Archived Game Successfully found
+      description: Get archived games Successful
       content:
         application/json:
           schema:
-            $ref: '../schemas/responses/ArchivedGameResponse.yaml'
+            $ref: '../schemas/responses/listArchivedGamesResponse.yaml'
       headers:
         Access-Control-Allow-Origin:
           schema:
