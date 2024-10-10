@@ -15,12 +15,10 @@ public class ListArchivedGamesResponse extends ResponseBody {
   @Override
   public String toJSON() {
     Set<String> fieldsToExclude = Set.of("moveList", "rating");
-    System.out.println(fieldsToExclude.toString());
     Gson gsonWithoutMoveList =
         new GsonBuilder()
             .setExclusionStrategies(new FieldExclusionStrategy(fieldsToExclude))
             .create();
-    System.out.println(gsonWithoutMoveList.toJson(this));
     return gsonWithoutMoveList.toJson(this);
   }
 }
