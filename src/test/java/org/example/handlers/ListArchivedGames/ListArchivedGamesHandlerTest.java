@@ -21,20 +21,17 @@ import org.example.models.responses.rest.ListArchivedGamesResponse;
 import org.example.utils.MockContext;
 import org.junit.jupiter.api.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ListArchivedGamesHandlerTest {
   private static ArchivedGameDbService archivedGameDbService;
   private static ListArchivedGamesResponse expectedWithOneGame;
   private static ListArchivedGamesResponse expectedWithTwoGames;
   private static ListArchivedGamesHandler handler;
-
   private static String gameId;
   private static String gameId2;
 
   @BeforeAll
   public static void setUp() throws Exception {
     archivedGameDbService = ArchivedGameDbService.builder().build();
-
     Game game = validGame(TimeControl.BLITZ_5);
     Game game2 = validGame(TimeControl.BLITZ_10);
     gameId = game.getId();
@@ -67,7 +64,6 @@ public class ListArchivedGamesHandlerTest {
   }
 
   @Test
-  @Order(1)
   public void canGetArchivedGamesWithoutTimeControl() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
@@ -85,7 +81,6 @@ public class ListArchivedGamesHandlerTest {
   }
 
   @Test
-  @Order(2)
   public void canGetArchivedGamesWithTimeControl() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
@@ -106,12 +101,24 @@ public class ListArchivedGamesHandlerTest {
   public void missingPathParamsUseHeadersInstead() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     Map<String, String> headerMap = new HashMap<>();
-    headerMap.put("userid", "id1");
+    headerMap.put("userid", "id2");
     event.setHeaders(headerMap);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
     String actual = response.getBody();
     assertEquals(expectedWithTwoGames.toJSON(), actual);
+  }
+
+  @Test
+  public void userWithNoArchivedGamesReturnsEmpty() {
+    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    Map<String, String> headerMap = new HashMap<>();
+    headerMap.put("userid", "new-user");
+    event.setHeaders(headerMap);
+    APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
+    assertEquals(StatusCodes.OK, response.getStatusCode());
+    String actual = response.getBody();
+    assertEquals("{\"archivedGames\":[]}", actual);
   }
 
   @Test
