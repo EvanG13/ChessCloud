@@ -14,6 +14,7 @@ locals {
     message    = "message",
     joinGame   = "joinGame",
     makeMove   = "makeMove",
+    resign     = "resign"
   }
 }
 ################################################################################
