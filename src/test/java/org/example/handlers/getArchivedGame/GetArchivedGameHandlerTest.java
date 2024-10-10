@@ -74,7 +74,9 @@ public class GetArchivedGameHandlerTest {
   @Test
   public void missingGameIdFromQueryParams() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setPathParameters(new HashMap<>());
+    Map<String, String> pathParams = new HashMap<>();
+    pathParams.put("userid", "not-a-game-id!");
+    event.setPathParameters(pathParams);
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
