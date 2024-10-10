@@ -7,9 +7,18 @@ import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
+import org.example.entities.player.PlayerDbService;
+import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsDbService;
+import org.example.entities.user.User;
+import org.example.entities.user.UserDbService;
 import org.example.enums.TimeControl;
 
 public class TestUtils {
+
+  private static final UserDbService userDbService = new UserDbService();
+  private static final StatsDbService statsDbService = new StatsDbService();
+  private static final PlayerDbService playerDbService = new PlayerDbService();
 
   public static void assertCorsHeaders(Map<String, String> headers) {
     assertEquals(
@@ -43,5 +52,26 @@ public class TestUtils {
     game.setup(black);
 
     return game;
+  }
+
+  public static Game validGame(TimeControl timeControl, User playerOne, User playerTwo)
+      throws Exception {
+    Game game = new Game(timeControl, playerDbService.toPlayer(playerOne, "foo-id", false));
+
+    game.setup(playerDbService.toPlayer(playerTwo, "foo-id-again", false));
+
+    return game;
+  }
+
+  public static User validUser() {
+    User user =
+        User.builder().email("foo-email").username("foo-username").password("foo-password").build();
+
+    Stats stats = new Stats(user.getId());
+
+    userDbService.createUser(user);
+    statsDbService.post(stats);
+
+    return user;
   }
 }

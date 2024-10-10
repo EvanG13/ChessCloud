@@ -12,6 +12,7 @@ import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.enums.GameStatus;
+import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.handlers.rest.getArchivedGame.GetArchivedGameHandler;
 import org.example.utils.MockContext;
@@ -36,10 +37,10 @@ public class GetArchivedGameHandlerTest {
 
     game.setGameStatus(GameStatus.FINISHED);
 
-    expected = archivedGameDbService.archiveGame(game, "user1");
+    expected = archivedGameDbService.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
     handler = new GetArchivedGameHandler();
 
-    archivedGameDbService.addFinishedGameToArchive(expected);
+    archivedGameDbService.archiveGame(expected);
   }
 
   @AfterAll

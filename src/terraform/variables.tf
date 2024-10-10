@@ -51,6 +51,7 @@ variable "websocket_lambdas" {
     message    = "org.example.handlers.websocket.MessageHandler::handleRequest",
     joinGame   = "org.example.handlers.websocket.JoinGameHandler::handleRequest",
     makeMove   = "org.example.handlers.websocket.MakeMoveHandler::handleRequest",
+    resign     = "org.example.handlers.websocket.resign.ResignGameHandler::handleRequest"
   }
 }
 
