@@ -1,6 +1,5 @@
 package org.example.services;
 
-import chariot.*;
 import chariot.util.Board;
 import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
@@ -84,6 +83,46 @@ public class GameOverService {
     updateRatings();
   }
 
+  public GameOverService(
+      ResultReason resultReason, Game game, String losingPlayerId, SocketMessenger messenger)
+      throws InternalServerError {
+    this.gameDbService = new GameDbService();
+    this.game = game;
+
+    if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
+      gameDbService.deleteGame(game.getId());
+      return;
+    }
+
+    this.archiveService = ArchivedGameDbService.builder().build();
+    this.resultReason = resultReason;
+    this.losingPlayerId = losingPlayerId;
+    this.statsDbService = new StatsDbService();
+    this.socketMessenger = messenger;
+
+    Player player1 = game.getPlayers().get(0);
+    Player player2 = game.getPlayers().get(1);
+    if (player1.getPlayerId().equals(losingPlayerId)) {
+      this.winningPlayerId = player2.getPlayerId();
+      this.winningPlayerUsername = player2.getUsername();
+      this.losingPlayerUsername = player1.getUsername();
+    } else {
+      this.winningPlayerId = player1.getPlayerId();
+      this.winningPlayerUsername = player1.getUsername();
+      this.losingPlayerUsername = player2.getUsername();
+    }
+
+    this.winningPlayerStats = statsDbService.getStatsByUserID(winningPlayerId);
+    this.losingPlayerStats = statsDbService.getStatsByUserID(losingPlayerId);
+  }
+
+  public void endGame() throws InternalServerError {
+    emitOutcome();
+    updateGame();
+    updateRatings();
+    archiveGame();
+  }
+
   private boolean isGameOver(String FEN) {
     Board board = Board.fromFEN(game.getGameStateAsFen());
     return board.ended();
@@ -91,7 +130,7 @@ public class GameOverService {
 
   private void emitOutcome() throws InternalServerError {
     String messageJson =
-        new SocketResponseBody<GameOverMessageData>(
+        new SocketResponseBody<>(
                 Action.GAME_OVER,
                 new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
@@ -99,8 +138,8 @@ public class GameOverService {
   }
 
   public void archiveGame() {
-    archiveService.archiveGame(this.game, winningPlayerUsername);
-    System.out.println("Implement the archiveGame function!");
+    gameDbService.deleteGame(this.game.getId());
+    archiveService.archiveGame(this.game, winningPlayerUsername, resultReason);
   }
 
   // TODO : Send this game to a finished game collection

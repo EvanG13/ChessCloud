@@ -729,10 +729,6 @@ components:
       properties:
         resultReason:
           $ref: '#/components/schemas/ResultReason'
-        winner:
-          type: string
-          description: The player who won the game.
-          example: player1
         timeControl:
           $ref: '#/components/schemas/TimeControl'
         created:
