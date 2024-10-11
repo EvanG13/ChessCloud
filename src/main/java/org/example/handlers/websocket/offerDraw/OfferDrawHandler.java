@@ -6,9 +6,12 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import java.util.Map;
+
+import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.exceptions.NotFound;
+import org.example.models.requests.OfferDrawRequest;
+import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -34,19 +37,15 @@ public class OfferDrawHandler
 
     String playerOfferingDrawConnectionId = event.getRequestContext().getConnectionId();
 
-    Map<String, String> pathParams = event.getPathParameters();
-    if (pathParams == null) {
-      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Not path params");
-    }
-
-    String gameId = pathParams.get("gameId");
-    if (gameId == null) {
-      messenger.sendMessage(playerOfferingDrawConnectionId, "Missing gameId from path");
-      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing gameId from path");
+    OfferDrawRequest request = (new Gson()).fromJson(event.getBody(), OfferDrawRequest.class);
+    try {
+      ValidateObject.requireNonNull(request);
+    } catch (NullPointerException e) {
+      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
 
     try {
-      offerDrawService.offerDraw(gameId, playerOfferingDrawConnectionId);
+      offerDrawService.offerDraw(request.gameId(), playerOfferingDrawConnectionId);
     } catch (NotFound e) {
       messenger.sendMessage(playerOfferingDrawConnectionId, e.getMessage());
       return e.makeWebsocketResponse();
