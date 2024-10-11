@@ -4,7 +4,7 @@ get:
   x-amazon-apigateway-integration:
     type: "aws_proxy"
     httpMethod: "POST"
-    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:listArchivedGames/invocations"
+    uri: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:archivedGames/invocations"
   security:
     - bearerAuth: [ ]
   parameters:
@@ -17,7 +17,7 @@ get:
       required: false
       description: Specific game mode to retrieve games for (optional)
     - in: path
-      name: userId
+      name: userid
       description: Archived Game id
       required: false
       schema:

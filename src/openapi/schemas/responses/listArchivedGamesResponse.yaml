@@ -1,4 +1,4 @@
 type: array
 items:
-  description: "an archivedGame object WITHOUT the movelist property and with a numMoves field"
-  $ref: './ArchivedGameResponse.yaml'
+  description: "an archivedGame object WITHOUT the movelist property and without the rating of the game property"
+  $ref: './ArchivedGameCardResponse.yaml'

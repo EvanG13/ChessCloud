@@ -46,5 +46,5 @@ paths:
     $ref: '../resources/gameState.yaml'
   /archivedGame/{gameId}:
     $ref: '../resources/archivedGame.yaml'
-  /listArchivedGames/{userId}:
-    $ref: '../resources/listArchivedGamesResponse.yaml'
+  /archivedGames/{userid}:
+    $ref: '../resources/listArchivedGames.yaml'

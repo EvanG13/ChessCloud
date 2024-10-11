@@ -1,5 +1,6 @@
 package org.example.handlers.rest.getArchivedGame;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,6 @@ import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
