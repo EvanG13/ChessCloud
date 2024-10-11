@@ -35,19 +35,7 @@ public class ResignGameHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
 
-    String connectedId = event.getRequestContext().getConnectionId();
-
-    Map<String, String> pathParams = event.getPathParameters();
-    if (pathParams == null) {
-      messenger.sendMessage(connectedId, "Not path params");
-      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Not path params");
-    }
-
-    String gameId = pathParams.get("gameId");
-    if (gameId == null) {
-      messenger.sendMessage(connectedId, "Missing gameId as a path param");
-      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing gameId as a path param");
-    }
+    String connectionId = event.getRequestContext().getConnectionId();
 
     ResignRequest request = (new Gson()).fromJson(event.getBody(), ResignRequest.class);
     try {
@@ -57,7 +45,7 @@ public class ResignGameHandler
     }
 
     try {
-      resignGameService.resign(gameId, request.playerId(), messenger);
+      resignGameService.resign(request.gameId(), connectionId, messenger);
     } catch (StatusCodeException e) {
       return e.makeWebsocketResponse();
     }
