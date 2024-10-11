@@ -12,8 +12,10 @@ import lombok.NonNull;
 import org.bson.conversions.Bson;
 import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
+import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
+import org.example.exceptions.BadRequest;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
