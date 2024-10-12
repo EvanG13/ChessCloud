@@ -8,6 +8,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
@@ -18,6 +20,7 @@ import org.example.entities.user.UserDbService;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.offerDraw.OfferDrawHandler;
 import org.example.handlers.websocket.offerDraw.OfferDrawService;
+import org.example.models.requests.OfferDrawRequest;
 import org.example.utils.MockContext;
 import org.example.utils.socketMessenger.SocketMessenger;
 import org.example.utils.socketMessenger.SocketSystemLogger;
@@ -60,7 +63,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = players.getFirst().getPlayerId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setPathParameters(Map.of("gameId", game.getId()));
+    OfferDrawRequest request = new OfferDrawRequest(game.getId());
+    event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -74,13 +78,13 @@ public class OfferDrawHandlerTest {
   }
 
   @Test
-  public void checksValidPathParam() {
+  public void checksValidBody() {
     List<Player> players = game.getPlayers();
 
     String offeringPlayerConnectionId = players.getFirst().getPlayerId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setPathParameters(Map.of("nonsense", "nonexistinggame"));
+    event.setBody(new Gson().toJson(Map.of("nonsense", "nonexistinggame")));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
@@ -100,7 +104,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = players.getFirst().getPlayerId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setPathParameters(Map.of("gameId", "nonexistinggame"));
+    OfferDrawRequest request = new OfferDrawRequest("nonexistinggame");
+    event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
         new APIGatewayV2WebSocketEvent.RequestContext();
