@@ -1,7 +1,9 @@
 package org.example.entities.game;
 
 import com.mongodb.client.model.Filters;
+import java.util.List;
 import org.bson.conversions.Bson;
+import org.example.entities.player.Player;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
@@ -20,6 +22,16 @@ public class GameDbService {
     Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
 
     return gameDBUtility.get(filter).orElseThrow(() -> new NotFound("No game found for player"));
+  }
+
+  public String[] getConnectedIdsOffGame(String gameId) throws NotFound {
+    Game game = get(gameId);
+
+    List<Player> players = game.getPlayers();
+    Player playerOne = players.getFirst();
+    Player playerTwo = players.getLast();
+
+    return new String[] {playerOne.getConnectionId(), playerTwo.getConnectionId()};
   }
 
   public void deleteGame(String gameId) {

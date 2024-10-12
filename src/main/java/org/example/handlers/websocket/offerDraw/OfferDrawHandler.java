@@ -1,4 +1,4 @@
-package org.example.handlers.websocket.resign;
+package org.example.handlers.websocket.offerDraw;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
@@ -8,25 +8,25 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
-import org.example.exceptions.StatusCodeException;
-import org.example.models.requests.ResignRequest;
+import org.example.exceptions.NotFound;
+import org.example.models.requests.OfferDrawRequest;
 import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
-public class ResignGameHandler
+public class OfferDrawHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
-  private final ResignGameService resignGameService;
+  private final OfferDrawService offerDrawService;
   private final SocketMessenger messenger;
 
-  public ResignGameHandler() {
-    resignGameService = new ResignGameService();
+  public OfferDrawHandler() {
+    offerDrawService = new OfferDrawService();
     messenger = new SocketEmitter();
   }
 
-  public ResignGameHandler(ResignGameService resignGameService, SocketMessenger messenger) {
-    this.resignGameService = resignGameService;
+  public OfferDrawHandler(OfferDrawService offerDrawService, SocketMessenger messenger) {
+    this.offerDrawService = offerDrawService;
     this.messenger = messenger;
   }
 
@@ -34,9 +34,9 @@ public class ResignGameHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
 
-    String connectionId = event.getRequestContext().getConnectionId();
+    String playerOfferingDrawConnectionId = event.getRequestContext().getConnectionId();
 
-    ResignRequest request = (new Gson()).fromJson(event.getBody(), ResignRequest.class);
+    OfferDrawRequest request = (new Gson()).fromJson(event.getBody(), OfferDrawRequest.class);
     try {
       ValidateObject.requireNonNull(request);
     } catch (NullPointerException e) {
@@ -44,11 +44,12 @@ public class ResignGameHandler
     }
 
     try {
-      resignGameService.resign(request.gameId(), connectionId, messenger);
-    } catch (StatusCodeException e) {
+      offerDrawService.offerDraw(request.gameId(), playerOfferingDrawConnectionId);
+    } catch (NotFound e) {
+      messenger.sendMessage(playerOfferingDrawConnectionId, e.getMessage());
       return e.makeWebsocketResponse();
     }
 
-    return makeWebsocketResponse(StatusCodes.OK, "Successfully Resigned");
+    return makeWebsocketResponse(StatusCodes.OK, "Successfully offered a draw");
   }
 }
