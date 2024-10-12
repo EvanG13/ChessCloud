@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
-import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.exceptions.StatusCodeException;
 import org.example.models.requests.ResignRequest;

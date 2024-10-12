@@ -28,12 +28,13 @@ public class ResignGameService {
       throw new NotFound("No Game found with id " + gameId);
     }
 
-    Player resigningPlayer = game.getPlayers()
-        .stream()
-        .filter(player -> player.getConnectionId().equals(connectionId))
-        .findFirst()
-        .orElseThrow(() -> new Unauthorized("Your connection ID is not bound to this game"));
-    // or Forbidden (or something) because if not found among the two players, that should mean they aren't in the game?
+    Player resigningPlayer =
+        game.getPlayers().stream()
+            .filter(player -> player.getConnectionId().equals(connectionId))
+            .findFirst()
+            .orElseThrow(() -> new Unauthorized("Your connection ID is not bound to this game"));
+    // or Forbidden (or something) because if not found among the two players, that should mean they
+    // aren't in the game?
 
     GameOverService service =
         new GameOverService(ResultReason.FORFEIT, game, resigningPlayer.getPlayerId(), messenger);
