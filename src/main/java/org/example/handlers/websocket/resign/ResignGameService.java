@@ -35,7 +35,7 @@ public class ResignGameService {
     // or Forbidden (or something) because if not found among the two players, that should mean they aren't in the game?
 
     GameOverService service =
-        new GameOverService(ResultReason.FORFEIT, game, resigningPlayer.getConnectionId(), messenger);
+        new GameOverService(ResultReason.FORFEIT, game, resigningPlayer.getPlayerId(), messenger);
 
     service.endGame();
   }
