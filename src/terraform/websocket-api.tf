@@ -125,6 +125,8 @@ resource "aws_lambda_permission" "lambda_ws_permission" {
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
   source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/${var.stage_name}/${local.route_keys[each.key]}"
+
+  depends_on = [aws_lambda_function.websocket_lambda_functions]
 }
 
 resource "aws_lambda_permission" "connect_lambda_permission" {
@@ -136,6 +138,8 @@ resource "aws_lambda_permission" "connect_lambda_permission" {
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
   source_arn = "${aws_apigatewayv2_api.chess-websocket.execution_arn}/${var.stage_name}/$connect"
+
+  depends_on = [aws_lambda_function.websocket_connect_lambda]
 }
 
 

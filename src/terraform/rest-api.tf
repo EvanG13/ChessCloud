@@ -36,6 +36,8 @@ resource "aws_lambda_permission" "lambda_permission" {
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
   source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
+
+  depends_on = [aws_lambda_function.lambda_functions]
 }
 
 resource "aws_api_gateway_usage_plan" "usage_plan" {
