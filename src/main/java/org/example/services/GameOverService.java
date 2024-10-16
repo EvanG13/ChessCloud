@@ -166,7 +166,7 @@ public class GameOverService {
         losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
       }
       // Game was a draw
-      case REPETITION, INSUFFICIENT_MATERIAL -> {
+      case MUTUAL_DRAW, REPETITION, INSUFFICIENT_MATERIAL -> {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
       }

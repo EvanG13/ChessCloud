@@ -10,6 +10,7 @@ public enum ResultReason {
   TIMEOUT("win by opponent running out of time"),
   CHECKMATE("win by checkmate"),
 
+  MUTUAL_DRAW("draw by mutual agreement"),
   REPETITION("draw by repetition"),
   INSUFFICIENT_MATERIAL("draw by insufficient material");
 
