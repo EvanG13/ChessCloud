@@ -27,7 +27,7 @@ public class GameOverMessageData extends SocketMessageData {
       case FORFEIT, TIMEOUT, CHECKMATE ->
           this.displayMessage =
               String.format("%s won! Reason: %s", winnerUsername, resultReason.getMessage());
-      case REPETITION, INSUFFICIENT_MATERIAL ->
+      case MUTUAL_DRAW, REPETITION, INSUFFICIENT_MATERIAL ->
           this.displayMessage = String.format("Draw! Reason: %s", resultReason.getMessage());
       default -> throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
