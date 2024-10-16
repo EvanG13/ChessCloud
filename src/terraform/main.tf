@@ -10,6 +10,12 @@ terraform {
     }
   }
 
+  backend "s3" {
+    bucket = "tf-state-guinea-pig"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+  }
+
   required_version = ">= 1.7.5"
 }
 
