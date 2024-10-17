@@ -35,13 +35,13 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt -check -chdir=src/terraform
         continue-on-error: false
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -chdir=src/terraform
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -chdir=src/terraform
