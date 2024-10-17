@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 112-ci-deploy-on-merge
 
 jobs:
   deploy:
