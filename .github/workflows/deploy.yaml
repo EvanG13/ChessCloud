@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Set up Amazon Corretto 21 JDK with Maven dependency caching
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Add profile credentials to ~/.aws/credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile default
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile default
+          aws configure set region ${{ secrets.AWS_REGION }} --profile defualt
+
+      - name: Terraform fmt
+        id: fmt
+        run: |
+          cd src/terraform
+          terraform fmt -check
+        continue-on-error: false
+
+      - name: Terraform Init
+        id: init
+        run: |
+          cd src/terraform
+          terraform init
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          cd src/terraform
+          terraform apply -auto-approve
