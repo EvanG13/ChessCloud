@@ -274,10 +274,12 @@ public class MakeMoveHandlerTest {
         new MakeMoveMessageData(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
             Arrays.asList(moveOne),
-            false, 299, 300);
+            false,
+            299,
+            300);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-            assertEquals(expectedResponse.toJSON(), response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -361,10 +363,12 @@ public class MakeMoveHandlerTest {
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
             Arrays.asList(moveOne, moveTwo),
-            true, 299, 299);
+            true,
+            299,
+            299);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-        assertEquals(expectedResponse.toJSON(), response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -400,10 +404,12 @@ public class MakeMoveHandlerTest {
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
             Arrays.asList(moveOne, moveTwo, moveThree),
-            false, 298, 299);
+            false,
+            298,
+            299);
 
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-            assertEquals(expectedResponse.toJSON(), response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 }
