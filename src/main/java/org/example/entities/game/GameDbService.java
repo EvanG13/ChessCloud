@@ -34,6 +34,16 @@ public class GameDbService {
     return new String[] {playerOne.getConnectionId(), playerTwo.getConnectionId()};
   }
 
+  public boolean isConnectionIdInGame(String gameId, String connectionId) throws NotFound {
+    Game game = get(gameId);
+
+    for (Player player : game.getPlayers())
+      if (player.getConnectionId().equals(connectionId))
+        return true;
+
+    return false;
+  }
+
   public void deleteGame(String gameId) {
     gameDBUtility.delete(gameId);
   }
