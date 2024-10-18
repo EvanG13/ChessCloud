@@ -2,7 +2,7 @@
 @echo off
 call mvn clean package -DskipTests
 call cd src/terraform
-echo yes | call terraform apply
+call terraform apply -auto-approve
 call cd ../..
 
 
