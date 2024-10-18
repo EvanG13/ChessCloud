@@ -119,7 +119,11 @@ public class MakeMoveHandler
     String[] connectionIds = service.getPlayerConnectionIds(game);
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            game.getGameStateAsFen(), game.getMoveList(), game.getIsWhitesTurn(), remainingTimes.get("white"), remainingTimes.get("black"));
+            game.getGameStateAsFen(),
+            game.getMoveList(),
+            game.getIsWhitesTurn(),
+            remainingTimes.get("white"),
+            remainingTimes.get("black"));
     SocketResponseBody<MakeMoveMessageData> responseBody =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());

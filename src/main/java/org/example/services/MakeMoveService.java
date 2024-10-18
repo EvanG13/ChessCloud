@@ -87,20 +87,21 @@ public class MakeMoveService {
     board = board.play(moveUCI);
     Date lastModified = game.getLastModified();
 
-    long t = ((time.getTime() - lastModified.getTime())) / 1000; //convert to seconds from millis
+    long t = ((time.getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis
 
-    Move move = Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration((int) Math.max(t, 1)).build();
+    Move move =
+        Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration((int) Math.max(t, 1)).build();
 
     List<Player> updatedPlayers = game.getPlayers();
     Player activePlayer;
     boolean isWhiteTurn = game.getIsWhitesTurn();
-    if( (updatedPlayers.getFirst().getIsWhite() && isWhiteTurn) || (!updatedPlayers.getFirst().getIsWhite() && !isWhiteTurn) ){
+    if ((updatedPlayers.getFirst().getIsWhite() && isWhiteTurn)
+        || (!updatedPlayers.getFirst().getIsWhite() && !isWhiteTurn)) {
       activePlayer = game.getPlayers().getFirst();
-    }
-    else{
+    } else {
       activePlayer = game.getPlayers().getLast();
     }
-    activePlayer.setRemainingTime( activePlayer.getRemainingTime() - move.getDuration());
+    activePlayer.setRemainingTime(activePlayer.getRemainingTime() - move.getDuration());
     String updatedGameFen = board.toStandardFEN();
     gameDbService.patch(
         game.getId(),
@@ -122,16 +123,15 @@ public class MakeMoveService {
     List<Player> players = game.getPlayers();
     Player whitePlayer;
     Player blackPlayer;
-    if(players.getFirst().getIsWhite()){
+    if (players.getFirst().getIsWhite()) {
       whitePlayer = players.getFirst();
       blackPlayer = players.getLast();
-    }
-    else{
+    } else {
       whitePlayer = players.getLast();
       blackPlayer = players.getFirst();
     }
     int whiteTime = whitePlayer.getRemainingTime();
     int blackTime = blackPlayer.getRemainingTime();
-    return Map.of("white", whiteTime, "black", blackTime );
+    return Map.of("white", whiteTime, "black", blackTime);
   }
 }
