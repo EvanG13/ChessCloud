@@ -10,6 +10,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
 import java.util.Date;
+import java.util.Map;
+
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.enums.Action;
@@ -113,11 +115,11 @@ public class MakeMoveHandler
       return e.makeWebsocketResponse();
     }
 
-    // TODO update the clock
+    Map<String, Integer> remainingTimes = service.getRemainingTimes(game);
     String[] connectionIds = service.getPlayerConnectionIds(game);
     MakeMoveMessageData data =
         new MakeMoveMessageData(
-            game.getGameStateAsFen(), game.getMoveList(), game.getIsWhitesTurn());
+            game.getGameStateAsFen(), game.getMoveList(), game.getIsWhitesTurn(), remainingTimes.get("white"), remainingTimes.get("black"));
     SocketResponseBody<MakeMoveMessageData> responseBody =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
