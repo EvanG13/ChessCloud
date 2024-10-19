@@ -4,6 +4,8 @@ import chariot.util.Board;
 import com.mongodb.client.model.Updates;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
@@ -85,9 +87,21 @@ public class MakeMoveService {
     board = board.play(moveUCI);
     Date lastModified = game.getLastModified();
 
-    int t = (int) (time.getTime() - lastModified.getTime());
-    Move move = Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration(Math.max(t, 0)).build();
+    long t = ((time.getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis
 
+    Move move =
+        Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration((int) Math.max(t, 1)).build();
+
+    List<Player> updatedPlayers = game.getPlayers();
+    Player activePlayer;
+    boolean isWhiteTurn = game.getIsWhitesTurn();
+    if ((updatedPlayers.getFirst().getIsWhite() && isWhiteTurn)
+        || (!updatedPlayers.getFirst().getIsWhite() && !isWhiteTurn)) {
+      activePlayer = game.getPlayers().getFirst();
+    } else {
+      activePlayer = game.getPlayers().getLast();
+    }
+    activePlayer.setRemainingTime(activePlayer.getRemainingTime() - move.getDuration());
     String updatedGameFen = board.toStandardFEN();
     gameDbService.patch(
         game.getId(),
@@ -95,6 +109,7 @@ public class MakeMoveService {
             Updates.set("gameStateAsFen", updatedGameFen),
             Updates.set("isWhitesTurn", !game.getIsWhitesTurn()),
             Updates.set("lastModified", time),
+            Updates.set("players", updatedPlayers),
             Updates.push("moveList", move)));
 
     game.getMoveList().add(move);
@@ -102,5 +117,21 @@ public class MakeMoveService {
     game.setIsWhitesTurn(!game.getIsWhitesTurn());
 
     return game;
+  }
+
+  public Map<String, Integer> getRemainingTimes(Game game) {
+    List<Player> players = game.getPlayers();
+    Player whitePlayer;
+    Player blackPlayer;
+    if (players.getFirst().getIsWhite()) {
+      whitePlayer = players.getFirst();
+      blackPlayer = players.getLast();
+    } else {
+      whitePlayer = players.getLast();
+      blackPlayer = players.getFirst();
+    }
+    int whiteTime = whitePlayer.getRemainingTime();
+    int blackTime = blackPlayer.getRemainingTime();
+    return Map.of("white", whiteTime, "black", blackTime);
   }
 }

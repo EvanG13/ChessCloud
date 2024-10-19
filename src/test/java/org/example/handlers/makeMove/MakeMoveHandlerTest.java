@@ -259,7 +259,7 @@ public class MakeMoveHandlerTest {
         new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(0);
+    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
 
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
@@ -269,15 +269,17 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
             Arrays.asList(moveOne),
-            false);
+            false,
+            299,
+            300);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-    //        assertEquals(expectedResponse.toJSON(), response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -345,7 +347,7 @@ public class MakeMoveHandlerTest {
         new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId2);
     requestContext.setRouteKey("makeMove");
-
+    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondMove).build();
@@ -354,17 +356,19 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
 
-    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(1).build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
             Arrays.asList(moveOne, moveTwo),
-            true);
+            true,
+            299,
+            299);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-    //    assertEquals(expectedResponse.toJSON(), response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
   @Test
@@ -381,7 +385,7 @@ public class MakeMoveHandlerTest {
         new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
-
+    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
@@ -390,20 +394,22 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(0).build();
+    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
 
-    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(0).build();
+    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(1).build();
 
-    Move moveThree = Move.builder().moveAsUCI("e4d5").moveAsSan("exd5").duration(0).build();
+    Move moveThree = Move.builder().moveAsUCI("e4d5").moveAsSan("exd5").duration(1).build();
 
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
             Arrays.asList(moveOne, moveTwo, moveThree),
-            false);
+            false,
+            298,
+            299);
 
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
         new SocketResponseBody<>(Action.MOVE_MADE, data);
-    //        assertEquals(expectedResponse, response.getBody());
+    assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 }
