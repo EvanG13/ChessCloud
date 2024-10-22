@@ -32,7 +32,7 @@ public class OfferDrawService {
     return gameDbService.isConnectionIdInGame(gameId, connectionId);
   }
 
-  public void offerDraw(String gameId, String playerOfferingDrawConnectionId) throws NotFound {
+  public void offerDraw(String gameId, String playerOfferingDrawConnectionId) throws NotFound, BadRequest {
     Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
@@ -42,10 +42,16 @@ public class OfferDrawService {
     // Get other player
     String opponentConnectionId;
     if (player1.getConnectionId().equals(playerOfferingDrawConnectionId)) {
+      if (player2.getWantsDraw())
+        throw new BadRequest("Opponent already issued a draw offer");
+
       player1.setWantsDraw(true);
       opponentConnectionId = player2.getConnectionId();
     }
     else {
+      if (player1.getWantsDraw())
+        throw new BadRequest("Opponent already issued a draw offer");
+
       player2.setWantsDraw(true);
       opponentConnectionId = player1.getConnectionId();
     }
