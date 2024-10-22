@@ -7,14 +7,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
-import java.util.List;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
-import org.example.entities.player.Player;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
@@ -321,6 +319,7 @@ public class OfferDrawHandlerTest {
     statsDbService.deleteStats(userOne.getId());
     statsDbService.deleteStats(userTwo.getId());
 
-    archivedGameDbService.deleteArchivedGame(game.getId());
+    gameDbService.deleteGame(game.getId());                 // if tests error midway
+    archivedGameDbService.deleteArchivedGame(game.getId()); // if tests didn't error
   }
 }
