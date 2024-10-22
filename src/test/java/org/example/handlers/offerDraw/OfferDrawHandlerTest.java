@@ -59,8 +59,98 @@ public class OfferDrawHandlerTest {
   }
 
   @Test
-  @DisplayName("Player 1 offers draw")
+  @DisplayName("Player 1 tries to cancel nonexistent offer")
   @Order(1)
+  public void cantCancelOfferDraw() {
+    // Player 1
+    String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
+    event.setBody(new Gson().toJson(request));
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+    requestContext.setConnectionId(offeringPlayerConnectionId);
+    requestContext.setRouteKey("offerDraw");
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+
+    try {
+      Game gameActual = gameDbService.get(game.getId());
+
+      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+    } catch (Exception e) {
+      fail("Game was not retrieved properly");
+    }
+  }
+
+  @Test
+  @DisplayName("Player 1 tries to deny nonexistent offer")
+  @Order(2)
+  public void cantDenyOfferDraw() {
+    // Player 1
+    String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
+    event.setBody(new Gson().toJson(request));
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+    requestContext.setConnectionId(offeringPlayerConnectionId);
+    requestContext.setRouteKey("offerDraw");
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+
+    try {
+      Game gameActual = gameDbService.get(game.getId());
+
+      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+    } catch (Exception e) {
+      fail("Game was not retrieved properly");
+    }
+  }
+
+  @Test
+  @DisplayName("Player 1 tries to accept nonexistent offer")
+  @Order(3)
+  public void cantAcceptOfferDraw() {
+    // Player 1
+    String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+    event.setBody(new Gson().toJson(request));
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+    requestContext.setConnectionId(offeringPlayerConnectionId);
+    requestContext.setRouteKey("offerDraw");
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+
+    try {
+      Game gameActual = gameDbService.get(game.getId());
+
+      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+    } catch (Exception e) {
+      fail("Game was not retrieved properly");
+    }
+  }
+
+  @Test
+  @DisplayName("Player 1 offers draw")
+  @Order(4)
   public void canOfferDraw() {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
@@ -89,8 +179,38 @@ public class OfferDrawHandlerTest {
   }
 
   @Test
+  @DisplayName("Player 2 tries to offer draw")
+  @Order(5)
+  public void cantOfferWhileOffered() {
+    // Player 2
+    String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+    event.setBody(new Gson().toJson(request));
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+    requestContext.setConnectionId(offeringPlayerConnectionId);
+    requestContext.setRouteKey("offerDraw");
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+
+    try {
+      Game gameActual = gameDbService.get(game.getId());
+
+      assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered to draw
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
+    } catch (Exception e) {
+      fail("Game was not retrieved properly");
+    }
+  }
+
+  @Test
   @DisplayName("Player 1 cancels draw offer")
-  @Order(2)
+  @Order(6)
   public void canCancelOfferDraw() {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
@@ -120,7 +240,7 @@ public class OfferDrawHandlerTest {
 
   @Test
   @DisplayName("Player 2 offers draw")
-  @Order(3)
+  @Order(7)
   public void canOfferDraw2() {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
@@ -150,7 +270,7 @@ public class OfferDrawHandlerTest {
 
   @Test
   @DisplayName("Player 2 tries to accept their own draw offer")
-  @Order(4)
+  @Order(8)
   public void checkPlayerStartingOfferCantAccept() {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
@@ -180,7 +300,7 @@ public class OfferDrawHandlerTest {
 
   @Test
   @DisplayName("Player 1 denies draw offer")
-  @Order(5)
+  @Order(9)
   public void canDenyDraw() {
     // Player 1
     String denyingPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
@@ -210,7 +330,7 @@ public class OfferDrawHandlerTest {
 
   @Test
   @DisplayName("Player 1 offers draw")
-  @Order(6)
+  @Order(10)
   public void canOfferDraw3() {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
@@ -240,7 +360,7 @@ public class OfferDrawHandlerTest {
 
   @Test
   @DisplayName("Player 2 accepts draw")
-  @Order(7)
+  @Order(11)
   public void canAcceptDraw() {
     // Player 2
     String acceptingPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
