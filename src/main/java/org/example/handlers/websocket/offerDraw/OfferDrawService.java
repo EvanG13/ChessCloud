@@ -85,9 +85,6 @@ public class OfferDrawService {
       opponentConnectionId = player1.getConnectionId();
     }
 
-    if (!playerCanceling.getWantsDraw())
-      throw new BadRequest("No offer to cancel");
-
     // Update game
     playerCanceling.setWantsDraw(false);
     gameDbService.put(gameId, game);
@@ -138,16 +135,24 @@ public class OfferDrawService {
   public void acceptDraw(String gameId, String playerAcceptDrawConnectionId) throws NotFound, InternalServerError, BadRequest {
     Game game = gameDbService.get(gameId);
 
-    Player playerAccepted =
-        game.getPlayers().stream()
-            .filter(player -> player.getConnectionId().equals(playerAcceptDrawConnectionId))
-            .findFirst()
-            .get();
+    List<Player> players = game.getPlayers();
+    Player player1 = players.get(0);
+    Player player2 = players.get(1);
 
-    if (!game.getPlayers().getFirst().getWantsDraw() || !game.getPlayers().getLast().getWantsDraw())
-      throw new BadRequest("You cannot accept your own draw offer");
+    if (!player1.getWantsDraw() && !player2.getWantsDraw())
+      throw new BadRequest("No draw offer to accept");
 
-    GameOverService service = new GameOverService(ResultReason.MUTUAL_DRAW, game, playerAccepted.getPlayerId(), messenger);
+    if (player1.getConnectionId().equals(playerAcceptDrawConnectionId)) {
+      if (player1.getWantsDraw())
+        throw new BadRequest("You cannot accept your own draw offer");
+    }
+    else {
+      if (player2.getWantsDraw())
+        throw new BadRequest("You cannot accept your own draw offer");
+    }
+
+    // Draw offer accepted, initiate game over
+    GameOverService service = new GameOverService(ResultReason.MUTUAL_DRAW, game, player1.getPlayerId(), messenger);
     service.endGame();
   }
 }
