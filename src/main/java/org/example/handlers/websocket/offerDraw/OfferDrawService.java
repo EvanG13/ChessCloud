@@ -11,7 +11,9 @@ import org.example.enums.ResultReason;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
-import org.example.models.responses.websocket.OfferDrawMessageData;
+import org.example.models.responses.websocket.draw.CancelDrawMessageData;
+import org.example.models.responses.websocket.draw.DenyDrawMessageData;
+import org.example.models.responses.websocket.draw.OfferDrawMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.GameOverService;
 import org.example.utils.socketMessenger.SocketEmitter;
@@ -54,27 +56,47 @@ public class OfferDrawService {
     // Send draw offer to other player
     OfferDrawMessageData messageData = new OfferDrawMessageData();
     SocketResponseBody<OfferDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.OFFER_DRAW, messageData);
+        new SocketResponseBody<>(Action.DRAW_OFFER, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void cancelDraw(String gameId, String playerCancelConnectionId) throws NotFound {
+  public void cancelDraw(String gameId, String playerCancelConnectionId) throws NotFound, BadRequest {
     Game game = gameDbService.get(gameId);
 
-    Player playerCanceling =
-        game.getPlayers().stream()
-            .filter(player -> player.getConnectionId().equals(playerCancelConnectionId))
-            .findFirst()
-            .get();
+    List<Player> players = game.getPlayers();
+    Player player1 = players.get(0);
+    Player player2 = players.get(1);
 
-    // do nothing if no offer exists to cancel
-    if (!playerCanceling.getWantsDraw()) return;
+    // Get other player
+    Player playerCanceling;
+    String opponentConnectionId;
+    if (player1.getConnectionId().equals(playerCancelConnectionId)) {
+      if (!player1.getWantsDraw())
+        throw new BadRequest("You didn't make an offer to cancel");
+
+      playerCanceling = player1;
+      opponentConnectionId = player2.getConnectionId();
+    }
+    else {
+      if (!player2.getWantsDraw())
+        throw new BadRequest("You didn't make an offer to cancel");
+
+      playerCanceling = player2;
+      opponentConnectionId = player1.getConnectionId();
+    }
+
+    if (!playerCanceling.getWantsDraw())
+      throw new BadRequest("No offer to cancel");
 
     // Update game
     playerCanceling.setWantsDraw(false);
     gameDbService.put(gameId, game);
 
-    // TODO: inform the other person it was canceled
+    // Inform the other person offer was canceled
+    CancelDrawMessageData messageData = new CancelDrawMessageData();
+    SocketResponseBody<CancelDrawMessageData> responseBody =
+        new SocketResponseBody<>(Action.DRAW_CANCEL, messageData);
+    messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
   public void denyDraw(String gameId, String playerDeniedDrawConnectionId) throws NotFound, InternalServerError, BadRequest {
@@ -88,7 +110,7 @@ public class OfferDrawService {
     String opponentConnectionId;
     if (player1.getConnectionId().equals(playerDeniedDrawConnectionId)) {
       if (!player2.getWantsDraw())
-        throw new BadRequest("No offer to deny"); // maybe check if they have a current offer and cancel it
+        throw new BadRequest("Opponent has not offered a draw");
 
       player1.setWantsDraw(false);
       player2.setWantsDraw(false);
@@ -96,7 +118,7 @@ public class OfferDrawService {
     }
     else {
       if (!player1.getWantsDraw())
-        throw new BadRequest("No offer to deny"); // maybe check if they have a current offer and cancel it
+        throw new BadRequest("Opponent has not offered a draw");
 
       player2.setWantsDraw(false);
       player1.setWantsDraw(false);
@@ -107,10 +129,9 @@ public class OfferDrawService {
     gameDbService.put(gameId, game);
 
     // Send draw deny response to other player
-    // TODO: tell person that offered that their offer was rejected
-    OfferDrawMessageData messageData = new OfferDrawMessageData();
-    SocketResponseBody<OfferDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.OFFER_DRAW, messageData);
+    DenyDrawMessageData messageData = new DenyDrawMessageData();
+    SocketResponseBody<DenyDrawMessageData> responseBody =
+        new SocketResponseBody<>(Action.DRAW_DENY, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
@@ -123,10 +144,8 @@ public class OfferDrawService {
             .findFirst()
             .get();
 
-    playerAccepted.setWantsDraw(true);
-
     if (!game.getPlayers().getFirst().getWantsDraw() || !game.getPlayers().getLast().getWantsDraw())
-      throw new BadRequest("You are the only player to want to draw!");
+      throw new BadRequest("You cannot accept your own draw offer");
 
     GameOverService service = new GameOverService(ResultReason.MUTUAL_DRAW, game, playerAccepted.getPlayerId(), messenger);
     service.endGame();
