@@ -26,6 +26,12 @@ public class RegisterService {
     return user.isPresent();
   }
 
+  public boolean doesUsernameExist(String username) {
+    Optional<User> user = userDBUtility.get(eq("username", username));
+
+    return user.isPresent();
+  }
+
   public void registerUser(RegisterRequest data) {
     User newUser =
         User.builder()

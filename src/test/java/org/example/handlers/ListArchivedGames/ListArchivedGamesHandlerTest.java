@@ -69,7 +69,7 @@ public class ListArchivedGamesHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
     Map<String, String> pathParams = new HashMap<>();
-    pathParams.put("userId", "id1");
+    pathParams.put("username", "user1");
     Map<String, String> headerMap = new HashMap<>();
     headerMap.put("userid", "id1");
     event.setPathParameters(pathParams);
@@ -86,7 +86,7 @@ public class ListArchivedGamesHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
     Map<String, String> pathParams = new HashMap<>();
-    pathParams.put("userId", "id1");
+    pathParams.put("username", "id1");
     Map<String, String> queryParams = new HashMap<>();
     queryParams.put("timeControl", String.valueOf(TimeControl.BLITZ_5));
     event.setPathParameters(pathParams);
@@ -98,24 +98,37 @@ public class ListArchivedGamesHandlerTest {
     assertEquals(expectedWithOneGame.toJSON(), actual);
   }
 
+  //  @Test
+  //  public void missingPathParamsUseHeadersInstead() {
+  //    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+  //    Map<String, String> headerMap = new HashMap<>();
+  //    headerMap.put("userid", "id2");
+  //    event.setHeaders(headerMap);
+  //    APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
+  //    assertEquals(StatusCodes.OK, response.getStatusCode());
+  //    String actual = response.getBody();
+  //    assertEquals(expectedWithTwoGames.toJSON(), actual);
+  //  }
+
   @Test
-  public void missingPathParamsUseHeadersInstead() {
+  public void missingPathParamsSendsBADREQUEST() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
     Map<String, String> headerMap = new HashMap<>();
     headerMap.put("userid", "id2");
     event.setHeaders(headerMap);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-    String actual = response.getBody();
-    assertEquals(expectedWithTwoGames.toJSON(), actual);
+    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @Test
   public void userWithNoArchivedGamesReturnsEmpty() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    Map<String, String> path = new HashMap<>();
+    path.put("username", "user3");
     Map<String, String> headerMap = new HashMap<>();
     headerMap.put("userid", "new-user");
     event.setHeaders(headerMap);
+    event.setPathParameters(path);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
     String actual = response.getBody();
@@ -125,9 +138,12 @@ public class ListArchivedGamesHandlerTest {
   @Test
   public void invalidQueryParams() {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    Map<String, String> path = new HashMap<>();
+    path.put("username", "user1");
     Map<String, String> map = new HashMap<>();
     map.put("fdsaf", "invalid-queryParamKey!");
     event.setQueryStringParameters(map);
+    event.setPathParameters(path);
     Map<String, String> headerMap = Map.of("userid", "id1");
     event.setHeaders(headerMap);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());

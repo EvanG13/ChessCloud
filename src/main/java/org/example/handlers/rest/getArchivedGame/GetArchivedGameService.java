@@ -21,8 +21,8 @@ public class GetArchivedGameService {
     return archivedGameDbService.getArchivedGame(gameId);
   }
 
-  List<ArchivedGame> getArchivedGames(String userId, TimeControl timeControl) {
-    if (timeControl == null) return archivedGameDbService.listArchivedGames(userId);
-    return archivedGameDbService.listArchivedGames(userId, timeControl);
+  List<ArchivedGame> getArchivedGames(String username, TimeControl timeControl) {
+    if (timeControl == null) return archivedGameDbService.listArchivedGames(username);
+    return archivedGameDbService.listArchivedGames(username, timeControl);
   }
 }

@@ -30,10 +30,10 @@ public class ListArchivedGamesHandler
   public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     Map<String, String> pathParams = event.getPathParameters();
     Map<String, String> queryMap = event.getQueryStringParameters();
-    String userId = pathParams != null ? pathParams.get("userId") : null;
+    String username = pathParams != null ? pathParams.get("username") : null;
 
-    if (userId == null) {
-      userId = event.getHeaders().get("userid");
+    if (username == null) {
+      return makeHttpResponse(StatusCodes.BAD_REQUEST, "Bad path param. Expected username");
     }
 
     TimeControl timeControl = null;
@@ -52,7 +52,7 @@ public class ListArchivedGamesHandler
       }
     }
 
-    List<ArchivedGame> archivedGames = service.getArchivedGames(userId, timeControl);
+    List<ArchivedGame> archivedGames = service.getArchivedGames(username, timeControl);
     ListArchivedGamesResponse res = new ListArchivedGamesResponse(archivedGames);
     return makeHttpResponse(StatusCodes.OK, res.toJSON());
   }

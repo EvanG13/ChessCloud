@@ -73,8 +73,8 @@ public class ArchivedGameDbService {
             Filters.elemMatch("players", Filters.eq("playerId", userId))));
   }
 
-  public List<ArchivedGame> listArchivedGames(String userId) {
-    Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
+  public List<ArchivedGame> listArchivedGames(String username) {
+    Bson filter = Filters.elemMatch("players", Filters.eq("username", username));
     return archivedGameDbUtility.list(filter);
   }
 

@@ -620,7 +620,7 @@ paths:
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
                 application/json: {}
-  /archivedGames/{userid}:
+  /archivedGames/{username}:
     get:
       summary: list archived games
       description: array of archivedGame objects without the moveList field
@@ -642,10 +642,10 @@ paths:
         required: false
         schema:
           type: string
-      - name: userid
+      - name: username
         in: path
-        description: Archived Game id
-        required: false
+        description: username
+        required: true
         schema:
           type: string
       responses:
