@@ -66,7 +66,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -82,7 +83,7 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -96,7 +97,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -112,7 +114,7 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -126,7 +128,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -142,7 +145,7 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: nothing
+      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -156,7 +159,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -172,7 +176,8 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered to draw
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
+      assertFalse(
+          gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -186,7 +191,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -202,7 +208,8 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered to draw
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
+      assertFalse(
+          gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -216,7 +223,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -232,7 +240,11 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: canceled offer
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: reset before they could respond
+      assertFalse(
+          gameActual
+              .getPlayers()
+              .getLast()
+              .getWantsDraw()); // Player 2: reset before they could respond
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -246,7 +258,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -261,8 +274,9 @@ public class OfferDrawHandlerTest {
     try {
       Game gameActual = gameDbService.get(game.getId());
 
-      assertTrue(gameActual.getPlayers().getLast().getWantsDraw());   // Player 2: made offer to draw
-      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: waiting for response
+      assertTrue(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: made offer to draw
+      assertFalse(
+          gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: waiting for response
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -276,7 +290,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -291,8 +306,16 @@ public class OfferDrawHandlerTest {
     try {
       Game gameActual = gameDbService.get(game.getId());
 
-      assertTrue(gameActual.getPlayers().getLast().getWantsDraw());   // Player 2: no change, tried to accept their own offer
-      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: waiting for response still
+      assertTrue(
+          gameActual
+              .getPlayers()
+              .getLast()
+              .getWantsDraw()); // Player 2: no change, tried to accept their own offer
+      assertFalse(
+          gameActual
+              .getPlayers()
+              .getFirst()
+              .getWantsDraw()); // Player 1: waiting for response still
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -306,7 +329,8 @@ public class OfferDrawHandlerTest {
     String denyingPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -321,8 +345,16 @@ public class OfferDrawHandlerTest {
     try {
       Game gameActual = gameDbService.get(game.getId());
 
-      assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: reset because Player 1 rejected
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw());  // Player 2: reset because Player 1 rejected
+      assertFalse(
+          gameActual
+              .getPlayers()
+              .getFirst()
+              .getWantsDraw()); // Player 1: reset because Player 1 rejected
+      assertFalse(
+          gameActual
+              .getPlayers()
+              .getLast()
+              .getWantsDraw()); // Player 2: reset because Player 1 rejected
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -336,7 +368,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -352,7 +385,8 @@ public class OfferDrawHandlerTest {
       Game gameActual = gameDbService.get(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered
-      assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
+      assertFalse(
+          gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: waiting for response
     } catch (Exception e) {
       fail("Game was not retrieved properly");
     }
@@ -366,7 +400,8 @@ public class OfferDrawHandlerTest {
     String acceptingPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -417,7 +452,8 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest("nonexistinggame", "offer"); // TODO: change action to something else
+    OfferDrawRequest request =
+        new OfferDrawRequest("nonexistinggame", "offer"); // TODO: change action to something else
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -439,7 +475,7 @@ public class OfferDrawHandlerTest {
     statsDbService.deleteStats(userOne.getId());
     statsDbService.deleteStats(userTwo.getId());
 
-    gameDbService.deleteGame(game.getId());                 // if tests error midway
+    gameDbService.deleteGame(game.getId()); // if tests error midway
     archivedGameDbService.deleteArchivedGame(game.getId()); // if tests didn't error
   }
 }

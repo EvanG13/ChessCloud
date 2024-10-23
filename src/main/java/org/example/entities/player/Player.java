@@ -18,15 +18,28 @@ public class Player extends BasePlayer {
 
   @Override
   public String toString() {
-    return "Player{" +
-        "playerId='" + playerId + "', " +
-        "username='" + username + "', " +
-        "connectionId='" + connectionId + "', " +
-        "rating=" + username + ", " +
-        "isWhite=" + isWhite + ", " +
-        "remainingTime=" + remainingTime + ", " +
-        "wantsDraw=" + wantsDraw +
-        '}';
+    return "Player{"
+        + "playerId='"
+        + playerId
+        + "', "
+        + "username='"
+        + username
+        + "', "
+        + "connectionId='"
+        + connectionId
+        + "', "
+        + "rating="
+        + username
+        + ", "
+        + "isWhite="
+        + isWhite
+        + ", "
+        + "remainingTime="
+        + remainingTime
+        + ", "
+        + "wantsDraw="
+        + wantsDraw
+        + '}';
   }
 
   @Override

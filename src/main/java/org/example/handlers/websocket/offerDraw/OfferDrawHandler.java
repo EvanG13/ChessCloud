@@ -54,7 +54,8 @@ public class OfferDrawHandler
     // Switch on Draw action
     String responseMessage;
     try {
-      // TODO: basic implementation. Maybe make an Enum, then add it to OfferDrawRequest request body too
+      // TODO: basic implementation. Maybe make an Enum, then add it to OfferDrawRequest request
+      // body too
       switch (request.action().toLowerCase()) {
         case "offer" -> {
           offerDrawService.offerDraw(request.gameId(), connectionId);

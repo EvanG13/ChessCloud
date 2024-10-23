@@ -38,8 +38,7 @@ public class GameDbService {
     Game game = get(gameId);
 
     for (Player player : game.getPlayers())
-      if (player.getConnectionId().equals(connectionId))
-        return true;
+      if (player.getConnectionId().equals(connectionId)) return true;
 
     return false;
   }

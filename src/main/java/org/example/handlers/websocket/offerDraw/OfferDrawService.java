@@ -1,5 +1,6 @@
 package org.example.handlers.websocket.offerDraw;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -11,15 +12,13 @@ import org.example.enums.ResultReason;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
+import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.models.responses.websocket.draw.CancelDrawMessageData;
 import org.example.models.responses.websocket.draw.DenyDrawMessageData;
 import org.example.models.responses.websocket.draw.OfferDrawMessageData;
-import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.services.GameOverService;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
-
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -32,7 +31,8 @@ public class OfferDrawService {
     return gameDbService.isConnectionIdInGame(gameId, connectionId);
   }
 
-  public void offerDraw(String gameId, String playerOfferingDrawConnectionId) throws NotFound, BadRequest {
+  public void offerDraw(String gameId, String playerOfferingDrawConnectionId)
+      throws NotFound, BadRequest {
     Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
@@ -42,15 +42,12 @@ public class OfferDrawService {
     // Get other player
     String opponentConnectionId;
     if (player1.getConnectionId().equals(playerOfferingDrawConnectionId)) {
-      if (player2.getWantsDraw())
-        throw new BadRequest("Opponent already issued a draw offer");
+      if (player2.getWantsDraw()) throw new BadRequest("Opponent already issued a draw offer");
 
       player1.setWantsDraw(true);
       opponentConnectionId = player2.getConnectionId();
-    }
-    else {
-      if (player1.getWantsDraw())
-        throw new BadRequest("Opponent already issued a draw offer");
+    } else {
+      if (player1.getWantsDraw()) throw new BadRequest("Opponent already issued a draw offer");
 
       player2.setWantsDraw(true);
       opponentConnectionId = player1.getConnectionId();
@@ -66,7 +63,8 @@ public class OfferDrawService {
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void cancelDraw(String gameId, String playerCancelConnectionId) throws NotFound, BadRequest {
+  public void cancelDraw(String gameId, String playerCancelConnectionId)
+      throws NotFound, BadRequest {
     Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
@@ -77,15 +75,12 @@ public class OfferDrawService {
     Player playerCanceling;
     String opponentConnectionId;
     if (player1.getConnectionId().equals(playerCancelConnectionId)) {
-      if (!player1.getWantsDraw())
-        throw new BadRequest("You didn't make an offer to cancel");
+      if (!player1.getWantsDraw()) throw new BadRequest("You didn't make an offer to cancel");
 
       playerCanceling = player1;
       opponentConnectionId = player2.getConnectionId();
-    }
-    else {
-      if (!player2.getWantsDraw())
-        throw new BadRequest("You didn't make an offer to cancel");
+    } else {
+      if (!player2.getWantsDraw()) throw new BadRequest("You didn't make an offer to cancel");
 
       playerCanceling = player2;
       opponentConnectionId = player1.getConnectionId();
@@ -102,7 +97,8 @@ public class OfferDrawService {
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void denyDraw(String gameId, String playerDeniedDrawConnectionId) throws NotFound, InternalServerError, BadRequest {
+  public void denyDraw(String gameId, String playerDeniedDrawConnectionId)
+      throws NotFound, InternalServerError, BadRequest {
     Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
@@ -112,16 +108,13 @@ public class OfferDrawService {
     // Get other player
     String opponentConnectionId;
     if (player1.getConnectionId().equals(playerDeniedDrawConnectionId)) {
-      if (!player2.getWantsDraw())
-        throw new BadRequest("Opponent has not offered a draw");
+      if (!player2.getWantsDraw()) throw new BadRequest("Opponent has not offered a draw");
 
       player1.setWantsDraw(false);
       player2.setWantsDraw(false);
       opponentConnectionId = player2.getConnectionId();
-    }
-    else {
-      if (!player1.getWantsDraw())
-        throw new BadRequest("Opponent has not offered a draw");
+    } else {
+      if (!player1.getWantsDraw()) throw new BadRequest("Opponent has not offered a draw");
 
       player2.setWantsDraw(false);
       player1.setWantsDraw(false);
@@ -138,7 +131,8 @@ public class OfferDrawService {
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void acceptDraw(String gameId, String playerAcceptDrawConnectionId) throws NotFound, InternalServerError, BadRequest {
+  public void acceptDraw(String gameId, String playerAcceptDrawConnectionId)
+      throws NotFound, InternalServerError, BadRequest {
     Game game = gameDbService.get(gameId);
 
     List<Player> players = game.getPlayers();
@@ -149,16 +143,14 @@ public class OfferDrawService {
       throw new BadRequest("No draw offer to accept");
 
     if (player1.getConnectionId().equals(playerAcceptDrawConnectionId)) {
-      if (player1.getWantsDraw())
-        throw new BadRequest("You cannot accept your own draw offer");
-    }
-    else {
-      if (player2.getWantsDraw())
-        throw new BadRequest("You cannot accept your own draw offer");
+      if (player1.getWantsDraw()) throw new BadRequest("You cannot accept your own draw offer");
+    } else {
+      if (player2.getWantsDraw()) throw new BadRequest("You cannot accept your own draw offer");
     }
 
     // Draw offer accepted, initiate game over
-    GameOverService service = new GameOverService(ResultReason.MUTUAL_DRAW, game, player1.getPlayerId(), messenger);
+    GameOverService service =
+        new GameOverService(ResultReason.MUTUAL_DRAW, game, player1.getPlayerId(), messenger);
     service.endGame();
   }
 }
