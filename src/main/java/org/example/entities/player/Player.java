@@ -14,25 +14,31 @@ public class Player extends BasePlayer {
 
   private Integer remainingTime;
   @GsonExcludeField private String connectionId;
+  @GsonExcludeField @Builder.Default private Boolean wantsDraw = false;
 
   @Override
   public String toString() {
     return "Player{"
+        + "playerId='"
+        + playerId
+        + "', "
         + "username='"
         + username
-        + '\''
-        + ", isWhite="
-        + isWhite
-        + ", remainingTime="
-        + remainingTime
-        + ", connectionId='"
+        + "', "
+        + "connectionId='"
         + connectionId
-        + '\''
-        + ", playerId='"
-        + playerId
-        + '\''
-        + rating
-        + "\n"
+        + "', "
+        + "rating="
+        + username
+        + ", "
+        + "isWhite="
+        + isWhite
+        + ", "
+        + "remainingTime="
+        + remainingTime
+        + ", "
+        + "wantsDraw="
+        + wantsDraw
         + '}';
   }
 
@@ -44,11 +50,12 @@ public class Player extends BasePlayer {
 
     Player player = (Player) o;
     return Objects.equals(remainingTime, player.remainingTime)
-        && Objects.equals(connectionId, player.connectionId);
+        && Objects.equals(connectionId, player.connectionId)
+        && Objects.equals(wantsDraw, player.wantsDraw);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), remainingTime, connectionId);
+    return Objects.hash(super.hashCode(), remainingTime, connectionId, wantsDraw);
   }
 }

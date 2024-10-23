@@ -11,7 +11,6 @@ import com.amazonaws.services.lambda.runtime.logging.LogLevel;
 import com.google.gson.Gson;
 import java.util.Date;
 import java.util.Map;
-
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.enums.Action;
