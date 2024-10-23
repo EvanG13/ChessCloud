@@ -46,6 +46,10 @@ public class RegisterHandler
       return makeHttpResponse(StatusCodes.CONFLICT, "Email already exists");
     }
 
+    if (service.doesUsernameExist(registerRequest.username())) {
+      return makeHttpResponse(StatusCodes.CONFLICT, "Username already exists");
+    }
+
     service.registerUser(registerRequest);
 
     return makeHttpResponse(StatusCodes.OK, "Successfully registered");

@@ -17,9 +17,9 @@ get:
       required: false
       description: Specific game mode to retrieve games for (optional)
     - in: path
-      name: userid
-      description: Archived Game id
-      required: false
+      name: username
+      description: username
+      required: true
       schema:
         type: string
   responses:
