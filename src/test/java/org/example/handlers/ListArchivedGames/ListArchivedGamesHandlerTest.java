@@ -98,17 +98,6 @@ public class ListArchivedGamesHandlerTest {
     assertEquals(expectedWithOneGame.toJSON(), actual);
   }
 
-  //  @Test
-  //  public void missingPathParamsUseHeadersInstead() {
-  //    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-  //    Map<String, String> headerMap = new HashMap<>();
-  //    headerMap.put("userid", "id2");
-  //    event.setHeaders(headerMap);
-  //    APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-  //    assertEquals(StatusCodes.OK, response.getStatusCode());
-  //    String actual = response.getBody();
-  //    assertEquals(expectedWithTwoGames.toJSON(), actual);
-  //  }
 
   @Test
   public void missingPathParamsSendsBADREQUEST() {
