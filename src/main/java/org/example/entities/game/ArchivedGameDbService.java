@@ -66,11 +66,11 @@ public class ArchivedGameDbService {
     return archivedGameDbUtility.get(id).orElseThrow(() -> new NotFound("No Archive Game found"));
   }
 
-  public List<ArchivedGame> listArchivedGames(String userId, TimeControl timeControl) {
+  public List<ArchivedGame> listArchivedGames(String username, TimeControl timeControl) {
     return archivedGameDbUtility.list(
         Filters.and(
             eq("timeControl", timeControl),
-            Filters.elemMatch("players", Filters.eq("playerId", userId))));
+            Filters.elemMatch("players", Filters.eq("username", username))));
   }
 
   public List<ArchivedGame> listArchivedGames(String username) {
