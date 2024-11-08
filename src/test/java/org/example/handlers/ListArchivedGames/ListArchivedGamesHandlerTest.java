@@ -86,7 +86,7 @@ public class ListArchivedGamesHandlerTest {
     APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
 
     Map<String, String> pathParams = new HashMap<>();
-    pathParams.put("username", "id1");
+    pathParams.put("username", "user1");
     Map<String, String> queryParams = new HashMap<>();
     queryParams.put("timeControl", String.valueOf(TimeControl.BLITZ_5));
     event.setPathParameters(pathParams);
@@ -97,7 +97,6 @@ public class ListArchivedGamesHandlerTest {
     String actual = response.getBody();
     assertEquals(expectedWithOneGame.toJSON(), actual);
   }
-
 
   @Test
   public void missingPathParamsSendsBADREQUEST() {

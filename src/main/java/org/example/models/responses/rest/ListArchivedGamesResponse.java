@@ -5,9 +5,11 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.example.annotations.FieldExclusionStrategy;
 import org.example.entities.game.ArchivedGame;
 
+@Getter
 @AllArgsConstructor
 public class ListArchivedGamesResponse extends ResponseBody {
   private List<ArchivedGame> archivedGames;

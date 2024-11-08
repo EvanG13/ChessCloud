@@ -82,4 +82,23 @@ public final class IntegrationTestUtils<T> {
         .extract()
         .response();
   }
+
+  public Response get(
+      Map<String, String> headers,
+      String endpoint,
+      Map<String, String> pathParams,
+      Map<String, String> queryStrings,
+      int statusCode) {
+    return given()
+        .headers(headers)
+        .queryParams(queryStrings)
+        .pathParams(pathParams)
+        .when()
+        .get(endpoint)
+        .then()
+        .statusCode(statusCode)
+        .headers(corsHeaders)
+        .extract()
+        .response();
+  }
 }
