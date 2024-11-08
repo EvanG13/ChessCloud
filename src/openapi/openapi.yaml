@@ -642,6 +642,11 @@ paths:
         required: false
         schema:
           type: string
+          enum:
+          - BLITZ_5
+          - BLITZ_10
+          - BULLET_3
+          - BULLET_1
       - name: username
         in: path
         description: username

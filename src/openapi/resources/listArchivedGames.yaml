@@ -14,6 +14,11 @@ get:
       name: timeControl
       schema:
         type: string
+        enum:
+          - BLITZ_5
+          - BLITZ_10
+          - BULLET_3
+          - BULLET_1
       required: false
       description: Specific game mode to retrieve games for (optional)
     - in: path
