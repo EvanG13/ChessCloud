@@ -16,6 +16,7 @@ import org.example.entities.game.GameDbService;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
+import org.example.enums.OfferDrawAction;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
@@ -67,7 +68,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -98,7 +99,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -129,7 +130,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -160,7 +161,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -192,7 +193,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -224,7 +225,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "cancel"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -259,7 +260,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -291,7 +292,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -330,7 +331,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "deny"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -369,7 +370,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "offer"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -401,7 +402,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), "accept"); // TODO: change action to something else
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -453,7 +454,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     OfferDrawRequest request =
-        new OfferDrawRequest("nonexistinggame", "offer"); // TODO: change action to something else
+        new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
