@@ -129,12 +129,15 @@ public class GameOverService {
   }
 
   private void emitOutcome() throws InternalServerError {
+    String connId = this.game.getPlayers().get(0).getConnectionId();
+    String connId2 = this.game.getPlayers().get(1).getConnectionId();
+
     String messageJson =
         new SocketResponseBody<>(
                 WebsocketResponseAction.GAME_OVER,
                 new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
-    socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);
+    socketMessenger.sendMessages(connId, connId2, messageJson);
   }
 
   public void archiveGame() {
