@@ -35,12 +35,7 @@ public class GameDbService {
   }
 
   public boolean isConnectionIdInGame(String gameId, String connectionId) throws NotFound {
-    Game game = get(gameId);
-
-    for (Player player : game.getPlayers())
-      if (player.getConnectionId().equals(connectionId)) return true;
-
-    return false;
+    return get(gameId).containsConnectionId(connectionId);
   }
 
   public void deleteGame(String gameId) {

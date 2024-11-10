@@ -41,41 +41,12 @@ public class OfferDrawHandler
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Missing argument(s)");
     }
 
-    // Check connection ID is part of the game
     String connectionId = event.getRequestContext().getConnectionId();
-    try {
-      if (!offerDrawService.isValidConnectionId(request.gameId(), connectionId))
-        throw new Unauthorized("Your connection ID is not bound to this game");
-    } catch (StatusCodeException e) {
-      messenger.sendMessage(connectionId, e.getMessage());
-      return e.makeWebsocketResponse();
-    }
 
     // Switch on Draw action
     String responseMessage;
     try {
-      // TODO: basic implementation. Maybe make an Enum, then add it to OfferDrawRequest request
-      // body too
-      switch (request.action().toLowerCase()) {
-        case "offer" -> {
-          offerDrawService.offerDraw(request.gameId(), connectionId);
-          responseMessage = "Successfully offered a draw";
-        }
-        case "cancel" -> {
-          offerDrawService.cancelDraw(request.gameId(), connectionId);
-          responseMessage = "Cancelled draw offer";
-        }
-        case "deny" -> {
-          offerDrawService.denyDraw(request.gameId(), connectionId);
-          responseMessage = "Draw denied";
-        }
-        case "accept" -> {
-          offerDrawService.acceptDraw(request.gameId(), connectionId);
-          responseMessage = "Draw accepted";
-        }
-        // Unknown action
-        default -> throw new BadRequest("Invalid draw argument");
-      }
+      responseMessage = offerDrawService.performDrawAction(request.drawAction(), request.gameId(), connectionId);
     } catch (StatusCodeException e) {
       messenger.sendMessage(connectionId, e.getMessage());
       return e.makeWebsocketResponse();

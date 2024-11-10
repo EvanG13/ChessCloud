@@ -13,7 +13,7 @@ import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameMode;
 import org.example.exceptions.NotFound;
 import org.example.models.requests.JoinGameRequest;
@@ -65,7 +65,7 @@ public class JoinGameHandler
               .message("No user matches userId")
               .build();
       SocketResponseBody<GameStartedMessageData> responseBody =
-          new SocketResponseBody<>(Action.GAME_CREATED, data);
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
 
       return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "No user matches userId");
@@ -79,7 +79,7 @@ public class JoinGameHandler
               .message("User doesn't have entry in Stats collection")
               .build();
       SocketResponseBody<GameStartedMessageData> responseBody =
-          new SocketResponseBody<>(Action.GAME_CREATED, data);
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
 
       return makeWebsocketResponse(
@@ -94,7 +94,7 @@ public class JoinGameHandler
               .message("You are already in 1 game.")
               .build();
       SocketResponseBody<GameStartedMessageData> responseBody =
-          new SocketResponseBody<>(Action.GAME_CREATED, data);
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
 
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "You are already in 1 game.");
@@ -132,7 +132,7 @@ public class JoinGameHandler
       body = newGame.toResponseJson();
       GameCreatedMessageData messageData = new GameCreatedMessageData();
       SocketResponseBody<GameCreatedMessageData> responseBody =
-          new SocketResponseBody<>(Action.GAME_CREATED, messageData);
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, messageData);
       emitter.sendMessage(connectionId, responseBody.toJSON());
     } else {
       // Pending game exists for the requested time control
@@ -147,7 +147,7 @@ public class JoinGameHandler
                 .isSuccess(false)
                 .message("Error in setting up game.")
                 .build();
-        responseBody = new SocketResponseBody<>(Action.GAME_START, data);
+        responseBody = new SocketResponseBody<>(WebsocketResponseAction.GAME_START, data);
         emitter.sendMessages(
             game.getPlayers().get(0).getConnectionId(),
             game.getPlayers().get(1).getConnectionId(),
@@ -160,7 +160,7 @@ public class JoinGameHandler
 
       // Notify both players that the game is starting
       data = new GameStartedMessageData(game);
-      responseBody = new SocketResponseBody<>(Action.GAME_START, data);
+      responseBody = new SocketResponseBody<>(WebsocketResponseAction.GAME_START, data);
       String resJson = responseBody.toJSON();
       emitter.sendMessages(
           game.getPlayers().get(0).getConnectionId(),

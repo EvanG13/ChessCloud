@@ -1,3 +1,5 @@
 package org.example.models.requests;
 
-public record OfferDrawRequest(String gameId, String action) {}
+import org.example.enums.OfferDrawAction;
+
+public record OfferDrawRequest(String gameId, OfferDrawAction drawAction) {}

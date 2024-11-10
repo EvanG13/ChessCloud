@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
-import org.example.enums.Action;
+import org.example.enums.OfferDrawAction;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.ResultReason;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
+import org.example.exceptions.Unauthorized;
 import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.models.responses.websocket.draw.CancelDrawMessageData;
 import org.example.models.responses.websocket.draw.DenyDrawMessageData;
@@ -27,14 +29,7 @@ public class OfferDrawService {
   @Builder.Default private final GameDbService gameDbService = new GameDbService();
   @Builder.Default private final SocketMessenger messenger = new SocketEmitter();
 
-  public boolean isValidConnectionId(String gameId, String connectionId) throws NotFound {
-    return gameDbService.isConnectionIdInGame(gameId, connectionId);
-  }
-
-  public void offerDraw(String gameId, String playerOfferingDrawConnectionId)
-      throws NotFound, BadRequest {
-    Game game = gameDbService.get(gameId);
-
+  private void offerDraw(Game game, String playerOfferingDrawConnectionId) throws BadRequest {
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
@@ -54,19 +49,16 @@ public class OfferDrawService {
     }
 
     // Update game
-    gameDbService.put(gameId, game);
+    gameDbService.put(game.getId(), game);
 
     // Send draw offer to other player
     OfferDrawMessageData messageData = new OfferDrawMessageData();
     SocketResponseBody<OfferDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_OFFER, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_OFFER, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void cancelDraw(String gameId, String playerCancelConnectionId)
-      throws NotFound, BadRequest {
-    Game game = gameDbService.get(gameId);
-
+  private void cancelDraw(Game game, String playerCancelConnectionId) throws BadRequest {
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
@@ -88,19 +80,16 @@ public class OfferDrawService {
 
     // Update game
     playerCanceling.setWantsDraw(false);
-    gameDbService.put(gameId, game);
+    gameDbService.put(game.getId(), game);
 
     // Inform the other person offer was canceled
     CancelDrawMessageData messageData = new CancelDrawMessageData();
     SocketResponseBody<CancelDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_CANCEL, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_CANCEL, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void denyDraw(String gameId, String playerDeniedDrawConnectionId)
-      throws NotFound, InternalServerError, BadRequest {
-    Game game = gameDbService.get(gameId);
-
+  private void denyDraw(Game game, String playerDeniedDrawConnectionId) throws BadRequest {
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
@@ -122,19 +111,16 @@ public class OfferDrawService {
     }
 
     // Update game
-    gameDbService.put(gameId, game);
+    gameDbService.put(game.getId(), game);
 
     // Send draw deny response to other player
     DenyDrawMessageData messageData = new DenyDrawMessageData();
     SocketResponseBody<DenyDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_DENY, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_DENY, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  public void acceptDraw(String gameId, String playerAcceptDrawConnectionId)
-      throws NotFound, InternalServerError, BadRequest {
-    Game game = gameDbService.get(gameId);
-
+  private void acceptDraw(Game game, String playerAcceptDrawConnectionId) throws InternalServerError, BadRequest {
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
@@ -152,5 +138,39 @@ public class OfferDrawService {
     GameOverService service =
         new GameOverService(ResultReason.MUTUAL_DRAW, game, player1.getPlayerId(), messenger);
     service.endGame();
+  }
+
+  public String performDrawAction(OfferDrawAction action, String gameId, String connectionId) throws BadRequest, NotFound, InternalServerError, Unauthorized {
+    String responseMessage;
+
+    // Check game with ID=gameId exists
+    Game game = gameDbService.get(gameId);
+
+    // Check connection ID is part of the game
+    if (!game.containsConnectionId(connectionId))
+      throw new Unauthorized("Your connection ID is not bound to this game");
+
+    switch (action) {
+      case OfferDrawAction.OFFER -> {
+        offerDraw(game, connectionId);
+        responseMessage = "Successfully offered a draw";
+      }
+      case OfferDrawAction.CANCEL -> {
+        cancelDraw(game, connectionId);
+        responseMessage = "Cancelled draw offer";
+      }
+      case OfferDrawAction.DENY -> {
+        denyDraw(game, connectionId);
+        responseMessage = "Draw denied";
+      }
+      case OfferDrawAction.ACCEPT -> {
+        acceptDraw(game, connectionId);
+        responseMessage = "Draw accepted";
+      }
+      // Unknown action
+      default -> throw new BadRequest("Invalid value for argument 'drawAction'");
+    }
+
+    return responseMessage;
   }
 }
