@@ -37,6 +37,20 @@ public final class IntegrationTestUtils<T> {
         .asString();
   }
 
+  public Response post(
+          String endpoint,
+          Map<String, String> headers,
+          int statusCode
+  ) {
+    return given()
+            .headers(headers)
+            .post(endpoint)
+            .then()
+            .statusCode(statusCode)
+            .extract()
+            .response();
+  }
+
   public Response get(
       Map<String, String> headers,
       String endpoint,
