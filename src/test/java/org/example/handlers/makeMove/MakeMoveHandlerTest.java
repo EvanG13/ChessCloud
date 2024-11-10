@@ -17,7 +17,7 @@ import org.example.entities.move.Move;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.JoinGameHandler;
@@ -278,7 +278,7 @@ public class MakeMoveHandlerTest {
             299,
             300);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
-        new SocketResponseBody<>(Action.MOVE_MADE, data);
+        new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
@@ -367,7 +367,7 @@ public class MakeMoveHandlerTest {
             299,
             299);
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
-        new SocketResponseBody<>(Action.MOVE_MADE, data);
+        new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 
@@ -409,7 +409,7 @@ public class MakeMoveHandlerTest {
             299);
 
     SocketResponseBody<MakeMoveMessageData> expectedResponse =
-        new SocketResponseBody<>(Action.MOVE_MADE, data);
+        new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
     assertEquals(expectedResponse.toJSON(), response.getBody());
   }
 }

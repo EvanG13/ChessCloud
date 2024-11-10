@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.ResultReason;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
@@ -59,7 +59,7 @@ public class OfferDrawService {
     // Send draw offer to other player
     OfferDrawMessageData messageData = new OfferDrawMessageData();
     SocketResponseBody<OfferDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_OFFER, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_OFFER, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
@@ -93,7 +93,7 @@ public class OfferDrawService {
     // Inform the other person offer was canceled
     CancelDrawMessageData messageData = new CancelDrawMessageData();
     SocketResponseBody<CancelDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_CANCEL, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_CANCEL, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
@@ -127,7 +127,7 @@ public class OfferDrawService {
     // Send draw deny response to other player
     DenyDrawMessageData messageData = new DenyDrawMessageData();
     SocketResponseBody<DenyDrawMessageData> responseBody =
-        new SocketResponseBody<>(Action.DRAW_DENY, messageData);
+        new SocketResponseBody<>(WebsocketResponseAction.DRAW_DENY, messageData);
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 

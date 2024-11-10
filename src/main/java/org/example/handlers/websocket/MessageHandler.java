@@ -10,7 +10,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameStatus;
 import org.example.models.requests.MessageRequest;
 import org.example.models.responses.websocket.ChatMessageData;
@@ -61,19 +61,19 @@ public class MessageHandler
       LambdaLogger logger = context.getLogger();
       logger.log(e.getMessage());
       data = ChatMessageData.builder().isSuccess(false).message("game not found").build();
-      responseBody = new SocketResponseBody<>(Action.CHAT_MESSAGE, data);
+      responseBody = new SocketResponseBody<>(WebsocketResponseAction.CHAT_MESSAGE, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.NOT_FOUND, "Game not found");
     }
     if (!game.getGameStatus().equals(GameStatus.ONGOING) || game.getPlayers().size() != 2) {
       data =
           ChatMessageData.builder().isSuccess(false).message("Cannot find chat recipient.").build();
-      responseBody = new SocketResponseBody<>(Action.CHAT_MESSAGE, data);
+      responseBody = new SocketResponseBody<>(WebsocketResponseAction.CHAT_MESSAGE, data);
       emitter.sendMessage(connectionId, responseBody.toJSON());
       return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "Cannot find chat recipient.");
     }
     data = new ChatMessageData(username + ": " + chatMessage);
-    responseBody = new SocketResponseBody<>(Action.CHAT_MESSAGE, data);
+    responseBody = new SocketResponseBody<>(WebsocketResponseAction.CHAT_MESSAGE, data);
     emitter.sendMessages(
         game.getPlayers().get(0).getConnectionId(),
         game.getPlayers().get(1).getConnectionId(),

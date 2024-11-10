@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.*;
 import org.example.models.requests.MakeMoveRequest;
 import org.example.models.responses.websocket.MakeMoveMessageData;
@@ -70,7 +70,7 @@ public class MakeMoveHandler
           MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
 
       SocketResponseBody<MakeMoveMessageData> responseBody =
-          new SocketResponseBody<>(Action.MOVE_MADE, data);
+          new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log("error loading game", LogLevel.ERROR);
 
@@ -82,7 +82,7 @@ public class MakeMoveHandler
           MakeMoveMessageData.builder().isSuccess(false).message("It is not your turn.").build();
 
       SocketResponseBody<MakeMoveMessageData> responseBody =
-          new SocketResponseBody<>(Action.MOVE_MADE, data);
+          new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log("It is not your turn.", LogLevel.ERROR);
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "It is not your turn.");
@@ -94,7 +94,7 @@ public class MakeMoveHandler
           MakeMoveMessageData.builder().isSuccess(false).message("Game missing FEN").build();
 
       SocketResponseBody<MakeMoveMessageData> responseBody =
-          new SocketResponseBody<>(Action.MOVE_MADE, data);
+          new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log("Game missing fen", LogLevel.FATAL);
       return makeWebsocketResponse(StatusCodes.INTERNAL_SERVER_ERROR, "Game missing FEN");
@@ -108,7 +108,7 @@ public class MakeMoveHandler
           MakeMoveMessageData.builder().isSuccess(false).message(e.getMessage()).build();
 
       SocketResponseBody<MakeMoveMessageData> responseBody =
-          new SocketResponseBody<>(Action.MOVE_MADE, data);
+          new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
       socketMessenger.sendMessage(connectionId, responseBody.toJSON());
       logger.log(e.getMessage(), LogLevel.ERROR);
       return e.makeWebsocketResponse();
@@ -124,7 +124,7 @@ public class MakeMoveHandler
             remainingTimes.get("white"),
             remainingTimes.get("black"));
     SocketResponseBody<MakeMoveMessageData> responseBody =
-        new SocketResponseBody<>(Action.MOVE_MADE, data);
+        new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
 
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());

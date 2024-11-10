@@ -11,7 +11,7 @@ import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
-import org.example.enums.Action;
+import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
@@ -131,7 +131,7 @@ public class GameOverService {
   private void emitOutcome() throws InternalServerError {
     String messageJson =
         new SocketResponseBody<>(
-                Action.GAME_OVER,
+                WebsocketResponseAction.GAME_OVER,
                 new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
     socketMessenger.sendMessages(losingPlayerId, winningPlayerId, messageJson);

@@ -1,6 +1,6 @@
 package org.example.enums;
 
-public enum Action {
+public enum WebsocketResponseAction {
   GAME_START,
   GAME_CREATED,
   GAME_OVER,
