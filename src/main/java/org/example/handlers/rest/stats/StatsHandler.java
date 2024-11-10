@@ -1,4 +1,4 @@
-package org.example.handlers.rest;
+package org.example.handlers.rest.stats;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeHttpResponse;
 

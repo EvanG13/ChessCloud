@@ -80,8 +80,7 @@ public class Game extends BaseGame<Player> {
   }
 
   public boolean containsConnectionId(String connectionId) {
-    return this.players.stream()
-        .anyMatch(player -> player.getConnectionId().equals(connectionId));
+    return this.players.stream().anyMatch(player -> player.getConnectionId().equals(connectionId));
   }
 
   @Override

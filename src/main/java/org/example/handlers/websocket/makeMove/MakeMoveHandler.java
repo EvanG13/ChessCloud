@@ -1,4 +1,4 @@
-package org.example.handlers.websocket;
+package org.example.handlers.websocket.makeMove;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
@@ -18,7 +18,6 @@ import org.example.exceptions.*;
 import org.example.models.requests.MakeMoveRequest;
 import org.example.models.responses.websocket.MakeMoveMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.services.MakeMoveService;
 import org.example.utils.ValidateObject;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;

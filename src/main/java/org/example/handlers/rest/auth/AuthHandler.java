@@ -1,4 +1,4 @@
-package org.example.handlers.rest;
+package org.example.handlers.rest.auth;
 
 import static com.amazonaws.services.lambda.runtime.events.IamPolicyResponse.allowStatement;
 import static com.amazonaws.services.lambda.runtime.events.IamPolicyResponse.denyStatement;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.example.models.requests.AuthRequest;
-import org.example.services.AuthService;
 import org.example.utils.DotenvClass;
 
 public class AuthHandler

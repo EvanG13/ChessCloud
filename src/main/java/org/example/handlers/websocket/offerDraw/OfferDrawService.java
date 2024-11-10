@@ -8,17 +8,17 @@ import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
 import org.example.enums.OfferDrawAction;
-import org.example.enums.WebsocketResponseAction;
 import org.example.enums.ResultReason;
+import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.exceptions.Unauthorized;
+import org.example.handlers.websocket.gameOver.GameOverService;
 import org.example.models.responses.websocket.SocketResponseBody;
 import org.example.models.responses.websocket.draw.CancelDrawMessageData;
 import org.example.models.responses.websocket.draw.DenyDrawMessageData;
 import org.example.models.responses.websocket.draw.OfferDrawMessageData;
-import org.example.services.GameOverService;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
@@ -120,7 +120,8 @@ public class OfferDrawService {
     messenger.sendMessage(opponentConnectionId, responseBody.toJSON());
   }
 
-  private void acceptDraw(Game game, String playerAcceptDrawConnectionId) throws InternalServerError, BadRequest {
+  private void acceptDraw(Game game, String playerAcceptDrawConnectionId)
+      throws InternalServerError, BadRequest {
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
     Player player2 = players.get(1);
@@ -140,7 +141,8 @@ public class OfferDrawService {
     service.endGame();
   }
 
-  public String performDrawAction(OfferDrawAction action, String gameId, String connectionId) throws BadRequest, NotFound, InternalServerError, Unauthorized {
+  public String performDrawAction(OfferDrawAction action, String gameId, String connectionId)
+      throws BadRequest, NotFound, InternalServerError, Unauthorized {
     String responseMessage;
 
     // Check game with ID=gameId exists

@@ -1,4 +1,4 @@
-package org.example.handlers.rest;
+package org.example.handlers.rest.getGameState;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeHttpResponse;
 
@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.exceptions.NotFound;
-import org.example.services.GameStateService;
 
 public class GetGameStateHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {

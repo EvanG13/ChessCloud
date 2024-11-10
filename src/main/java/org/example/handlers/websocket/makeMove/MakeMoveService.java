@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.websocket.makeMove;
 
 import chariot.util.Board;
 import com.mongodb.client.model.Updates;

@@ -1,4 +1,4 @@
-package org.example.handlers.websocket;
+package org.example.handlers.websocket.connect;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
@@ -8,7 +8,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.services.ConnectService;
 
 public class ConnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {

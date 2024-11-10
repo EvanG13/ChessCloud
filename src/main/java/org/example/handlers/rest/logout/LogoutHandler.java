@@ -1,4 +1,4 @@
-package org.example.handlers.rest;
+package org.example.handlers.rest.logout;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeHttpResponse;
 
@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.exceptions.InternalServerError;
-import org.example.services.LogoutService;
 
 public class LogoutHandler
     implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {

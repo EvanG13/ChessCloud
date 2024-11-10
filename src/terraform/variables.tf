@@ -27,12 +27,12 @@ variable "lambda_runtime" {
 variable "rest_lambdas" {
   type = map(string)
   default = {
-    login         = "org.example.handlers.rest.LoginHandler::handleRequest",
-    logout        = "org.example.handlers.rest.LogoutHandler::handleRequest",
-    register      = "org.example.handlers.rest.RegisterHandler::handleRequest",
-    auth          = "org.example.handlers.rest.AuthHandler::handleRequest",
-    stats         = "org.example.handlers.rest.StatsHandler::handleRequest",
-    gameState     = "org.example.handlers.rest.GetGameStateHandler::handleRequest",
+    login         = "org.example.handlers.rest.login.LoginHandler::handleRequest",
+    logout        = "org.example.handlers.rest.logout.LogoutHandler::handleRequest",
+    register      = "org.example.handlers.rest.register.RegisterHandler::handleRequest",
+    auth          = "org.example.handlers.rest.auth.AuthHandler::handleRequest",
+    stats         = "org.example.handlers.rest.stats.StatsHandler::handleRequest",
+    gameState     = "org.example.handlers.rest.getGameState.GetGameStateHandler::handleRequest",
     archivedGame  = "org.example.handlers.rest.getArchivedGame.GetArchivedGameHandler::handleRequest",
     archivedGames = "org.example.handlers.rest.getArchivedGame.ListArchivedGamesHandler::handleRequest"
   }
@@ -47,11 +47,11 @@ variable "rest_lambdas" {
 variable "websocket_lambdas" {
   type = map(string)
   default = {
-    disconnect = "org.example.handlers.websocket.DisconnectHandler::handleRequest",
-    default    = "org.example.handlers.websocket.DefaultHandler::handleRequest",
-    message    = "org.example.handlers.websocket.MessageHandler::handleRequest",
-    joinGame   = "org.example.handlers.websocket.JoinGameHandler::handleRequest",
-    makeMove   = "org.example.handlers.websocket.MakeMoveHandler::handleRequest",
+    disconnect = "org.example.handlers.websocket.disconnect.DisconnectHandler::handleRequest",
+    default    = "org.example.handlers.websocket.defaultRoute.DefaultHandler::handleRequest",
+    message    = "org.example.handlers.websocket.message.MessageHandler::handleRequest",
+    joinGame   = "org.example.handlers.websocket.joinGame.JoinGameHandler::handleRequest",
+    makeMove   = "org.example.handlers.websocket.makeMove.MakeMoveHandler::handleRequest",
     resign     = "org.example.handlers.websocket.resign.ResignGameHandler::handleRequest",
     offerDraw  = "org.example.handlers.websocket.offerDraw.OfferDrawHandler::handleRequest"
   }

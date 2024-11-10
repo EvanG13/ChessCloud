@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.rest.auth;
 
 import java.util.Optional;
 import org.example.entities.session.Session;

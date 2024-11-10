@@ -11,7 +11,7 @@ import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
-import org.example.handlers.rest.StatsHandler;
+import org.example.handlers.rest.stats.StatsHandler;
 import org.example.utils.MockContext;
 import org.junit.jupiter.api.*;
 

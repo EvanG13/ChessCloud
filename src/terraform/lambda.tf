@@ -92,7 +92,7 @@ resource "aws_lambda_function" "websocket_connect_lambda" {
   source_code_hash = filebase64sha256("../../${path.module}/target/chess-cloud-1.0-SNAPSHOT.jar")
 
   runtime = var.lambda_runtime
-  handler = "org.example.handlers.websocket.ConnectHandler::handleRequest"
+  handler = "org.example.handlers.websocket.connect.ConnectHandler::handleRequest"
 
   memory_size = 1536
 
