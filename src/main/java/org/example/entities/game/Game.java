@@ -79,6 +79,11 @@ public class Game extends BaseGame<Player> {
     this.players.add(player2);
   }
 
+  public boolean containsConnectionId(String connectionId) {
+    return this.players.stream()
+        .anyMatch(player -> player.getConnectionId().equals(connectionId));
+  }
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("Game{");
