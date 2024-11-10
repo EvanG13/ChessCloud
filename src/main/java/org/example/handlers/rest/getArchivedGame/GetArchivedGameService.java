@@ -22,7 +22,10 @@ public class GetArchivedGameService {
   }
 
   List<ArchivedGame> getArchivedGames(String username, TimeControl timeControl) {
-    if (timeControl == null) return archivedGameDbService.listArchivedGames(username);
     return archivedGameDbService.listArchivedGames(username, timeControl);
+  }
+
+  List<ArchivedGame> getArchivedGames(String username) {
+    return archivedGameDbService.listArchivedGames(username);
   }
 }

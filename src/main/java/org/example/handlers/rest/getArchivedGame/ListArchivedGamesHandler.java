@@ -52,7 +52,12 @@ public class ListArchivedGamesHandler
       }
     }
 
-    List<ArchivedGame> archivedGames = service.getArchivedGames(username, timeControl);
+    List<ArchivedGame> archivedGames;
+    if (timeControl == null) {
+      archivedGames = service.getArchivedGames(username);
+    } else {
+      archivedGames = service.getArchivedGames(username, timeControl);
+    }
     ListArchivedGamesResponse res = new ListArchivedGamesResponse(archivedGames);
     return makeHttpResponse(StatusCodes.OK, res.toJSON());
   }

@@ -37,6 +37,20 @@ public final class IntegrationTestUtils<T> {
         .asString();
   }
 
+  public Response post(
+          String endpoint,
+          Map<String, String> headers,
+          int statusCode
+  ) {
+    return given()
+            .headers(headers)
+            .post(endpoint)
+            .then()
+            .statusCode(statusCode)
+            .extract()
+            .response();
+  }
+
   public Response get(
       Map<String, String> headers,
       String endpoint,
@@ -74,6 +88,25 @@ public final class IntegrationTestUtils<T> {
     return given()
         .headers(headers)
         .queryParams(queryStrings)
+        .when()
+        .get(endpoint)
+        .then()
+        .statusCode(statusCode)
+        .headers(corsHeaders)
+        .extract()
+        .response();
+  }
+
+  public Response get(
+      Map<String, String> headers,
+      String endpoint,
+      Map<String, String> pathParams,
+      Map<String, String> queryStrings,
+      int statusCode) {
+    return given()
+        .headers(headers)
+        .queryParams(queryStrings)
+        .pathParams(pathParams)
         .when()
         .get(endpoint)
         .then()
