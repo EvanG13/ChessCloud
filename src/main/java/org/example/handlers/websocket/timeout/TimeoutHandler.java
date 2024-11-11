@@ -49,6 +49,7 @@ public class TimeoutHandler
         try {
            timeoutService.processTimeout(request.gameId(), connectionId, messenger);
         } catch (StatusCodeException e) {
+            System.out.println(e.getMessage());
             return e.makeWebsocketResponse();
         }
 

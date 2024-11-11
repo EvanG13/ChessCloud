@@ -18,11 +18,8 @@ import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
-import org.example.handlers.websocket.resign.ResignGameHandler;
-import org.example.handlers.websocket.resign.ResignGameService;
 import org.example.handlers.websocket.timeout.TimeoutHandler;
 import org.example.handlers.websocket.timeout.TimeoutService;
-import org.example.models.requests.ResignRequest;
 import org.example.models.requests.TimeoutRequest;
 import org.example.utils.MockContext;
 import org.example.utils.socketMessenger.SocketSystemLogger;
@@ -39,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TimeoutHandlerTest {
     private static ArchivedGameDbService archivedGameDbService;
+    private static GameDbService gameDbService;
     private static UserDbService userDbService;
     private static StatsDbService statsDbService;
     private static PlayerDbService playerDbService;
@@ -54,7 +52,7 @@ public class TimeoutHandlerTest {
         handler = new TimeoutHandler(new TimeoutService(), new SocketSystemLogger());
 
         archivedGameDbService = ArchivedGameDbService.builder().build();
-        GameDbService gameDbService = new GameDbService();
+        gameDbService = new GameDbService();
         userDbService = new UserDbService();
         playerDbService = new PlayerDbService();
         statsDbService = new StatsDbService();
@@ -62,7 +60,7 @@ public class TimeoutHandlerTest {
         userTwo = validUser();
         playerOne = playerDbService.toPlayer(userOne, "whatever", true);
         playerTwo = playerDbService.toPlayer(userTwo, "secondWhatever", false);
-        playerOne.setRemainingTime(-1);
+        playerOne.setRemainingTime(100);
         playerTwo.setRemainingTime(12);
 
         game = Game.builder().
@@ -92,9 +90,12 @@ public class TimeoutHandlerTest {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     public void canTimeoutGame() {
         List<Player> players = game.getPlayers();
+        players.getFirst().setRemainingTime(-1);
+        players.getLast().setRemainingTime(21);
+        gameDbService.put(game.getId(), game);
 
         String winningPlayerId = players.getLast().getPlayerId();
 
@@ -126,6 +127,69 @@ public class TimeoutHandlerTest {
         assertEquals(true, winningPlayer.getIsWinner());
         assertEquals(winningPlayerId, winningPlayer.getPlayerId());
     }
+
+    @Test
+    @Order(4)
+    public void canOtherPlayerTimeoutGame() {
+        game = Game.builder().
+                moveList(new ArrayList<>()).
+                players(List.of(playerOne, playerTwo)).
+                gameStatus(GameStatus.ONGOING).timeControl(TimeControl.BLITZ_5).
+                build();
+        gameDbService.post(game);
+        List<Player> players = game.getPlayers();
+        players.getFirst().setRemainingTime(100);
+        players.getLast().setRemainingTime(0);
+        String winningPlayerId = players.getFirst().getPlayerId();
+
+        APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+        TimeoutRequest request = new TimeoutRequest(game.getId());
+        event.setBody(new Gson().toJson(request));
+
+        APIGatewayV2WebSocketEvent.RequestContext requestContext =
+                new APIGatewayV2WebSocketEvent.RequestContext();
+        requestContext.setConnectionId("whatever");
+        requestContext.setRouteKey("timeout");
+        event.setRequestContext(requestContext);
+
+        APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+
+        assertEquals(StatusCodes.OK, response.getStatusCode());
+
+        ArchivedGame archivedGame;
+        try {
+            archivedGame = archivedGameDbService.getArchivedGame(game.getId());
+        } catch (NotFound e) {
+            fail("Game was not successfully archived");
+            return;
+        }
+
+        assertEquals(ResultReason.TIMEOUT, archivedGame.getResultReason());
+
+        ArchivedPlayer winningPlayer = archivedGame.getPlayers().getFirst();
+        assertEquals(true, winningPlayer.getIsWinner());
+        assertEquals(winningPlayerId, winningPlayer.getPlayerId());
+    }
+
+    @Test
+    @Order(2)
+    public void handlesFalseTimeout() {
+
+        APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+        TimeoutRequest request = new TimeoutRequest(game.getId());
+        event.setBody(new Gson().toJson(request));
+
+        APIGatewayV2WebSocketEvent.RequestContext requestContext =
+                new APIGatewayV2WebSocketEvent.RequestContext();
+        requestContext.setConnectionId("whatever");
+        requestContext.setRouteKey("timeout");
+        event.setRequestContext(requestContext);
+
+        APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+
+        assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
+    }
+
 
     @Test
     public void checksForMissingBody() {
