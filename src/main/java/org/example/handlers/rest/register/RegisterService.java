@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.rest.register;
 
 import static com.mongodb.client.model.Filters.eq;
 

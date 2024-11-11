@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.websocket.joinGame;
 
 import static com.mongodb.client.model.Filters.*;
 

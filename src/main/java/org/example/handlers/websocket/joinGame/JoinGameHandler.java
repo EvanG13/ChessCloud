@@ -1,4 +1,4 @@
-package org.example.handlers.websocket;
+package org.example.handlers.websocket.joinGame;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
@@ -13,14 +13,13 @@ import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.user.User;
-import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameMode;
+import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.NotFound;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.responses.websocket.GameCreatedMessageData;
 import org.example.models.responses.websocket.GameStartedMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.services.JoinGameService;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 

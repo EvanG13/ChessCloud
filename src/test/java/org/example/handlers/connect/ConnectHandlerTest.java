@@ -13,7 +13,7 @@ import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.enums.TimeControl;
-import org.example.handlers.websocket.ConnectHandler;
+import org.example.handlers.websocket.connect.ConnectHandler;
 import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;

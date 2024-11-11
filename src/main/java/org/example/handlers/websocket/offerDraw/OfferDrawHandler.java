@@ -46,7 +46,8 @@ public class OfferDrawHandler
     // Switch on Draw action
     String responseMessage;
     try {
-      responseMessage = offerDrawService.performDrawAction(request.drawAction(), request.gameId(), connectionId);
+      responseMessage =
+          offerDrawService.performDrawAction(request.drawAction(), request.gameId(), connectionId);
     } catch (StatusCodeException e) {
       messenger.sendMessage(connectionId, e.getMessage());
       return e.makeWebsocketResponse();

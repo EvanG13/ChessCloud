@@ -1,4 +1,4 @@
-package org.example.handlers.rest;
+package org.example.handlers.rest.register;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeHttpResponse;
 
@@ -9,7 +9,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.models.requests.RegisterRequest;
-import org.example.services.RegisterService;
 import org.example.utils.ValidateObject;
 
 public class RegisterHandler

@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.rest.getGameState;
 
 import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;

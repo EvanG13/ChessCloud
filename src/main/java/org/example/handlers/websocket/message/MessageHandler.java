@@ -1,4 +1,4 @@
-package org.example.handlers.websocket;
+package org.example.handlers.websocket.message;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
 
@@ -10,12 +10,12 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
-import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameStatus;
+import org.example.enums.WebsocketResponseAction;
+import org.example.handlers.rest.getGameState.GameStateService;
 import org.example.models.requests.MessageRequest;
 import org.example.models.responses.websocket.ChatMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.services.GameStateService;
 import org.example.utils.socketMessenger.SocketEmitter;
 
 public class MessageHandler

@@ -67,8 +67,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -98,8 +97,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -129,8 +127,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -160,8 +157,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -192,8 +188,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -224,8 +219,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -259,8 +253,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -291,8 +284,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -330,8 +322,7 @@ public class OfferDrawHandlerTest {
     String denyingPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -369,8 +360,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -401,8 +391,7 @@ public class OfferDrawHandlerTest {
     String acceptingPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
+    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
@@ -453,8 +442,7 @@ public class OfferDrawHandlerTest {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request =
-        new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER);
+    OfferDrawRequest request = new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER);
     event.setBody(new Gson().toJson(request));
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =

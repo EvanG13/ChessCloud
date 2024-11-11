@@ -13,7 +13,7 @@ import org.example.constants.StatusCodes;
 import org.example.entities.session.SessionDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
-import org.example.handlers.rest.LoginHandler;
+import org.example.handlers.rest.login.LoginHandler;
 import org.example.models.requests.LoginRequest;
 import org.example.models.responses.rest.LoginResponseBody;
 import org.example.utils.MockContext;

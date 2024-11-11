@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.rest.logout;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +7,8 @@ import org.example.entities.session.SessionDbService;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
+import org.example.handlers.rest.getGameState.GameStateService;
+import org.example.handlers.websocket.gameOver.GameOverService;
 import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 

@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.handlers.websocket.gameOver;
 
 import chariot.util.Board;
 import com.mongodb.client.model.Updates;
@@ -11,10 +11,10 @@ import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
-import org.example.enums.WebsocketResponseAction;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
+import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.models.responses.websocket.GameOverMessageData;

@@ -10,7 +10,7 @@ import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.exceptions.Unauthorized;
-import org.example.services.GameOverService;
+import org.example.handlers.websocket.gameOver.GameOverService;
 import org.example.utils.socketMessenger.SocketMessenger;
 
 @Builder
