@@ -26,6 +26,7 @@ import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +68,8 @@ public class TimeoutHandlerTest {
                 moveList(new ArrayList<>()).
                 players(List.of(playerOne, playerTwo)).
                 gameStatus(GameStatus.ONGOING).timeControl(TimeControl.BLITZ_5).
+                lastModified(new Date()).
+                isWhitesTurn(true).
                 build();
         gameDbService.post(game);
 
@@ -74,6 +77,8 @@ public class TimeoutHandlerTest {
                 moveList(new ArrayList<>()).
                 players(List.of(playerOne, playerTwo)).
                 gameStatus(GameStatus.ONGOING).timeControl(TimeControl.BLITZ_10).
+                lastModified(new Date()).
+                isWhitesTurn(true).
                 build();
         gameDbService.post(game2);
     }
