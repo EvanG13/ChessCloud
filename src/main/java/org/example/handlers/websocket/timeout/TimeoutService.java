@@ -32,8 +32,19 @@ public class TimeoutService {
             throw new NotFound("No Game found with id " + gameId);
         }
 
+
+        Player reportingPlayer =
+                game.getPlayers().stream()
+                        .filter(player -> player.getConnectionId().equals(connectionId))
+                        .findFirst()
+                        .orElseThrow(() -> new Unauthorized("Your connection ID is not bound to this game"));
+        // or Forbidden (or something) because if not found among the two players, that should mean they
+        // aren't in the game?
+
+
         List<Player> players = game.getPlayers();
         Player timedOutPlayer;
+
         if(players.getFirst().getRemainingTime() < 1){
             timedOutPlayer = players.getFirst();
         }
@@ -48,14 +59,6 @@ public class TimeoutService {
             throw new InternalServerError("both players have no remaining time...");
             //maybe make this a draw? It should never happen.
         }
-
-        Player reportingPlayer =
-                game.getPlayers().stream()
-                        .filter(player -> player.getConnectionId().equals(connectionId))
-                        .findFirst()
-                        .orElseThrow(() -> new Unauthorized("Your connection ID is not bound to this game"));
-        // or Forbidden (or something) because if not found among the two players, that should mean they
-        // aren't in the game?
 
         GameOverService service =
                 new GameOverService(ResultReason.TIMEOUT, game, timedOutPlayer.getPlayerId(), messenger);
