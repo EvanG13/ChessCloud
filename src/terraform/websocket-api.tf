@@ -15,7 +15,8 @@ locals {
     joinGame   = "joinGame",
     makeMove   = "makeMove",
     resign     = "resign",
-    offerDraw  = "offerDraw"
+    offerDraw  = "offerDraw",
+    timeout    = "timeout"
   }
 }
 ################################################################################

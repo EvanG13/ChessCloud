@@ -53,7 +53,8 @@ variable "websocket_lambdas" {
     joinGame   = "org.example.handlers.websocket.joinGame.JoinGameHandler::handleRequest",
     makeMove   = "org.example.handlers.websocket.makeMove.MakeMoveHandler::handleRequest",
     resign     = "org.example.handlers.websocket.resign.ResignGameHandler::handleRequest",
-    offerDraw  = "org.example.handlers.websocket.offerDraw.OfferDrawHandler::handleRequest"
+    offerDraw  = "org.example.handlers.websocket.offerDraw.OfferDrawHandler::handleRequest",
+    timeout    = "org.example.handlers.websocket.timeout.TimeoutHandler::handleRequest"
   }
 }
 
