@@ -468,6 +468,8 @@ public class MakeMoveHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals("checkmate", response.getBody());
 
+    //if everything went as planned, then the game was deleted and archived.
+    // Therefore, recreate the game for the next test
     game.setId(gameId2);
     gameUtility.post(game);
 
@@ -498,7 +500,7 @@ public class MakeMoveHandlerTest {
     requestContext.setRequestTimeEpoch(System.currentTimeMillis());
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
-            MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(stalemateMove).build();
+            MakeMoveRequest.builder().gameId(gameId2).playerId(userId).move(stalemateMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
