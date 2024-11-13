@@ -41,11 +41,9 @@ public class TimeoutService {
     List<Player> players = game.getPlayers();
 
     Date lastModified = game.getLastModified();
-    System.out.println("last modified time in seconds" + lastModified.getTime() / 1000);
-    System.out.println("date now in seconds" + new Date().getTime() / 1000);
+
     long t =
         ((new Date().getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis
-    System.out.println("elapsed time in seconds: " + t);
 
     Player activePlayer;
     boolean isWhiteTurn = game.getIsWhitesTurn();
@@ -55,9 +53,8 @@ public class TimeoutService {
     } else {
       activePlayer = players.getLast();
     }
-    System.out.println("active player before adjustment: " + activePlayer);
+
     activePlayer.setRemainingTime((int) (activePlayer.getRemainingTime() - t));
-    System.out.println("active player after adjustment: " + activePlayer);
 
     Player timedOutPlayer;
 

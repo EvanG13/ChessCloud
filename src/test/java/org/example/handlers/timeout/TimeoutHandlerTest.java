@@ -125,7 +125,7 @@ public class TimeoutHandlerTest {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
   public void canTimeoutGame() {
     List<Player> players = game.getPlayers();
     players.getFirst().setRemainingTime(-1);
@@ -164,7 +164,30 @@ public class TimeoutHandlerTest {
   }
 
   @Test
-  @Order(4)
+  @Order(3)
+  public void bothPlayersAtZeroReturns500() {
+    List<Player> players = game.getPlayers();
+    players.getFirst().setRemainingTime(-1);
+    players.getLast().setRemainingTime(0);
+    gameDbService.put(game.getId(), game);
+
+    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    TimeoutRequest request = new TimeoutRequest(game.getId());
+    event.setBody(new Gson().toJson(request));
+
+    APIGatewayV2WebSocketEvent.RequestContext requestContext =
+        new APIGatewayV2WebSocketEvent.RequestContext();
+    requestContext.setConnectionId("whatever");
+    requestContext.setRouteKey("timeout");
+    event.setRequestContext(requestContext);
+
+    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+
+    assertEquals(StatusCodes.INTERNAL_SERVER_ERROR, response.getStatusCode());
+  }
+
+  @Test
+  @Order(5)
   public void canOtherPlayerTimeoutGame() {
 
     List<Player> players = game2.getPlayers();
@@ -205,7 +228,7 @@ public class TimeoutHandlerTest {
   }
 
   @Test
-  @Order(5)
+  @Order(6)
   public void checksForMissingBody() {
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     event.setBody(new Gson().toJson(Map.of("foo", "fooagain")));
@@ -223,7 +246,7 @@ public class TimeoutHandlerTest {
   }
 
   @Test
-  @Order(6)
+  @Order(7)
   public void checksThatGameExists() {
     APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     String fakeID = "fake";
