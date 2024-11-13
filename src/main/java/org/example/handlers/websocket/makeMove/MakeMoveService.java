@@ -143,7 +143,7 @@ public class MakeMoveService {
   * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
   * returns true if it is a checkmate, false otherwise
   * */
-  public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError, NotFound {
+  public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
 
     Board.GameState gameState = board.gameState();
@@ -162,7 +162,7 @@ public class MakeMoveService {
       else
         losingPlayerId = p2.getPlayerId();
 
-      GameOverService gameOverService = new GameOverService(ResultReason.CHECKMATE, losingPlayerId, messenger);
+      GameOverService gameOverService = new GameOverService(ResultReason.CHECKMATE, game, losingPlayerId, messenger);
       gameOverService.endGame();
 
       return true; //checkmate detected
@@ -176,11 +176,10 @@ public class MakeMoveService {
    * if the game arg is in a state of draw, this function will call the GameOverService to handle it
    * returns true if game is drawn, false otherwise
    * */
-  public boolean handleDraw(Game game, SocketMessenger messenger) throws InternalServerError, NotFound {
+  public boolean handleDraw(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
-    System.out.println("game FEN " + game.getGameStateAsFen());
+
     Board.GameState gameState = board.gameState();
-    System.out.println("game state found " + gameState);
 
     if(gameState.equals(Board.GameState.draw_by_fifty_move_rule) ||
             gameState.equals(Board.GameState.draw_by_threefold_repetition) ||
@@ -207,7 +206,7 @@ public class MakeMoveService {
         reason = ResultReason.STALEMATE;
       }
 
-      GameOverService gameOverService = new GameOverService(reason, losingPlayerId, messenger);
+      GameOverService gameOverService = new GameOverService(reason, game, losingPlayerId, messenger);
       gameOverService.endGame();
       return true;
     }
