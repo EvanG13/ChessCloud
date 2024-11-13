@@ -126,21 +126,21 @@ public class MakeMoveHandler
         new SocketResponseBody<>(WebsocketResponseAction.MOVE_MADE, data);
     socketMessenger.sendMessages(connectionIds[0], connectionIds[1], responseBody.toJSON());
 
-
-    //check if the game is now over due to the last move delivering checkmate / creating draw
+    // check if the game is now over due to the last move delivering checkmate / creating draw
     try {
-      if( service.handleCheckmate(game, socketMessenger) )
+      if (service.handleCheckmate(game, socketMessenger))
         return makeWebsocketResponse(StatusCodes.OK, "checkmate");
-    } catch (Exception e){
-      System.out.println("something went wrong when trying to check for checkmate: " + e.getMessage() );
+    } catch (Exception e) {
+      System.out.println(
+          "something went wrong when trying to check for checkmate: " + e.getMessage());
     }
 
     try {
-      if( service.handleDraw(game, socketMessenger) ){
+      if (service.handleDraw(game, socketMessenger)) {
         return makeWebsocketResponse(StatusCodes.OK, "draw");
       }
-    } catch (Exception e){
-      System.out.println("something went wrong when trying to check for draw: " + e );
+    } catch (Exception e) {
+      System.out.println("something went wrong when trying to check for draw: " + e);
     }
 
     return makeWebsocketResponse(StatusCodes.OK, responseBody.toJSON());

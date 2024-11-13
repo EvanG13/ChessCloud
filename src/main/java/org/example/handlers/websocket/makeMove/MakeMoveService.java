@@ -16,7 +16,6 @@ import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.exceptions.Unauthorized;
 import org.example.handlers.websocket.gameOver.GameOverService;
-import org.example.utils.socketMessenger.SocketEmitter;
 import org.example.utils.socketMessenger.SocketMessenger;
 
 @AllArgsConstructor
@@ -138,18 +137,17 @@ public class MakeMoveService {
     return Map.of("white", whiteTime, "black", blackTime);
   }
 
-
   /*
-  * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
-  * returns true if it is a checkmate, false otherwise
-  * */
+   * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
+   * returns true if it is a checkmate, false otherwise
+   * */
   public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
 
     Board.GameState gameState = board.gameState();
-    if(gameState.equals(Board.GameState.checkmate)){
+    if (gameState.equals(Board.GameState.checkmate)) {
 
-      //find out whose turn it would be if checkmate hadn't occurred (they are the losing player)
+      // find out whose turn it would be if checkmate hadn't occurred (they are the losing player)
       boolean isWhiteTurn = game.getIsWhitesTurn();
 
       Player p1 = game.getPlayers().getFirst();
@@ -157,19 +155,17 @@ public class MakeMoveService {
 
       String losingPlayerId;
 
-      if(p1.getIsWhite() == isWhiteTurn)
-        losingPlayerId = p1.getPlayerId();
-      else
-        losingPlayerId = p2.getPlayerId();
+      if (p1.getIsWhite() == isWhiteTurn) losingPlayerId = p1.getPlayerId();
+      else losingPlayerId = p2.getPlayerId();
 
-      GameOverService gameOverService = new GameOverService(ResultReason.CHECKMATE, game, losingPlayerId, messenger);
+      GameOverService gameOverService =
+          new GameOverService(ResultReason.CHECKMATE, game, losingPlayerId, messenger);
       gameOverService.endGame();
 
-      return true; //checkmate detected
+      return true; // checkmate detected
     }
 
-    return false; //no checkmate detected
-
+    return false; // no checkmate detected
   }
 
   /*
@@ -181,36 +177,33 @@ public class MakeMoveService {
 
     Board.GameState gameState = board.gameState();
 
-    if(gameState.equals(Board.GameState.draw_by_fifty_move_rule) ||
-            gameState.equals(Board.GameState.draw_by_threefold_repetition) ||
-            gameState.equals(Board.GameState.stalemate)
-    ){
-      //handle draw
+    if (gameState.equals(Board.GameState.draw_by_fifty_move_rule)
+        || gameState.equals(Board.GameState.draw_by_threefold_repetition)
+        || gameState.equals(Board.GameState.stalemate)) {
+      // handle draw
 
-      //find out whose turn it would be if draw hadn't occurred (they are the reporting player)
+      // find out whose turn it would be if draw hadn't occurred (they are the reporting player)
       boolean isWhiteTurn = game.getIsWhitesTurn();
       Player p1 = game.getPlayers().getFirst();
       Player p2 = game.getPlayers().getLast();
       String losingPlayerId;
-      if(p1.getIsWhite() == isWhiteTurn)
-        losingPlayerId = p1.getPlayerId();
-      else
-        losingPlayerId = p2.getPlayerId();
+      if (p1.getIsWhite() == isWhiteTurn) losingPlayerId = p1.getPlayerId();
+      else losingPlayerId = p2.getPlayerId();
 
       ResultReason reason;
-      if(gameState.equals(Board.GameState.draw_by_fifty_move_rule))
+      if (gameState.equals(Board.GameState.draw_by_fifty_move_rule))
         reason = ResultReason.FIFTY_MOVE_RULE;
-      else if(gameState.equals(Board.GameState.draw_by_threefold_repetition))
+      else if (gameState.equals(Board.GameState.draw_by_threefold_repetition))
         reason = ResultReason.REPETITION;
-      else{
+      else {
         reason = ResultReason.STALEMATE;
       }
 
-      GameOverService gameOverService = new GameOverService(reason, game, losingPlayerId, messenger);
+      GameOverService gameOverService =
+          new GameOverService(reason, game, losingPlayerId, messenger);
       gameOverService.endGame();
       return true;
     }
     return false;
-
   }
 }

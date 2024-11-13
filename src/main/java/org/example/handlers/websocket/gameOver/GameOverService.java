@@ -121,7 +121,6 @@ public class GameOverService {
     updateRatings();
 
     archiveGame();
-
   }
 
   private boolean isGameOver(String FEN) {

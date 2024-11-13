@@ -10,10 +10,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.move.Move;
@@ -99,11 +97,11 @@ public class MakeMoveHandlerTest {
     invalidMove = "e2e7";
     secondInvalidMove = "e9";
 
-    //setup to check checkmate
+    // setup to check checkmate
     checkmateInOneFEN = "rnbqkbnr/p2p1ppp/1p6/2p1p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1";
     checkmateMove = "f3f7";
 
-    //setup to draw
+    // setup to draw
     stalemateInOneFEN = "1k6/3Q2R1/8/8/4P3/8/PPP3P1/RNB1K1N1 w KQkq - 0 1";
     stalemateMove = "d7c6";
 
@@ -148,8 +146,6 @@ public class MakeMoveHandlerTest {
 
     statsUtility.delete(userId);
     statsUtility.delete(userId2);
-
-
   }
 
   @DisplayName("GAME CREATED ✅")
@@ -440,7 +436,7 @@ public class MakeMoveHandlerTest {
   @Order(10)
   public void returnSuccessAndHandleCheckmate() throws NotFound {
 
-    //setup board for a checkmate
+    // setup board for a checkmate
     Game game = gameUtility.get(gameId);
     game.setGameStateAsFen(checkmateInOneFEN);
     game.setMoveList(new ArrayList<>());
@@ -455,24 +451,23 @@ public class MakeMoveHandlerTest {
     Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
-            new APIGatewayV2WebSocketEvent.RequestContext();
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
     requestContext.setRequestTimeEpoch(System.currentTimeMillis());
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
-            MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(checkmateMove).build();
+        MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(checkmateMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals("checkmate", response.getBody());
 
-    //if everything went as planned, then the game was deleted and archived.
+    // if everything went as planned, then the game was deleted and archived.
     // Therefore, recreate the game for the next test
     game.setId(gameId2);
     gameUtility.post(game);
-
   }
 
   @Test
@@ -480,7 +475,7 @@ public class MakeMoveHandlerTest {
   @Order(11)
   public void returnSuccessAndHandleStalemate() throws NotFound {
 
-    //setup board for a stalemate
+    // setup board for a stalemate
     Game game = gameUtility.get(gameId2);
     game.setIsWhitesTurn(true);
     game.setGameStateAsFen(stalemateInOneFEN);
@@ -494,18 +489,17 @@ public class MakeMoveHandlerTest {
     Context context = new MockContext();
 
     APIGatewayV2WebSocketEvent.RequestContext requestContext =
-            new APIGatewayV2WebSocketEvent.RequestContext();
+        new APIGatewayV2WebSocketEvent.RequestContext();
     requestContext.setConnectionId(connectId);
     requestContext.setRouteKey("makeMove");
     requestContext.setRequestTimeEpoch(System.currentTimeMillis());
     event.setRequestContext(requestContext);
     MakeMoveRequest request =
-            MakeMoveRequest.builder().gameId(gameId2).playerId(userId).move(stalemateMove).build();
+        MakeMoveRequest.builder().gameId(gameId2).playerId(userId).move(stalemateMove).build();
     event.setBody(gson.toJson(request));
 
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
     assertEquals("draw", response.getBody());
-
   }
 }
