@@ -137,9 +137,9 @@ public class MakeMoveService {
     return Map.of("white", whiteTime, "black", blackTime);
   }
 
-  /*
+  /**
    * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
-   * returns true if it is a checkmate, false otherwise
+   * @return true if it is a checkmate, false otherwise
    * */
   public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
@@ -168,9 +168,9 @@ public class MakeMoveService {
     return false; // no checkmate detected
   }
 
-  /*
+  /**
    * if the game arg is in a state of draw, this function will call the GameOverService to handle it
-   * returns true if game is drawn, false otherwise
+   * @return true if game is drawn, false otherwise
    * */
   public boolean handleDraw(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
