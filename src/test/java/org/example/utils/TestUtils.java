@@ -56,9 +56,13 @@ public class TestUtils {
 
   public static Game validGame(TimeControl timeControl, User playerOne, User playerTwo)
       throws Exception {
-    Game game = new Game(timeControl, playerDbService.toPlayer(playerOne, "foo-id", false));
+    Game game =
+        new Game(
+            timeControl,
+            playerDbService.toPlayer(playerOne, ChessConstants.BASE_RATING, "foo-id", false));
 
-    game.setup(playerDbService.toPlayer(playerTwo, "foo-id-again", false));
+    game.setup(
+        playerDbService.toPlayer(playerTwo, ChessConstants.BASE_RATING, "foo-id-again", false));
 
     return game;
   }

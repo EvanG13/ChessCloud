@@ -131,7 +131,7 @@ public class MakeMoveHandler
       if (service.handleCheckmate(game, socketMessenger))
         return makeWebsocketResponse(StatusCodes.OK, "checkmate");
     } catch (Exception e) {
-      logger.log( "something went wrong when trying to check for checkmate: " + e, LogLevel.ERROR);
+      logger.log("something went wrong when trying to check for checkmate: " + e, LogLevel.ERROR);
     }
 
     try {

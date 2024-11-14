@@ -9,6 +9,7 @@ import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
+import org.example.entities.stats.GameModeStats;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.enums.GameMode;
@@ -155,8 +156,8 @@ public class GameOverService {
   public void updateRatings() throws InternalServerError {
     GameMode gameMode = game.getTimeControl().getGameMode();
 
-    Stats.GameModeStats winningGameModeStats = winningPlayerStats.getGamemodeStats(gameMode);
-    Stats.GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);
+    GameModeStats winningGameModeStats = winningPlayerStats.getGamemodeStats(gameMode);
+    GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);
 
     switch (resultReason) {
       // Someone abandoned the game: AFK, abandoned / logged out early on
@@ -178,9 +179,7 @@ public class GameOverService {
     }
 
     MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);
-    statsUtility.patch(
-        winningPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), winningGameModeStats));
-    statsUtility.patch(
-        losingPlayerId, Updates.set("gameModeStats." + gameMode.asKey(), losingGameModeStats));
+    statsUtility.put(winningPlayerId, winningPlayerStats);
+    statsUtility.put(losingPlayerId, losingPlayerStats);
   }
 }
