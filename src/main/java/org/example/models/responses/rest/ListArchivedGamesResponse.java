@@ -16,7 +16,7 @@ public class ListArchivedGamesResponse extends ResponseBody {
 
   @Override
   public String toJSON() {
-    Set<String> fieldsToExclude = Set.of("moveList", "rating");
+    Set<String> fieldsToExclude = Set.of("moveList");
     Gson gsonWithoutMoveList =
         new GsonBuilder()
             .setExclusionStrategies(new FieldExclusionStrategy(fieldsToExclude))
