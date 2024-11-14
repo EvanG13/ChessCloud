@@ -10,10 +10,13 @@ import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.move.Move;
 import org.example.entities.player.Player;
+import org.example.enums.ResultReason;
 import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.exceptions.Unauthorized;
+import org.example.handlers.websocket.gameOver.GameOverService;
+import org.example.utils.socketMessenger.SocketMessenger;
 
 @AllArgsConstructor
 public class MakeMoveService {
@@ -132,5 +135,75 @@ public class MakeMoveService {
     int whiteTime = whitePlayer.getRemainingTime();
     int blackTime = blackPlayer.getRemainingTime();
     return Map.of("white", whiteTime, "black", blackTime);
+  }
+
+  /**
+   * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
+   * @return true if it is a checkmate, false otherwise
+   * */
+  public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError {
+    Board board = Board.fromFEN(game.getGameStateAsFen());
+
+    Board.GameState gameState = board.gameState();
+    if (gameState.equals(Board.GameState.checkmate)) {
+
+      // find out whose turn it would be if checkmate hadn't occurred (they are the losing player)
+      boolean isWhiteTurn = game.getIsWhitesTurn();
+
+      Player p1 = game.getPlayers().getFirst();
+      Player p2 = game.getPlayers().getLast();
+
+      String losingPlayerId;
+
+      if (p1.getIsWhite() == isWhiteTurn) losingPlayerId = p1.getPlayerId();
+      else losingPlayerId = p2.getPlayerId();
+
+      GameOverService gameOverService =
+          new GameOverService(ResultReason.CHECKMATE, game, losingPlayerId, messenger);
+      gameOverService.endGame();
+
+      return true; // checkmate detected
+    }
+
+    return false; // no checkmate detected
+  }
+
+  /**
+   * if the game arg is in a state of draw, this function will call the GameOverService to handle it
+   * @return true if game is drawn, false otherwise
+   * */
+  public boolean handleDraw(Game game, SocketMessenger messenger) throws InternalServerError {
+    Board board = Board.fromFEN(game.getGameStateAsFen());
+
+    Board.GameState gameState = board.gameState();
+
+    if (gameState.equals(Board.GameState.draw_by_fifty_move_rule)
+        || gameState.equals(Board.GameState.draw_by_threefold_repetition)
+        || gameState.equals(Board.GameState.stalemate)) {
+      // handle draw
+
+      // find out whose turn it would be if draw hadn't occurred (they are the reporting player)
+      boolean isWhiteTurn = game.getIsWhitesTurn();
+      Player p1 = game.getPlayers().getFirst();
+      Player p2 = game.getPlayers().getLast();
+      String losingPlayerId;
+      if (p1.getIsWhite() == isWhiteTurn) losingPlayerId = p1.getPlayerId();
+      else losingPlayerId = p2.getPlayerId();
+
+      ResultReason reason;
+      if (gameState.equals(Board.GameState.draw_by_fifty_move_rule))
+        reason = ResultReason.FIFTY_MOVE_RULE;
+      else if (gameState.equals(Board.GameState.draw_by_threefold_repetition))
+        reason = ResultReason.REPETITION;
+      else {
+        reason = ResultReason.STALEMATE;
+      }
+
+      GameOverService gameOverService =
+          new GameOverService(reason, game, losingPlayerId, messenger);
+      gameOverService.endGame();
+      return true;
+    }
+    return false;
   }
 }

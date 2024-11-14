@@ -77,10 +77,6 @@ public class GameOverService {
 
     this.winningPlayerStats = statsDbService.getStatsByUserID(winningPlayerId);
     this.losingPlayerStats = statsDbService.getStatsByUserID(losingPlayerId);
-
-    emitOutcome();
-    updateGame();
-    updateRatings();
   }
 
   public GameOverService(
@@ -117,9 +113,13 @@ public class GameOverService {
   }
 
   public void endGame() throws InternalServerError {
+
     emitOutcome();
+
     updateGame();
+
     updateRatings();
+
     archiveGame();
   }
 
@@ -137,6 +137,7 @@ public class GameOverService {
                 WebsocketResponseAction.GAME_OVER,
                 new GameOverMessageData(resultReason, winningPlayerUsername, losingPlayerUsername))
             .toJSON();
+
     socketMessenger.sendMessages(connId, connId2, messageJson);
   }
 
@@ -169,7 +170,7 @@ public class GameOverService {
         losingGameModeStats.AddLoss(winningGameModeStats.getRating(), winningGameModeStats.getRD());
       }
       // Game was a draw
-      case MUTUAL_DRAW, REPETITION, INSUFFICIENT_MATERIAL -> {
+      case MUTUAL_DRAW, REPETITION, INSUFFICIENT_MATERIAL, STALEMATE, FIFTY_MOVE_RULE -> {
         winningGameModeStats.AddDraw(losingGameModeStats.getRating(), losingGameModeStats.getRD());
         losingGameModeStats.AddDraw(winningGameModeStats.getRating(), winningGameModeStats.getRD());
       }

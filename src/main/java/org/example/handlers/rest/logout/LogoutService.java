@@ -24,6 +24,7 @@ public class LogoutService {
     GameOverService gameOverService;
     try {
       gameOverService = new GameOverService(ResultReason.FORFEIT, userId, socketMessenger);
+      gameOverService.endGame();
     } catch (NotFound e) {
       return;
     }

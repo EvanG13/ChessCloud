@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.HashMap;
 import java.util.Map;
 import org.example.constants.StatusCodes;
+import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.player.Player;
@@ -16,7 +17,6 @@ import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsDbService;
 import org.example.entities.user.User;
 import org.example.entities.user.UserDbService;
-import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.rest.getGameState.GameStateService;
@@ -33,7 +33,8 @@ public class LogoutHandlerTest {
   private static GameDbService gameUtility;
   private static StatsDbService statsUtility;
   private static UserDbService usersUtility;
-
+  private static final ArchivedGameDbService archivedGameDbService =
+      ArchivedGameDbService.builder().build();
   private static LogoutHandler logoutHandler;
 
   private static final String gameId = "super-extreme-duper-fake-game-id";
@@ -71,6 +72,8 @@ public class LogoutHandlerTest {
 
     usersUtility.deleteUser(userId);
     usersUtility.deleteUser(user2id);
+
+    archivedGameDbService.deleteArchivedGame(gameId);
   }
 
   @DisplayName("User can logout 🔀")
@@ -115,13 +118,13 @@ public class LogoutHandlerTest {
   @Order(3)
   void successfulLogoutForfeitsGame() {
 
-    Player player = Player.builder().playerId(userId).build();
+    Player player = Player.builder().playerId(userId).username("userone").build();
 
     Game newGame = new Game(TimeControl.BLITZ_5, player);
     newGame.setId(gameId);
 
-    User user1 = User.builder().id(userId).build();
-    User user2 = User.builder().id(user2id).build();
+    User user1 = User.builder().id(userId).username("userone").build();
+    User user2 = User.builder().id(user2id).username("usertwo").build();
     usersUtility.createUser(user1);
     usersUtility.createUser(user2);
 
@@ -132,7 +135,7 @@ public class LogoutHandlerTest {
     statsUtility.post(user2Stats);
 
     try {
-      newGame.setup(Player.builder().playerId(user2id).build());
+      newGame.setup(Player.builder().playerId(user2id).username("usertwo").build());
     } catch (Exception e) {
       fail(e.getMessage());
       return;
@@ -152,17 +155,16 @@ public class LogoutHandlerTest {
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
 
-    Game game;
     try {
-      game = gameUtility.get(gameId);
+      archivedGameDbService.getArchivedGame(gameId);
     } catch (NotFound e) {
-      fail("Game not found");
+      fail("archived game not found");
       return;
     }
+    assertThrows(NotFound.class, () -> gameUtility.get(gameId));
 
     assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken2));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals(GameStatus.FINISHED, game.getGameStatus());
   }
 }
