@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.example.constants.StatusCodes;
+import org.example.entities.game.ArchivedGameDbService;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameDbService;
 import org.example.entities.move.Move;
@@ -146,6 +147,10 @@ public class MakeMoveHandlerTest {
 
     statsUtility.delete(userId);
     statsUtility.delete(userId2);
+
+    ArchivedGameDbService archivedService = ArchivedGameDbService.builder().build();
+    archivedService.deleteArchivedGame(gameId);
+    archivedService.deleteArchivedGame(gameId2);
   }
 
   @DisplayName("GAME CREATED ✅")
