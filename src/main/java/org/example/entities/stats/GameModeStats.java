@@ -3,10 +3,14 @@ package org.example.entities.stats;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.annotations.GsonExcludeField;
 import org.example.constants.ChessConstants;
 
 @Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class GameModeStats {
   private Integer wins;
@@ -16,14 +20,6 @@ public class GameModeStats {
 
   @GsonExcludeField
   private Double RD; // rating deviation used in Glicko rating system (what chess.com uses)
-
-  public GameModeStats() {
-    this(ChessConstants.BASE_RATING, ChessConstants.BASE_RD);
-  }
-
-  public GameModeStats(int rating) {
-    this(rating, ChessConstants.BASE_RD);
-  }
 
   public GameModeStats(int rating, double rd) {
     this.wins = 0;

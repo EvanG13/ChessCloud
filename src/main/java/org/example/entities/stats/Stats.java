@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.annotations.CustomExclusionPolicy;
+import org.example.constants.ChessConstants;
 import org.example.entities.DataTransferObject;
 import org.example.enums.GameMode;
 
@@ -26,7 +27,7 @@ public class Stats extends DataTransferObject {
     this.gameModeStats = new HashMap<>();
     for (GameMode gameMode : GameMode.values()) {
       // case insensitive
-      gameModeStats.put(gameMode.asKey(), new GameModeStats());
+      gameModeStats.put(gameMode.asKey(), new GameModeStats(ChessConstants.BASE_RATING, ChessConstants.BASE_RD));
     }
   }
 
@@ -106,6 +107,6 @@ public class Stats extends DataTransferObject {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, gameModeStats);
+    return Objects.hash(id, Objects.hash(gameModeStats));
   }
 }
