@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
@@ -59,8 +60,9 @@ public class TimeoutHandlerTest {
     statsDbService = new StatsDbService();
     userOne = validUser();
     userTwo = validUser();
-    playerOne = playerDbService.toPlayer(userOne, "whatever", true);
-    playerTwo = playerDbService.toPlayer(userTwo, "secondWhatever", false);
+    playerOne = playerDbService.toPlayer(userOne, ChessConstants.BASE_RATING, "whatever", true);
+    playerTwo =
+        playerDbService.toPlayer(userTwo, ChessConstants.BASE_RATING, "secondWhatever", false);
     playerOne.setRemainingTime(100);
     playerTwo.setRemainingTime(12);
 

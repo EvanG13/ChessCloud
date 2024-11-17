@@ -1,6 +1,7 @@
 package org.example.handlers.websocket.makeMove;
 
 import chariot.util.Board;
+import com.github.bhlangonijr.chesslib.Piece;
 import com.mongodb.client.model.Updates;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,15 @@ public class MakeMoveService {
   }
 
   private boolean isMoveLegal(String move) {
-    return board.validMoves().stream().map(Board.Move::uci).toList().contains(move);
+    // if length not 4 or 5, not legal
+    if (move.length() < 4 || 5 < move.length())
+      return false;
+
+    // if promotion, and promotion char isn't queen or knight, not legal
+    if (move.length() == 5 && !(move.charAt(4) == 'q' || move.charAt(4) == 'n'))
+      return false;
+
+    return board.validMoves().stream().map(Board.Move::uci).toList().contains(move.substring(0, 4));
   }
 
   public Game loadGame(String gameId, String connectionId, String playerId)
@@ -81,12 +90,20 @@ public class MakeMoveService {
   }
 
   public Game makeMove(String moveUCI, Game game, Date time) throws BadRequest {
-    if (!isMoveLegal(moveUCI)) {
+    // Check move is legal
+    if (!isMoveLegal(moveUCI))
       throw new BadRequest("Illegal Move: " + moveUCI);
-    }
 
+    // If the piece being moved is a pawn, but promotion not defined
+    Board.Piece piece = board.get(moveUCI.substring(0, 2));
+    char toRank = moveUCI.charAt(3);
+    if (piece.type() == Board.PieceType.PAWN && moveUCI.length() < 5 && (toRank == '8' || toRank == '1'))
+      throw new BadRequest("Pawn being moved can promote, but promotion not defined");
+
+    // Make move
     String san = board.toSAN(moveUCI);
     board = board.play(moveUCI);
+
     Date lastModified = game.getLastModified();
 
     long t = ((time.getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis
@@ -138,9 +155,11 @@ public class MakeMoveService {
   }
 
   /**
-   * if the game arg is in a state of checkmate, this function will call the GameOverService to handle it
+   * if the game arg is in a state of checkmate, this function will call the GameOverService to
+   * handle it
+   *
    * @return true if it is a checkmate, false otherwise
-   * */
+   */
   public boolean handleCheckmate(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
 
@@ -170,8 +189,9 @@ public class MakeMoveService {
 
   /**
    * if the game arg is in a state of draw, this function will call the GameOverService to handle it
+   *
    * @return true if game is drawn, false otherwise
-   * */
+   */
   public boolean handleDraw(Game game, SocketMessenger messenger) throws InternalServerError {
     Board board = Board.fromFEN(game.getGameStateAsFen());
 

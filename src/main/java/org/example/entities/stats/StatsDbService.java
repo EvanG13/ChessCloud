@@ -1,6 +1,8 @@
 package org.example.entities.stats;
 
 import java.util.Optional;
+
+import org.bson.conversions.Bson;
 import org.example.entities.user.User;
 import org.example.exceptions.InternalServerError;
 import org.example.utils.MongoDBUtility;
@@ -22,7 +24,7 @@ public class StatsDbService {
   public Stats getStatsByUserID(String userId) throws InternalServerError {
     return statsDBUtility
         .get(userId)
-        .orElseThrow(() -> new InternalServerError("Missing User's Stats"));
+        .orElseThrow(() -> new InternalServerError("Missing User's Stats for userId: " + userId));
   }
 
   public void deleteStats(String id) {
@@ -31,5 +33,13 @@ public class StatsDbService {
 
   public void post(Stats stats) {
     statsDBUtility.post(stats);
+  }
+
+  public void put(String id, Stats stats) {
+    statsDBUtility.put(id, stats);
+  }
+
+  public void patch(String id, Bson filter) {
+    statsDBUtility.patch(id, filter);
   }
 }
