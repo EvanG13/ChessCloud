@@ -90,6 +90,7 @@ public class MakeMoveService {
   }
 
   public Game makeMove(String moveUCI, Game game, Date time) throws BadRequest {
+    // Check move is legal
     if (!isMoveLegal(moveUCI))
       throw new BadRequest("Illegal Move: " + moveUCI);
 
@@ -97,8 +98,9 @@ public class MakeMoveService {
     Board.Piece piece = board.get(moveUCI.substring(0, 2));
     char toRank = moveUCI.charAt(3);
     if (piece.type() == Board.PieceType.PAWN && moveUCI.length() < 5 && (toRank == '8' || toRank == '1'))
-      moveUCI += 'q'; // promote to queen by default
+      throw new BadRequest("Pawn being moved can promote, but promotion not defined");
 
+    // Make move
     String san = board.toSAN(moveUCI);
     board = board.play(moveUCI);
 
