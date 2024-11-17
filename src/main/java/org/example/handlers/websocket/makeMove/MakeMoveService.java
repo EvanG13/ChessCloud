@@ -1,6 +1,7 @@
 package org.example.handlers.websocket.makeMove;
 
 import chariot.util.Board;
+import com.github.bhlangonijr.chesslib.Piece;
 import com.mongodb.client.model.Updates;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,15 @@ public class MakeMoveService {
   }
 
   private boolean isMoveLegal(String move) {
-    return board.validMoves().stream().map(Board.Move::uci).toList().contains(move);
+    // if length not 4 or 5, not legal
+    if (move.length() < 4 || 5 < move.length())
+      return false;
+
+    // if promotion, and promotion char isn't queen or knight, not legal
+    if (move.length() == 5 && !(move.charAt(4) == 'q' || move.charAt(4) == 'n'))
+      return false;
+
+    return board.validMoves().stream().map(Board.Move::uci).toList().contains(move.substring(0, 4));
   }
 
   public Game loadGame(String gameId, String connectionId, String playerId)
@@ -81,12 +90,17 @@ public class MakeMoveService {
   }
 
   public Game makeMove(String moveUCI, Game game, Date time) throws BadRequest {
-    if (!isMoveLegal(moveUCI)) {
+    if (!isMoveLegal(moveUCI))
       throw new BadRequest("Illegal Move: " + moveUCI);
-    }
+
+    // If the piece being moved is a pawn, but promotion not defined
+    Board.Piece piece = board.get(moveUCI.substring(0, 2));
+    if (piece.type() == Board.PieceType.PAWN && moveUCI.length() < 5)
+      moveUCI += 'q'; // promote to queen by default
 
     String san = board.toSAN(moveUCI);
     board = board.play(moveUCI);
+
     Date lastModified = game.getLastModified();
 
     long t = ((time.getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis

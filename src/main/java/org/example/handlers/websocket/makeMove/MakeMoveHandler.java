@@ -59,7 +59,7 @@ public class MakeMoveHandler
     String playerId = requestData.getPlayerId();
 
     String gameId = requestData.getGameId();
-    String move = requestData.getMove();
+    String move = requestData.getMove().toLowerCase();
 
     Game game;
     try {
