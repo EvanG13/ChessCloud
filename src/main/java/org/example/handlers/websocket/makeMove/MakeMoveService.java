@@ -95,7 +95,8 @@ public class MakeMoveService {
 
     // If the piece being moved is a pawn, but promotion not defined
     Board.Piece piece = board.get(moveUCI.substring(0, 2));
-    if (piece.type() == Board.PieceType.PAWN && moveUCI.length() < 5)
+    char toRank = moveUCI.charAt(3);
+    if (piece.type() == Board.PieceType.PAWN && moveUCI.length() < 5 && (toRank == '8' || toRank == '1'))
       moveUCI += 'q'; // promote to queen by default
 
     String san = board.toSAN(moveUCI);
