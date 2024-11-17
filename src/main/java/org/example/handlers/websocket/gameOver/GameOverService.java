@@ -178,8 +178,7 @@ public class GameOverService {
       default -> throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
 
-    MongoDBUtility<Stats> statsUtility = new MongoDBUtility<>("stats", Stats.class);
-    statsUtility.put(winningPlayerId, winningPlayerStats);
-    statsUtility.put(losingPlayerId, losingPlayerStats);
+    statsDbService.put(winningPlayerId, winningPlayerStats);
+    statsDbService.put(losingPlayerId, losingPlayerStats);
   }
 }
