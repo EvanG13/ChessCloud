@@ -15,6 +15,8 @@ import com.mongodb.client.model.Indexes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -83,6 +85,11 @@ public class MongoDBUtility<T extends DataTransferObject> {
   }
 
   public void put(String id, T object) {
+    ReplaceOptions options = new ReplaceOptions().upsert(true);
+    getCollection().replaceOne(eq("_id", id), object, options);
+  }
+
+  public void replace(String id, T object) {
     getCollection().replaceOne(eq("_id", id), object);
   }
 
