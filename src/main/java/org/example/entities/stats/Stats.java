@@ -27,7 +27,8 @@ public class Stats extends DataTransferObject {
     this.gameModeStats = new HashMap<>();
     for (GameMode gameMode : GameMode.values()) {
       // case insensitive
-      gameModeStats.put(gameMode.asKey(), new GameModeStats(ChessConstants.BASE_RATING, ChessConstants.BASE_RD));
+      gameModeStats.put(
+          gameMode.asKey(), new GameModeStats(ChessConstants.BASE_RATING, ChessConstants.BASE_RD));
     }
   }
 
