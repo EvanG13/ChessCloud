@@ -4,16 +4,12 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
 jobs:
-  test:
+  unit-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Create temp .env file
         run: |
@@ -28,7 +24,7 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests -DskipSwaggerCodegen -DskipSpotifyFormat
+        run: mvn --batch-mode --update-snapshots clean package -DskipTests -DskipSwaggerCodegen -DskipSpotifyFormat
 
       - name: Run unit tests
-        run: mvn test -DskipSwaggerCodegen -DskipSpotifyFormat
+        run: mvn --batch-mode test -DskipSwaggerCodegen -DskipSpotifyFormat

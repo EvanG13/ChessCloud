@@ -1,7 +1,6 @@
 package org.example.entities.stats;
 
 import java.util.Optional;
-
 import org.bson.conversions.Bson;
 import org.example.entities.user.User;
 import org.example.exceptions.InternalServerError;
