@@ -2,14 +2,15 @@ package org.example.handlers.resign;
 
 import static org.example.utils.TestUtils.validGame;
 import static org.example.utils.TestUtils.validUser;
+import static org.example.utils.WebsocketTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
+
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
@@ -26,7 +27,6 @@ import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.resign.ResignGameHandler;
 import org.example.handlers.websocket.resign.ResignGameService;
 import org.example.models.requests.ResignRequest;
-import org.example.utils.MockContext;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
@@ -40,9 +40,11 @@ public class ResignGameHandlerTest {
   private static Game game;
   private static User userOne;
   private static User userTwo;
+  private static Gson gson;
 
   @BeforeAll
   public static void setUp() throws Exception {
+    gson = new Gson();
     handler = new ResignGameHandler(new ResignGameService(), new SocketSystemLogger());
 
     archivedGameDbService = ArchivedGameDbService.builder().build();
@@ -60,19 +62,13 @@ public class ResignGameHandlerTest {
   @Test
   @Order(1)
   public void checkNonPlayerUserTriedResigning() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(new Gson().toJson(Map.of("gameId", game.getId())));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new ResignRequest(game.getId())),
+        makeRequestContext("resign", "some-other-guy")
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("some-other-guy");
-    requestContext.setRouteKey("resign");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("Your connection ID is not bound to this game", response.getBody());
+    assertResponse(response, StatusCodes.UNAUTHORIZED, "Your connection ID is not bound to this game");
   }
 
   @Test
@@ -82,17 +78,11 @@ public class ResignGameHandlerTest {
 
     String winningPlayerId = players.getLast().getPlayerId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    ResignRequest request = new ResignRequest(game.getId());
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("foo-id");
-    requestContext.setRouteKey("resign");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new ResignRequest(game.getId())),
+        makeRequestContext("resign", "foo-id")
+    );
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -113,37 +103,27 @@ public class ResignGameHandlerTest {
 
   @Test
   public void checksForMissingBody() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(new Gson().toJson(Map.of("foo", "fooagain")));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(Map.of("foo", "fooagain")),
+        makeRequestContext("resign", "foo-id")
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("foo-id");
-    requestContext.setRouteKey("resign");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Missing argument(s)", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Missing argument(s)");
   }
 
   @Test
   public void checksThatGameExists() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     String fakeID = "fake";
-    event.setBody(new Gson().toJson(Map.of("gameId", fakeID)));
+    String expectedBody = "No Game found with id " + fakeID;
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("foo-id");
-    requestContext.setRouteKey("resign");
-    event.setRequestContext(requestContext);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new ResignRequest(fakeID)),
+        makeRequestContext("resign", "foo-id")
+    );
 
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
-    assertEquals("No Game found with id " + fakeID, response.getBody());
+    assertResponse(response, StatusCodes.NOT_FOUND, expectedBody);
   }
 
   @AfterAll
