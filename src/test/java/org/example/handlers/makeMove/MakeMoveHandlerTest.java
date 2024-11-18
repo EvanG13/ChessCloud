@@ -1,9 +1,8 @@
 package org.example.handlers.makeMove;
 
+import static org.example.utils.WebsocketTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,7 +30,6 @@ import org.example.models.requests.MakeMoveRequest;
 import org.example.models.responses.websocket.GameStartedMessageData;
 import org.example.models.responses.websocket.MakeMoveMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
@@ -157,21 +155,12 @@ public class MakeMoveHandlerTest {
   @Test
   @Order(1)
   public void returnGameCreated() {
+    APIGatewayV2WebSocketResponse response = getResponse(
+        joinGameHandler,
+        gson.toJson(new JoinGameRequest(userId, timeControl)),
+        makeRequestContext("joinGame", connectId)
+    );
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("joinGame");
-
-    event.setRequestContext(requestContext);
-    JoinGameRequest request = new JoinGameRequest("joinGame", userId, timeControl);
-    event.setBody(gson.toJson(request));
-
-    APIGatewayV2WebSocketResponse response = joinGameHandler.handleRequest(event, context);
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
   }
 
@@ -179,19 +168,12 @@ public class MakeMoveHandlerTest {
   @DisplayName("GAME STARTED")
   @Order(2)
   public void returnGameStarted() throws NotFound {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    APIGatewayV2WebSocketResponse response = getResponse(
+        joinGameHandler,
+        gson.toJson(new JoinGameRequest(userId2, timeControl)),
+        makeRequestContext("joinGame", connectId2)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId2);
-    requestContext.setRouteKey("joinGame");
-
-    event.setRequestContext(requestContext);
-    JoinGameRequest request = new JoinGameRequest("joinGame", userId2, timeControl);
-    event.setBody(gson.toJson(request));
-
-    APIGatewayV2WebSocketResponse response =
-        joinGameHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Type responseType = new TypeToken<SocketResponseBody<GameStartedMessageData>>() {}.getType();
@@ -222,74 +204,47 @@ public class MakeMoveHandlerTest {
   @DisplayName("User is not a Player")
   @Order(3)
   public void returnUnauthorized() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(wrongUserId).move(firstMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("User is not in this Game", response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
+    assertResponse(response, StatusCodes.UNAUTHORIZED, "User is not in this Game");
   }
 
   @Test
   @DisplayName("M1: White - invalid move")
   @Order(4)
   public void returnBadRequest() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(invalidMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Illegal Move: " + invalidMove, response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Illegal Move: " + invalidMove);
   }
 
   @Test
   @DisplayName("M1: White - successful move")
   @Order(5)
   public void returnOk() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
-
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(firstMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Move moveOne =
@@ -315,74 +270,47 @@ public class MakeMoveHandlerTest {
   @DisplayName("M2: Black - invalid move")
   @Order(6)
   public void returnSecondBadRequest() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId2);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondInvalidMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Illegal Move: " + secondInvalidMove, response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId2)
+    );
+
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Illegal Move: " + secondInvalidMove);
   }
 
   @Test
   @DisplayName("M2: White - tried to move out of turn")
   @Order(7)
   public void returnMovedOutOfTurn() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-
-    event.setRequestContext(requestContext);
-
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
-    assertEquals("It is not your turn.", response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
+    assertResponse(response, StatusCodes.FORBIDDEN, "It is not your turn.");
   }
 
   @Test
   @DisplayName("M2: Black - successful move")
   @Order(8)
   public void returnSuccessfulSecondMove() {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId2);
-    requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId2)
+    );
+
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Move moveOne =
@@ -416,23 +344,15 @@ public class MakeMoveHandlerTest {
   @DisplayName("M3: White - successful move")
   @Order(9)
   public void returnSuccessfulThirdMove() throws NotFound {
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Move moveOne =
@@ -476,7 +396,6 @@ public class MakeMoveHandlerTest {
   @DisplayName("Checkmate played")
   @Order(10)
   public void returnSuccessAndHandleCheckmate() throws NotFound {
-
     // setup board for a checkmate
     Game game = gameUtility.get(gameId);
     game.setGameStateAsFen(checkmateInOneFEN);
@@ -485,25 +404,16 @@ public class MakeMoveHandlerTest {
 
     gameUtility.put(gameId, game);
 
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(checkmateMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals("checkmate", response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
+    assertResponse(response, StatusCodes.OK, "checkmate");
 
     // if everything went as planned, then the game was deleted and archived.
     // Therefore, recreate the game for the next test
@@ -523,24 +433,15 @@ public class MakeMoveHandlerTest {
 
     gameUtility.put(gameId2, game);
 
-    MakeMoveHandler makeMoveHandler = new MakeMoveHandler(makeMoveService, socketLogger);
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(connectId);
-    requestContext.setRouteKey("makeMove");
-    requestContext.setRequestTimeEpoch(System.currentTimeMillis());
-    event.setRequestContext(requestContext);
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId2).playerId(userId).move(stalemateMove).build();
-    event.setBody(gson.toJson(request));
 
-    APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals("draw", response.getBody());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new MakeMoveHandler(makeMoveService, socketLogger),
+        gson.toJson(request),
+        makeRequestContext("makeMove", connectId)
+    );
+
+    assertResponse(response, StatusCodes.OK, "draw");
   }
 }
