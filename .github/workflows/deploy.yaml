@@ -54,9 +54,6 @@ jobs:
           name: chess-jar
           path: target
 
-      - name: List files in target directory
-        run: ls -l target
-
       - name: Terraform fmt
         id: fmt
         run: |
