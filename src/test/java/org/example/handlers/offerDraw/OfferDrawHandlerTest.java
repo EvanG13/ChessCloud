@@ -2,9 +2,10 @@ package org.example.handlers.offerDraw;
 
 import static org.example.utils.TestUtils.validGame;
 import static org.example.utils.TestUtils.validUser;
+import static org.example.utils.WebsocketTestUtils.getResponse;
+import static org.example.utils.WebsocketTestUtils.makeRequestContext;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import java.util.Map;
@@ -23,13 +24,13 @@ import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.offerDraw.OfferDrawHandler;
 import org.example.handlers.websocket.offerDraw.OfferDrawService;
 import org.example.models.requests.OfferDrawRequest;
-import org.example.utils.MockContext;
 import org.example.utils.socketMessenger.SocketMessenger;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OfferDrawHandlerTest {
+  public static Gson gson;
   private static UserDbService userDbService;
   private static StatsDbService statsDbService;
   private static GameDbService gameDbService;
@@ -42,6 +43,7 @@ public class OfferDrawHandlerTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
+    gson = new Gson();
     SocketMessenger messenger = new SocketSystemLogger();
     OfferDrawService offerDrawService = OfferDrawService.builder().messenger(messenger).build();
 
@@ -66,17 +68,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
@@ -96,17 +93,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.DENY)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
@@ -126,17 +118,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
@@ -156,17 +143,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
@@ -187,17 +169,12 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
@@ -218,17 +195,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
@@ -252,17 +224,12 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
@@ -283,17 +250,12 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
@@ -321,17 +283,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String denyingPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.DENY);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.DENY)),
+        makeRequestContext("offerDraw", denyingPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(denyingPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
@@ -359,17 +316,12 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
@@ -390,17 +342,12 @@ public class OfferDrawHandlerTest {
     // Player 2
     String acceptingPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT);
-    event.setBody(new Gson().toJson(request));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        makeRequestContext("offerDraw", acceptingPlayerConnectionId)
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(acceptingPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     // Assert game got deleted
@@ -423,16 +370,11 @@ public class OfferDrawHandlerTest {
   public void checksValidBody() {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(new Gson().toJson(Map.of("nonsense", "nonexistinggame")));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(Map.of("nonsense", "nonexistinggame")),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
@@ -441,17 +383,11 @@ public class OfferDrawHandlerTest {
   public void checksThatGameExists() {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    OfferDrawRequest request = new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER);
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(offeringPlayerConnectionId);
-    requestContext.setRouteKey("offerDraw");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER)),
+        makeRequestContext("offerDraw", offeringPlayerConnectionId)
+    );
 
     assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
   }
