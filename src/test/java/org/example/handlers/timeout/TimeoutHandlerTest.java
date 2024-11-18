@@ -1,10 +1,10 @@
 package org.example.handlers.timeout;
 
 import static org.example.utils.TestUtils.*;
+import static org.example.utils.WebsocketTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.timeout.TimeoutHandler;
 import org.example.handlers.websocket.timeout.TimeoutService;
 import org.example.models.requests.TimeoutRequest;
-import org.example.utils.MockContext;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
@@ -48,9 +47,11 @@ public class TimeoutHandlerTest {
   private static User userOne;
   private static User userTwo;
   private static Game game2;
+  public static Gson gson;
 
   @BeforeAll
   public static void setUp() throws Exception {
+    gson = new Gson();
     handler = new TimeoutHandler(new TimeoutService(), new SocketSystemLogger());
 
     archivedGameDbService = ArchivedGameDbService.builder().build();
@@ -92,36 +93,23 @@ public class TimeoutHandlerTest {
   @Test
   @Order(1)
   public void checkNonPlayerUserTriedTimeoutRequest() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(new Gson().toJson(Map.of("gameId", game.getId())));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(game.getId())),
+        makeRequestContext("timeout", "some-other-guy")
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("some-other-guy");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
-    assertEquals("Your connection ID is not bound to this game", response.getBody());
+    assertResponse(response, StatusCodes.UNAUTHORIZED, "Your connection ID is not bound to this game");
   }
 
   @Test
   @Order(2)
   public void falseTimeoutReturnsNotFound() {
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    TimeoutRequest request = new TimeoutRequest(game.getId());
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("whatever");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(game.getId())),
+        makeRequestContext("timeout", "whatever")
+    );
 
     assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
   }
@@ -136,17 +124,11 @@ public class TimeoutHandlerTest {
 
     String winningPlayerId = players.getLast().getPlayerId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    TimeoutRequest request = new TimeoutRequest(game.getId());
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("whatever");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(game.getId())),
+        makeRequestContext("timeout", "whatever")
+    );
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -173,17 +155,11 @@ public class TimeoutHandlerTest {
     players.getLast().setRemainingTime(0);
     gameDbService.put(game.getId(), game);
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    TimeoutRequest request = new TimeoutRequest(game.getId());
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("whatever");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(game.getId())),
+        makeRequestContext("timeout", "whatever")
+    );
 
     assertEquals(StatusCodes.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
@@ -191,7 +167,6 @@ public class TimeoutHandlerTest {
   @Test
   @Order(5)
   public void canOtherPlayerTimeoutGame() {
-
     List<Player> players = game2.getPlayers();
     players.getFirst().setRemainingTime(100); // winning player
     players.getLast().setRemainingTime(0); // losing player
@@ -200,17 +175,11 @@ public class TimeoutHandlerTest {
 
     String winningPlayerId = players.getFirst().getPlayerId();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    TimeoutRequest request = new TimeoutRequest(game2.getId());
-    event.setBody(new Gson().toJson(request));
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("whatever");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(game2.getId())),
+        makeRequestContext("timeout", "whatever")
+    );
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -232,38 +201,27 @@ public class TimeoutHandlerTest {
   @Test
   @Order(6)
   public void checksForMissingBody() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(new Gson().toJson(Map.of("foo", "fooagain")));
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(Map.of("foo", "fooagain")),
+        makeRequestContext("timeout", "foo-id")
+    );
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("foo-id");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Missing argument(s)", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Missing argument(s)");
   }
 
   @Test
   @Order(7)
   public void checksThatGameExists() {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     String fakeID = "fake";
-    event.setBody(new Gson().toJson(Map.of("gameId", fakeID)));
 
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId("foo-id");
-    requestContext.setRouteKey("timeout");
-    event.setRequestContext(requestContext);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        handler,
+        gson.toJson(new TimeoutRequest(fakeID)),
+        makeRequestContext("timeout", "foo-id")
+    );
 
-    APIGatewayV2WebSocketResponse response = handler.handleRequest(event, new MockContext());
-
-    assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
-    assertEquals("No Game found with id " + fakeID, response.getBody());
+    assertResponse(response, StatusCodes.NOT_FOUND, "No Game found with id " + fakeID);
   }
 
   @AfterAll
