@@ -903,6 +903,10 @@ components:
           description: The timestamp when the move was made.
           format: date-time
           example: 2024-10-07T10:20:30Z
+        fen:
+          type: string
+          description: boardstate fen
+          example: rnbqkbnr/pppppppp/8/8/PPPPPPPP/RNBQKBNR b KQkq-1
     ArchivedPlayer:
       type: object
       properties:

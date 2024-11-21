@@ -292,7 +292,13 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
+    Move moveOne =
+        Move.builder()
+            .moveAsUCI("e2e4")
+            .moveAsSan("e4")
+            .duration(1)
+            .fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+            .build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
@@ -379,9 +385,21 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
+    Move moveOne =
+        Move.builder()
+            .moveAsUCI("e2e4")
+            .moveAsSan("e4")
+            .duration(1)
+            .fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+            .build();
 
-    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(1).build();
+    Move moveTwo =
+        Move.builder()
+            .moveAsUCI("d7d5")
+            .moveAsSan("d5")
+            .duration(1)
+            .fen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
+            .build();
     MakeMoveMessageData data =
         new MakeMoveMessageData(
             "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
@@ -417,11 +435,29 @@ public class MakeMoveHandlerTest {
     APIGatewayV2WebSocketResponse response = makeMoveHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    Move moveOne = Move.builder().moveAsUCI("e2e4").moveAsSan("e4").duration(1).build();
+    Move moveOne =
+        Move.builder()
+            .moveAsUCI("e2e4")
+            .moveAsSan("e4")
+            .duration(1)
+            .fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+            .build();
 
-    Move moveTwo = Move.builder().moveAsUCI("d7d5").moveAsSan("d5").duration(1).build();
+    Move moveTwo =
+        Move.builder()
+            .moveAsUCI("d7d5")
+            .moveAsSan("d5")
+            .duration(1)
+            .fen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
+            .build();
 
-    Move moveThree = Move.builder().moveAsUCI("e4d5").moveAsSan("exd5").duration(1).build();
+    Move moveThree =
+        Move.builder()
+            .moveAsUCI("e4d5")
+            .moveAsSan("exd5")
+            .duration(1)
+            .fen("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
+            .build();
 
     MakeMoveMessageData data =
         new MakeMoveMessageData(
