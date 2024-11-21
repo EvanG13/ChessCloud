@@ -11,4 +11,5 @@ public class Move {
   String moveAsUCI;
   String moveAsSan;
   Integer duration;
+  String fen;
 }
