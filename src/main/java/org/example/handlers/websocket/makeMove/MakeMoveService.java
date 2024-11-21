@@ -107,7 +107,12 @@ public class MakeMoveService {
     long t = ((time.getTime() - lastModified.getTime())) / 1000; // convert to seconds from millis
 
     Move move =
-        Move.builder().moveAsUCI(moveUCI).moveAsSan(san).duration((int) Math.max(t, 1)).build();
+        Move.builder()
+            .moveAsUCI(moveUCI)
+            .moveAsSan(san)
+            .duration((int) Math.max(t, 1))
+            .fen(board.toStandardFEN())
+            .build();
 
     List<Player> updatedPlayers = game.getPlayers();
     Player activePlayer;
