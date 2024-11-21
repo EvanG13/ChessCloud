@@ -32,7 +32,6 @@ public class Game extends BaseGame<Player> {
 
   public Game(TimeControl timeControl, Player player) {
     this.id = new ObjectId().toString();
-    this.lastModified = new Date();
 
     this.timeControl = timeControl;
     // TODO: not omit moveList?
@@ -77,6 +76,7 @@ public class Game extends BaseGame<Player> {
     this.gameStateAsFen = ChessConstants.STARTING_FEN_STRING;
     this.gameStatus = GameStatus.ONGOING;
     this.players.add(player2);
+    this.lastModified = new Date();
   }
 
   public boolean containsConnectionId(String connectionId) {
