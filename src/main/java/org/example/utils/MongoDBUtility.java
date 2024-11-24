@@ -111,4 +111,8 @@ public class MongoDBUtility<T extends DataTransferObject> {
   public void delete() {
     getCollection().deleteMany(new Document());
   }
+
+  public void deleteMany(Bson filter) {
+    getCollection().deleteMany(filter);
+  }
 }
