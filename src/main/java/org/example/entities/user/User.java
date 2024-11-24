@@ -16,6 +16,7 @@ public class User extends DataTransferObject {
   private String email;
   @GsonExcludeField private String password;
   private String username;
+  private Boolean verified;
 
   @Override
   public String toString() {
@@ -26,7 +27,9 @@ public class User extends DataTransferObject {
             .append("\nusername = ")
             .append(username)
             .append("\nemail    = ")
-            .append(email);
+            .append(email)
+            .append("\nverified = ")
+            .append(verified);
 
     return sb.toString();
   }
@@ -39,11 +42,12 @@ public class User extends DataTransferObject {
     return Objects.equals(id, user.getId())
         && Objects.equals(email, user.getEmail())
         && Objects.equals(password, user.getPassword())
-        && Objects.equals(username, user.getUsername());
+        && Objects.equals(username, user.getUsername())
+        && Objects.equals(verified, user.getVerified());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, password, email, username);
+    return Objects.hash(id, password, email, username, verified);
   }
 }
