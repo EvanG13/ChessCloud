@@ -1,7 +1,9 @@
 package org.example.handlers.rest.verify;
 
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
+import org.example.entities.token.BaseToken;
 import org.example.entities.user.User;
 import org.example.entities.token.VerificationToken;
 import org.example.exceptions.InternalServerError;
@@ -19,9 +21,11 @@ public class VerifyService {
   }
 
   public void verify(String token) throws NotFound, InternalServerError {
+    String hashedToken = BaseToken.hashToken(token);
+
     // Check token exists
     VerificationToken verificationToken = verificationTokenDBUtility
-        .get(token)
+        .get(Filters.eq("token", hashedToken))
         .orElseThrow(() -> new NotFound("Invalid token"));
 
     // Ensure user tied to token exists

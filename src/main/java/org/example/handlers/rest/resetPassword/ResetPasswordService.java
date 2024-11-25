@@ -5,6 +5,7 @@ import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import org.example.entities.connection.Connection;
 import org.example.entities.session.Session;
+import org.example.entities.token.BaseToken;
 import org.example.entities.token.PasswordResetToken;
 import org.example.entities.user.User;
 import org.example.exceptions.InternalServerError;
@@ -27,9 +28,11 @@ public class ResetPasswordService {
   }
 
   public void resetPassword(String token, String newPassword) throws NotFound, InternalServerError {
+    String hashedToken = BaseToken.hashToken(token);
+
     // Check token exists
     PasswordResetToken passwordResetToken = passwordResetTokenDBUtility
-        .get(token)
+        .get(Filters.eq("token", hashedToken))
         .orElseThrow(() -> new NotFound("Invalid token"));
 
     // Ensure user tied to token exists

@@ -3,10 +3,10 @@ package org.example.handlers.rest.register;
 import static com.mongodb.client.model.Filters.eq;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.entities.stats.Stats;
+import org.example.entities.token.BaseToken;
 import org.example.entities.user.User;
 import org.example.entities.token.VerificationToken;
 import org.example.models.requests.RegisterRequest;
@@ -54,19 +54,16 @@ public class RegisterService {
     statsDBUtility.post(newStats);
 
     // Setup Verification requirement
-    // Set expiration time
-    Calendar c = Calendar.getInstance();
-    c.add(Calendar.HOUR, 2);
-    Date expiration = c.getTime();
-
     // Create token
+    String token = BaseToken.generateToken();
     VerificationToken verificationToken = VerificationToken.builder()
+        .token(BaseToken.hashToken(token))
         .userId(newUser.getId())
-        .expiresAt(expiration)
+        .expiresAt(BaseToken.makeExpirationDate(Calendar.HOUR, 2))
         .build();
     verificationTokenDBUtility.post(verificationToken);
 
     // Send email
-    ResendUtil.sendVerificationEmail(data.email(), verificationToken.getId());
+    ResendUtil.sendVerificationEmail(data.email(), token);
   }
 }
