@@ -1,13 +1,12 @@
 package org.example.handlers.rest.verify;
 
+import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import org.example.entities.user.User;
 import org.example.entities.token.VerificationToken;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
-
-import java.util.Date;
 
 @AllArgsConstructor
 public class VerifyService {
@@ -44,8 +43,7 @@ public class VerifyService {
 
     // Token passes all checks
     // Update user as verified
-    user.setVerified(true);
-    userDBUtility.post(user);
+    userDBUtility.patch(user.getId(), Updates.set("verified", true));
 
     // Delete token
     verificationTokenDBUtility.delete(token);
