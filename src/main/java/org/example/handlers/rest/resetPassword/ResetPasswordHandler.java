@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
-import org.example.exceptions.BadRequest;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.models.requests.ResetPasswordRequest;
@@ -35,9 +34,9 @@ public class ResetPasswordHandler implements RequestHandler<APIGatewayV2HTTPEven
     ResetPasswordRequest resetPasswordRequest = gson.fromJson(event.getBody(), ResetPasswordRequest.class);
 
     try {
-      resetPasswordService.resetPassword(resetPasswordRequest.token(), resetPasswordRequest.email(), resetPasswordRequest.newPassword());
+      resetPasswordService.resetPassword(resetPasswordRequest.token(), resetPasswordRequest.newPassword());
     }
-    catch (InternalServerError | NotFound | BadRequest e) {
+    catch (InternalServerError | NotFound e) {
       return e.makeHttpResponse();
     }
 
