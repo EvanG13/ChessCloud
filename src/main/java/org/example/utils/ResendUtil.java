@@ -43,7 +43,7 @@ public final class ResendUtil {
   }
 
   public static void sendPasswordResetEmail(String to, String token) {
-    String resetUrl = String.format("%s/resetPassword?token=%s", DotenvClass.dotenv.get("FRONTEND_URL"), token);
+    String resetUrl = String.format("%s/resetPassword?token=%s&email=%s", DotenvClass.dotenv.get("FRONTEND_URL"), token, to);
 
     sendEmail(
         to,
