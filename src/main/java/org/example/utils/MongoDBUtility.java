@@ -57,7 +57,18 @@ public class MongoDBUtility<T extends DataTransferObject> {
   }
 
   public void createIndex(String field) {
-    getCollection().createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
+    createIndex(field, true);
+  }
+
+  public void createIndex(String field, boolean unique) {
+    getCollection().createIndex(Indexes.ascending(field), new IndexOptions().unique(unique));
+  }
+
+  public void createCompoundIndex(List<String> fields, String indexName, boolean unique) {
+    List<Bson> indexFields = fields.stream().map(Indexes::ascending).toList();
+    Bson compoundIndex = Indexes.compoundIndex(indexFields);
+
+    getCollection().createIndex(compoundIndex, new IndexOptions().name(indexName).unique(unique));
   }
 
   public Optional<T> get(String id) {
