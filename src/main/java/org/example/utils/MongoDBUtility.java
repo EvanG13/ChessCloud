@@ -23,18 +23,11 @@ import org.bson.conversions.Bson;
 import org.example.entities.DataTransferObject;
 
 public class MongoDBUtility<T extends DataTransferObject> {
+  private static final MongoClient sharedClient;
+  private static final String databaseName = "chess";
 
-  private final MongoClient client;
-  private final MongoDatabase database;
-  private final Class<T> tClass;
-  private final String collectionName;
-
-  public MongoDBUtility(String collectionName, Class<T> tClass) {
-
-    this.collectionName = collectionName;
-    this.tClass = tClass;
-
-    final String connectionString = DotenvClass.dotenv.get("MONGODB_CONNECTION_STRING");
+  static {
+    String connectionString = DotenvClass.dotenv.get("MONGODB_CONNECTION_STRING");
 
     CodecRegistry pojoCodecRegistry =
         fromProviders(PojoCodecProvider.builder().automatic(true).build());
@@ -46,13 +39,17 @@ public class MongoDBUtility<T extends DataTransferObject> {
             .codecRegistry(codecRegistry)
             .build();
 
-    try {
-      this.client = MongoClients.create(clientSettings);
-      this.database = client.getDatabase("chess");
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
-    }
+    sharedClient = MongoClients.create(clientSettings);
+  }
+
+  private final MongoDatabase database;
+  private final Class<T> tClass;
+  private final String collectionName;
+
+  public MongoDBUtility(String collectionName, Class<T> tClass) {
+    this.collectionName = collectionName;
+    this.tClass = tClass;
+    this.database = sharedClient.getDatabase(databaseName);
   }
 
   private MongoCollection<T> getCollection() {
