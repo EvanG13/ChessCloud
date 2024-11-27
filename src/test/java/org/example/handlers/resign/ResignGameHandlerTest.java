@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 
@@ -40,11 +39,9 @@ public class ResignGameHandlerTest {
   private static Game game;
   private static User userOne;
   private static User userTwo;
-  private static Gson gson;
 
   @BeforeAll
   public static void setUp() throws Exception {
-    gson = new Gson();
     handler = new ResignGameHandler(new ResignGameService(), new SocketSystemLogger());
 
     archivedGameDbService = ArchivedGameDbService.builder().build();
@@ -64,7 +61,7 @@ public class ResignGameHandlerTest {
   public void checkNonPlayerUserTriedResigning() {
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new ResignRequest(game.getId())),
+        new ResignRequest(game.getId()),
         makeRequestContext("resign", "some-other-guy")
     );
 
@@ -80,7 +77,7 @@ public class ResignGameHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new ResignRequest(game.getId())),
+        new ResignRequest(game.getId()),
         makeRequestContext("resign", "foo-id")
     );
 
@@ -105,7 +102,7 @@ public class ResignGameHandlerTest {
   public void checksForMissingBody() {
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(Map.of("foo", "fooagain")),
+        Map.of("foo", "fooagain"),
         makeRequestContext("resign", "foo-id")
     );
 
@@ -119,7 +116,7 @@ public class ResignGameHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new ResignRequest(fakeID)),
+        new ResignRequest(fakeID),
         makeRequestContext("resign", "foo-id")
     );
 

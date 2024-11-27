@@ -7,7 +7,6 @@ import static org.example.utils.WebsocketTestUtils.makeRequestContext;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.google.gson.Gson;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OfferDrawHandlerTest {
-  public static Gson gson;
   private static UserDbService userDbService;
   private static StatsDbService statsDbService;
   private static GameDbService gameDbService;
@@ -43,7 +41,6 @@ public class OfferDrawHandlerTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    gson = new Gson();
     SocketMessenger messenger = new SocketSystemLogger();
     OfferDrawService offerDrawService = OfferDrawService.builder().messenger(messenger).build();
 
@@ -70,7 +67,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -95,7 +92,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.DENY)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -120,7 +117,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -145,7 +142,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -171,7 +168,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -197,7 +194,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -226,7 +223,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -252,7 +249,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -285,7 +282,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.DENY)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
         makeRequestContext("offerDraw", denyingPlayerConnectionId)
     );
 
@@ -318,7 +315,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -344,7 +341,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT)),
+        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
         makeRequestContext("offerDraw", acceptingPlayerConnectionId)
     );
 
@@ -372,7 +369,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(Map.of("nonsense", "nonexistinggame")),
+        Map.of("nonsense", "nonexistinggame"),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 
@@ -385,7 +382,7 @@ public class OfferDrawHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER)),
+        new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER),
         makeRequestContext("offerDraw", offeringPlayerConnectionId)
     );
 

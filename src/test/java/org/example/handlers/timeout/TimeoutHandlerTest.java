@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
-import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,11 +46,9 @@ public class TimeoutHandlerTest {
   private static User userOne;
   private static User userTwo;
   private static Game game2;
-  public static Gson gson;
 
   @BeforeAll
   public static void setUp() throws Exception {
-    gson = new Gson();
     handler = new TimeoutHandler(new TimeoutService(), new SocketSystemLogger());
 
     archivedGameDbService = ArchivedGameDbService.builder().build();
@@ -95,7 +92,7 @@ public class TimeoutHandlerTest {
   public void checkNonPlayerUserTriedTimeoutRequest() {
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(game.getId())),
+        new TimeoutRequest(game.getId()),
         makeRequestContext("timeout", "some-other-guy")
     );
 
@@ -107,7 +104,7 @@ public class TimeoutHandlerTest {
   public void falseTimeoutReturnsNotFound() {
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(game.getId())),
+        new TimeoutRequest(game.getId()),
         makeRequestContext("timeout", "whatever")
     );
 
@@ -126,7 +123,7 @@ public class TimeoutHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(game.getId())),
+        new TimeoutRequest(game.getId()),
         makeRequestContext("timeout", "whatever")
     );
 
@@ -157,7 +154,7 @@ public class TimeoutHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(game.getId())),
+        new TimeoutRequest(game.getId()),
         makeRequestContext("timeout", "whatever")
     );
 
@@ -177,7 +174,7 @@ public class TimeoutHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(game2.getId())),
+        new TimeoutRequest(game2.getId()),
         makeRequestContext("timeout", "whatever")
     );
 
@@ -203,7 +200,7 @@ public class TimeoutHandlerTest {
   public void checksForMissingBody() {
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(Map.of("foo", "fooagain")),
+        Map.of("foo", "fooagain"),
         makeRequestContext("timeout", "foo-id")
     );
 
@@ -217,7 +214,7 @@ public class TimeoutHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         handler,
-        gson.toJson(new TimeoutRequest(fakeID)),
+        new TimeoutRequest(fakeID),
         makeRequestContext("timeout", "foo-id")
     );
 

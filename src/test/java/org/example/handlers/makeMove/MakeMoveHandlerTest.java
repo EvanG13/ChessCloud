@@ -157,7 +157,7 @@ public class MakeMoveHandlerTest {
   public void returnGameCreated() {
     APIGatewayV2WebSocketResponse response = getResponse(
         joinGameHandler,
-        gson.toJson(new JoinGameRequest(userId, timeControl)),
+        new JoinGameRequest(userId, timeControl),
         makeRequestContext("joinGame", connectId)
     );
 
@@ -170,7 +170,7 @@ public class MakeMoveHandlerTest {
   public void returnGameStarted() throws NotFound {
     APIGatewayV2WebSocketResponse response = getResponse(
         joinGameHandler,
-        gson.toJson(new JoinGameRequest(userId2, timeControl)),
+        new JoinGameRequest(userId2, timeControl),
         makeRequestContext("joinGame", connectId2)
     );
 
@@ -209,7 +209,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -225,7 +225,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -241,7 +241,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -275,7 +275,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId2)
     );
 
@@ -291,7 +291,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -307,7 +307,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId2)
     );
 
@@ -349,7 +349,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -409,7 +409,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 
@@ -438,7 +438,7 @@ public class MakeMoveHandlerTest {
 
     APIGatewayV2WebSocketResponse response = getResponse(
         new MakeMoveHandler(makeMoveService, socketLogger),
-        gson.toJson(request),
+        request,
         makeRequestContext("makeMove", connectId)
     );
 

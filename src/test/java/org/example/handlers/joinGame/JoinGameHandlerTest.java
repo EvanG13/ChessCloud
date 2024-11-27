@@ -95,7 +95,7 @@ public class JoinGameHandlerTest {
   public void playerOneCreatesNewGame() {
     APIGatewayV2WebSocketResponse response = getResponse(
         new JoinGameHandler(joinGameService, socketLogger),
-        gson.toJson(new JoinGameRequest(userId, timeControl)),
+        new JoinGameRequest(userId, timeControl),
         makeRequestContext("joinGame", connectId)
     );
 
@@ -117,7 +117,7 @@ public class JoinGameHandlerTest {
   public void playerTwoJoinsGame() {
     APIGatewayV2WebSocketResponse response = getResponse(
         new JoinGameHandler(joinGameService, socketLogger),
-        gson.toJson(new JoinGameRequest(userId2, timeControl)),
+        new JoinGameRequest(userId2, timeControl),
         makeRequestContext("joinGame", connectId2)
     );
 
@@ -153,7 +153,7 @@ public class JoinGameHandlerTest {
   public void returnUnauthorized() {
     APIGatewayV2WebSocketResponse response = getResponse(
         new JoinGameHandler(joinGameService, socketLogger),
-        gson.toJson(new JoinGameRequest("nonexistentUserId12321321", timeControl)),
+        new JoinGameRequest("nonexistentUserId12321321", timeControl),
         makeRequestContext("joinGame", connectId2)
     );
 
@@ -166,7 +166,7 @@ public class JoinGameHandlerTest {
   public void returnForbidden() {
     APIGatewayV2WebSocketResponse response = getResponse(
         new JoinGameHandler(joinGameService, socketLogger),
-        gson.toJson(new JoinGameRequest(userId2, timeControl)),
+        new JoinGameRequest(userId2, timeControl),
         makeRequestContext("joinGame", connectId)
     );
 
