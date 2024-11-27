@@ -3,12 +3,17 @@ package org.example.utils;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
+import com.google.gson.Gson;
+import lombok.experimental.UtilityClass;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@UtilityClass
 public class WebsocketTestUtils {
+  private static final Gson gson = new Gson();
+
   public static APIGatewayV2WebSocketEvent.RequestContext makeRequestContext(String route, String connectionId) {
     return makeRequestContext(route, connectionId, System.currentTimeMillis());
   }
@@ -29,9 +34,7 @@ public class WebsocketTestUtils {
   }
 
   public static APIGatewayV2WebSocketEvent makeEvent(String body, Map<String, String> queryStrings, APIGatewayV2WebSocketEvent.RequestContext requestContext) {
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
-    event.setBody(body);
-    event.setRequestContext(requestContext);
+    APIGatewayV2WebSocketEvent event = makeEvent(body, requestContext);
     event.setQueryStringParameters(queryStrings);
     return event;
   }
@@ -48,8 +51,16 @@ public class WebsocketTestUtils {
     return getResponse(handler, makeEvent(body, queryStrings, requestContext));
   }
 
+  public static APIGatewayV2WebSocketResponse getResponse(RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> handler, Object body, APIGatewayV2WebSocketEvent.RequestContext requestContext) {
+    return getResponse(handler, makeEvent(gson.toJson(body), requestContext));
+  }
+
+  public static APIGatewayV2WebSocketResponse getResponse(RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> handler, Object body, Map<String, String> queryStrings, APIGatewayV2WebSocketEvent.RequestContext requestContext) {
+    return getResponse(handler, makeEvent(gson.toJson(body), queryStrings, requestContext));
+  }
+
   public static void assertResponse(APIGatewayV2WebSocketResponse response, int expectedStatusCode, String expectedBody) {
-    assertEquals(expectedStatusCode, response.getStatusCode());
-    assertEquals(expectedBody, response.getBody());
+    assertEquals(expectedStatusCode, response.getStatusCode(), "Status code does not match expected value");
+    assertEquals(expectedBody, response.getBody(), "Response body does not match expected value");
   }
 }
