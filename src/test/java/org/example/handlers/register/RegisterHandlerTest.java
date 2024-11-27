@@ -1,10 +1,10 @@
 package org.example.handlers.register;
 
 import static com.mongodb.client.model.Filters.eq;
+import static org.example.utils.HttpTestUtils.assertResponse;
 import static org.example.utils.TestUtils.assertCorsHeaders;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
@@ -74,58 +74,47 @@ public class RegisterHandlerTest {
   @DisplayName("OK 👍")
   @Test
   void returnSuccess() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    String body = gson.toJson(new RegisterRequest("test3@gmail.com", "testuser3", "test"));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(body)
+        .build();
 
-    RegisterRequest registerRequest = new RegisterRequest("test3@gmail.com", "testuser3", "test");
-    event.setBody(gson.toJson(registerRequest));
-
-    Context context = new MockContext();
-
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
-
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());
-
     assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
   @DisplayName("Bad Request - Missing Event 😠")
   @Test
   void returnBadRequest() {
-    Context context = new MockContext();
-
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, context);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(null, new MockContext());
     assertCorsHeaders(response.getHeaders());
-
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @DisplayName("Bad Request - Missing Arg 😠")
   @Test
   void returnBadRequestMissingArgs() {
-    Context context = new MockContext();
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    RegisterRequest registerRequest = new RegisterRequest("reg-it-test@gmail.com", null, "test");
-    event.setBody(gson.toJson(registerRequest));
+    String body = gson.toJson(new RegisterRequest("reg-it-test@gmail.com", null, "test"));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(body)
+        .build();
 
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());
-
-    assertEquals("Missing argument(s)", response.getBody());
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Missing argument(s)");
   }
 
   @DisplayName("Conflict 🔀")
   @Test
   void returnConflict() {
-    Context context = new MockContext();
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    RegisterRequest registerRequest =
-        new RegisterRequest("reg-it-test@gmail.com", "testuser", "test");
-    event.setBody(gson.toJson(registerRequest));
+    String body = gson.toJson(new RegisterRequest("reg-it-test@gmail.com", "testuser", "test"));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(body)
+        .build();
 
-    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());
-
     assertEquals(StatusCodes.CONFLICT, response.getStatusCode());
   }
 }

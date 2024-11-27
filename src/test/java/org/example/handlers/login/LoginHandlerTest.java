@@ -1,5 +1,6 @@
 package org.example.handlers.login;
 
+import static org.example.utils.HttpTestUtils.assertResponse;
 import static org.example.utils.TestUtils.assertCorsHeaders;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,7 +8,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
-import java.util.Map;
 import org.bson.types.ObjectId;
 import org.example.constants.StatusCodes;
 import org.example.entities.session.SessionDbService;
@@ -60,73 +60,56 @@ public class LoginHandlerTest {
   @DisplayName("OK")
   @Test
   public void canLogin() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-
-    LoginRequest loginRequest = new LoginRequest("it-test@gmail.com", "testPassword");
-    event.setBody(gson.toJson(loginRequest));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(gson.toJson(new LoginRequest("it-test@gmail.com", "testPassword")))
+        .build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
-
+    assertEquals(StatusCodes.OK, response.getStatusCode());
     assertTrue(response.getBody().contains("token"));
     assertTrue(response.getBody().contains("user"));
+    assertCorsHeaders(response.getHeaders());
 
-    Map<String, String> headers = response.getHeaders();
-    assertCorsHeaders(headers);
-
-    LoginResponseBody body = (new Gson()).fromJson(response.getBody(), LoginResponseBody.class);
+    LoginResponseBody body =  gson.fromJson(response.getBody(), LoginResponseBody.class);
 
     User user = body.getUser();
-
     assertNotNull(user.getId());
     assertEquals(user.getUsername(), "TestUsername");
     assertEquals(user.getEmail(), "it-test@gmail.com");
     assertNull(user.getPassword());
-
-    assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
   @DisplayName("Unauthorized \uD83D\uDD25")
   @Test
   public void returnsUnauthorized() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-
-    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", "testPassword");
-    event.setBody(gson.toJson(loginRequest));
+    String body = gson.toJson(new LoginRequest("super-fake-email@gmail.com", "testPassword"));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(body)
+        .build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
-
-    Map<String, String> headers = response.getHeaders();
-    assertCorsHeaders(headers);
-
+    assertCorsHeaders(response.getHeaders());
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
   }
 
   @DisplayName("Bad Request - Missing Event \uD83D\uDE1E")
   @Test
   public void canReturnBadRequest() {
-
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(null, context);
-
-    Map<String, String> headers = response.getHeaders();
-    assertCorsHeaders(headers);
-
+    assertCorsHeaders(response.getHeaders());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @DisplayName("Bad Request \uD83D\uDE1E")
   @Test
   public void nullArgumentBadRequest() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-
-    LoginRequest loginRequest = new LoginRequest("super-fake-email@gmail.com", null);
-    event.setBody(gson.toJson(loginRequest));
+    String body = gson.toJson(new LoginRequest("super-fake-email@gmail.com", null));
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withBody(body)
+        .build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
-
-    Map<String, String> headers = response.getHeaders();
-    assertCorsHeaders(headers);
-
-    assertEquals("Missing argument(s)", response.getBody());
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
+    assertCorsHeaders(response.getHeaders());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Missing argument(s)");
   }
 }

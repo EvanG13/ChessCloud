@@ -1,6 +1,6 @@
 package org.example.handlers.stats;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.example.utils.HttpTestUtils.assertResponse;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -19,6 +19,8 @@ public class StatsHandlerTest {
   public static UserDbService userDbService;
   public static StatsDbService statsDbService;
   public static Context context;
+
+  public static StatsHandler statsHandler;
 
   public static String userId;
 
@@ -41,6 +43,8 @@ public class StatsHandlerTest {
 
     Stats testUserStats = new Stats(testUser.getId());
     statsDbService.post(testUserStats);
+
+    statsHandler = new StatsHandler();
   }
 
   @AfterAll
@@ -53,82 +57,63 @@ public class StatsHandlerTest {
   @Test
   @Order(1)
   public void returnNoQuery() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(Map.of("userid", userId));
-
-    StatsHandler statsHandler = new StatsHandler();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", userId))
+        .build();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-
-    assertEquals(
-        "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}",
-        response.getBody());
+    assertResponse(response, StatusCodes.OK, "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}");
   }
 
   @DisplayName("Query \"gamemode=bullet\" (valid)")
   @Test
   @Order(2)
   public void returnQueryBullet() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(Map.of("userid", userId));
-    event.setQueryStringParameters(Map.of("gamemode", "bullet"));
-
-    StatsHandler statsHandler = new StatsHandler();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", userId))
+        .withQueryStringParameters(Map.of("gamemode", "bullet"))
+        .build();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-    assertEquals("{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}", response.getBody());
+    assertResponse(response, StatusCodes.OK, "{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}");
   }
 
   @DisplayName("Query \"gamemode=invalidgamemode\" (invalid)")
   @Test
   @Order(3)
   public void returnQueryInvalidGamemode() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(Map.of("userid", userId));
-    event.setQueryStringParameters(Map.of("gamemode", "invalidgamemode"));
-
-    StatsHandler statsHandler = new StatsHandler();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", userId))
+        .withQueryStringParameters(Map.of("gamemode", "invalidgamemode"))
+        .build();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals(
-        "Query parameter \"gamemode\" had an invalid value: invalidgamemode", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" had an invalid value: invalidgamemode");
   }
 
   @DisplayName("Invalid query parameter")
   @Test
   @Order(4)
   public void returnInvalidQueryParameter() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(Map.of("userid", userId));
-    event.setQueryStringParameters(Map.of("parameter", "bullet"));
-
-    StatsHandler statsHandler = new StatsHandler();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", userId))
+        .withQueryStringParameters(Map.of("parameter", "bullet"))
+        .build();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Query defined, but query parameter \"gamemode\" was missing", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
   }
 
   @DisplayName("Query \"gamemode=\" (invalid)")
   @Test
   @Order(5)
   public void returnQueryBlankGamemode() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(Map.of("userid", userId));
-    event.setQueryStringParameters(Map.of("gamemode", ""));
-
-    StatsHandler statsHandler = new StatsHandler();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", userId))
+        .withQueryStringParameters(Map.of("gamemode", ""))
+        .build();
 
     APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
-
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Query parameter \"gamemode\" was missing a value", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" was missing a value");
   }
 }
