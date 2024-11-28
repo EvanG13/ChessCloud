@@ -4,3 +4,5 @@
 
 src/main/resources/.env
 .env.*
+
+src/main/resources/liquibase.properties
