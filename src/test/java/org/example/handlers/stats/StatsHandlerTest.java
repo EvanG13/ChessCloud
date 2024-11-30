@@ -2,7 +2,6 @@ package org.example.handlers.stats;
 
 import static org.example.utils.HttpTestUtils.assertResponse;
 
-import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;

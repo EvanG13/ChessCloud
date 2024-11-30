@@ -10,7 +10,6 @@ import org.example.constants.StatusCodes;
 import org.example.entities.connection.Connection;
 import org.example.handlers.websocket.disconnect.DisconnectHandler;
 import org.example.utils.MongoDBUtility;
-import org.example.utils.WebsocketTestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
