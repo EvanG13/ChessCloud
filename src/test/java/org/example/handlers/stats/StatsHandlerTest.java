@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 public class StatsHandlerTest {
   public static UserDbService userDbService;
   public static StatsDbService statsDbService;
-  public static Context context;
 
   public static StatsHandler statsHandler;
 
@@ -28,7 +27,6 @@ public class StatsHandlerTest {
   public static void setUp() {
     userDbService = new UserDbService();
     statsDbService = new StatsDbService();
-    context = new MockContext();
 
     userId = "test-Id";
 
@@ -61,7 +59,7 @@ public class StatsHandlerTest {
         .withHeaders(Map.of("userid", userId))
         .build();
 
-    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, "{\"blitz\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"rapid\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000},\"bullet\":{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}}");
   }
 
@@ -74,7 +72,7 @@ public class StatsHandlerTest {
         .withQueryStringParameters(Map.of("gamemode", "bullet"))
         .build();
 
-    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, "{\"wins\":0,\"losses\":0,\"draws\":0,\"rating\":1000}");
   }
 
@@ -87,7 +85,7 @@ public class StatsHandlerTest {
         .withQueryStringParameters(Map.of("gamemode", "invalidgamemode"))
         .build();
 
-    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" had an invalid value: invalidgamemode");
   }
 
@@ -100,7 +98,7 @@ public class StatsHandlerTest {
         .withQueryStringParameters(Map.of("parameter", "bullet"))
         .build();
 
-    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.BAD_REQUEST, "Query defined, but query parameter \"gamemode\" was missing");
   }
 
@@ -113,7 +111,7 @@ public class StatsHandlerTest {
         .withQueryStringParameters(Map.of("gamemode", ""))
         .build();
 
-    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, context);
+    APIGatewayV2HTTPResponse response = statsHandler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.BAD_REQUEST, "Query parameter \"gamemode\" was missing a value");
   }
 }

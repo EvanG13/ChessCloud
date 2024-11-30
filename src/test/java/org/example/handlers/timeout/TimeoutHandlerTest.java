@@ -38,11 +38,8 @@ public class TimeoutHandlerTest {
   private static GameDbService gameDbService;
   private static UserDbService userDbService;
   private static StatsDbService statsDbService;
-  private static PlayerDbService playerDbService;
   private static TimeoutHandler handler;
   private static Game game;
-  private static Player playerOne;
-  private static Player playerTwo;
   private static User userOne;
   private static User userTwo;
   private static Game game2;
@@ -54,12 +51,13 @@ public class TimeoutHandlerTest {
     archivedGameDbService = ArchivedGameDbService.builder().build();
     gameDbService = new GameDbService();
     userDbService = new UserDbService();
-    playerDbService = new PlayerDbService();
+    PlayerDbService playerDbService = new PlayerDbService();
     statsDbService = new StatsDbService();
     userOne = validUser();
     userTwo = validUser();
-    playerOne = playerDbService.toPlayer(userOne, ChessConstants.BASE_RATING, "whatever", true);
-    playerTwo =
+
+    Player playerOne = playerDbService.toPlayer(userOne, ChessConstants.BASE_RATING, "whatever", true);
+    Player playerTwo =
         playerDbService.toPlayer(userTwo, ChessConstants.BASE_RATING, "secondWhatever", false);
     playerOne.setRemainingTime(100);
     playerTwo.setRemainingTime(12);
