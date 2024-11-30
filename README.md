@@ -31,15 +31,27 @@ skip tests: ``mvn clean package -DskipTests``
 
 In order for MongoDB to work, you **must** create a `.env` file within `src/main/resources`. It then must include the
 secret
-key, frontend url and connection string.
+key, frontend url and connection string (standard or SRV format allowed).
 
-```text
+```dotenv
 MONGODB_CONNECTION_STRING=fakeconnectionstring
 AWS_REGION=foo-region
 AWS_STAGE=foo-stage
 WEB_SOCKET_BACKEND_ENDPOINT=foowebsocketendpoint
 REST_BACKEND_ENDPOINT=foorestendpoint
 ```
+
+### Database Migrations
+To enable database migrations and be able to apply existing changesets, you **must** create a `liquibase.properties` file within `src/main/resources`.
+It must then include the MongoDB connection string in [**standard format only**](https://www.mongodb.com/docs/manual/reference/connection-string/#standard-connection-string-format).
+```properties
+url=mongodb://fakeconnectionstring
+```
+You can create a new changeset file from the template using:
+- ``mvn antrun:run@make-changeset``
+- ``mvn antrun:run@make-changeset -DchangesetName=example``
+
+You can apply all existing (and not yet applied) changesets using the command: ``mvn liquibase:update``
 
 ## Testing
 

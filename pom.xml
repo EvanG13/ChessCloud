@@ -121,6 +121,45 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-maven-plugin -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>4.28.0</version>
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/resources/db/changelog/master-changelog.xml</changeLogFile>
+                </configuration>
+            </plugin>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-antrun-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>make-changeset</id>
+                        <configuration>
+                            <target>
+                                <property name="changesetName" value="changeset" />
+                                <tstamp>
+                                    <format property="changesetTimestamp" pattern="yyyyMMddHHmmss" timezone="UTC" />
+                                </tstamp>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <copy file="src/main/resources/db/changelog/changeset.template.xml"
+                                      tofile="src/main/resources/db/changelog/changesets/${changesetTimestamp}_${changesetName}.xml" />
+                                <!--suppress UnresolvedMavenProperty -->
+                                <echo>Created src/main/resources/db/changelog/changesets/${changesetTimestamp}_${changesetName}.xml</echo>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -199,6 +238,22 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
             <version>5.2.1</version>
+        </dependency>
+      
+      
+    <!-- DB MIGRATIONS -->
+        <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>4.30.0</version>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-mongodb -->
+        <dependency>
+            <groupId>org.liquibase.ext</groupId>
+            <artifactId>liquibase-mongodb</artifactId>
+            <version>4.30.0</version>
         </dependency>
 
 
