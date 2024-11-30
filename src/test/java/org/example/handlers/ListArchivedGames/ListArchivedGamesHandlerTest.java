@@ -1,12 +1,12 @@
 package org.example.handlers.ListArchivedGames;
 
+import static org.example.utils.HttpTestUtils.assertResponse;
 import static org.example.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.example.constants.StatusCodes;
@@ -66,76 +66,56 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void canGetArchivedGamesWithoutTimeControl() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withPathParameters(Map.of("username", "user1"))
+        .withHeaders(Map.of("userid", "id1"))
+        .build();
 
-    Map<String, String> pathParams = new HashMap<>();
-    pathParams.put("username", "user1");
-    Map<String, String> headerMap = new HashMap<>();
-    headerMap.put("userid", "id1");
-    event.setPathParameters(pathParams);
-    event.setHeaders(headerMap);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-
-    String actual = response.getBody();
-    assertEquals(expectedWithTwoGames.toJSON(), actual);
+    assertResponse(response, StatusCodes.OK, expectedWithTwoGames.toJSON());
   }
 
   @Test
   public void canGetArchivedGamesWithTimeControl() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withPathParameters(Map.of("username", "user1"))
+        .withQueryStringParameters(Map.of("timeControl", String.valueOf(TimeControl.BLITZ_5)))
+        .build();
 
-    Map<String, String> pathParams = new HashMap<>();
-    pathParams.put("username", "user1");
-    Map<String, String> queryParams = new HashMap<>();
-    queryParams.put("timeControl", String.valueOf(TimeControl.BLITZ_5));
-    event.setPathParameters(pathParams);
-    event.setQueryStringParameters(queryParams);
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-
-    String actual = response.getBody();
-    assertEquals(expectedWithOneGame.toJSON(), actual);
+    assertResponse(response, StatusCodes.OK, expectedWithOneGame.toJSON());
   }
 
   @Test
   public void missingPathParamsSendsBADREQUEST() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    Map<String, String> headerMap = new HashMap<>();
-    headerMap.put("userid", "id2");
-    event.setHeaders(headerMap);
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of("userid", "id2"))
+        .build();
+
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
   @Test
   public void userWithNoArchivedGamesReturnsEmpty() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    Map<String, String> path = new HashMap<>();
-    path.put("username", "user3");
-    Map<String, String> headerMap = new HashMap<>();
-    headerMap.put("userid", "new-user");
-    event.setHeaders(headerMap);
-    event.setPathParameters(path);
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withPathParameters(Map.of("username", "user3"))
+        .withHeaders(Map.of("userid", "new-user"))
+        .build();
+
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertEquals(StatusCodes.OK, response.getStatusCode());
-    String actual = response.getBody();
-    assertEquals("{\"archivedGames\":[]}", actual);
+    assertResponse(response, StatusCodes.OK, "{\"archivedGames\":[]}");
   }
 
   @Test
   public void invalidQueryParams() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    Map<String, String> path = new HashMap<>();
-    path.put("username", "user1");
-    Map<String, String> map = new HashMap<>();
-    map.put("fdsaf", "invalid-queryParamKey!");
-    event.setQueryStringParameters(map);
-    event.setPathParameters(path);
-    Map<String, String> headerMap = Map.of("userid", "id1");
-    event.setHeaders(headerMap);
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withPathParameters(Map.of("username", "user1"))
+        .withHeaders(Map.of("userid", "id1"))
+        .withQueryStringParameters(Map.of("fdsaf", "invalid-queryParamKey!"))
+        .build();
+
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
-    assertEquals("Bad query param. Expected either none or timeControl", response.getBody());
+    assertResponse(response, StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or timeControl");
   }
 }
