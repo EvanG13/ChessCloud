@@ -1,53 +1,52 @@
 package org.example.utils.socketMessenger;
 
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApi;
-import com.amazonaws.services.apigatewaymanagementapi.AmazonApiGatewayManagementApiClientBuilder;
-import com.amazonaws.services.apigatewaymanagementapi.model.PostToConnectionRequest;
-import java.nio.ByteBuffer;
+import java.net.URI;
 import org.example.utils.DotenvClass;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.apigatewaymanagementapi.ApiGatewayManagementApiClient;
+import software.amazon.awssdk.services.apigatewaymanagementapi.model.PostToConnectionRequest;
 
 public class SocketEmitter implements SocketMessenger {
-  private final String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
-  private final String region = DotenvClass.dotenv.get("AWS_REGION");
-  private final AmazonApiGatewayManagementApi apiClient;
+  private static final String apiEndpoint = DotenvClass.dotenv.get("WEB_SOCKET_BACKEND_ENDPOINT");
+  private static final String region = DotenvClass.dotenv.get("AWS_REGION");
+  private static final ApiGatewayManagementApiClient apiClient;
 
-  public SocketEmitter() {
+  static {
     apiClient =
-        AmazonApiGatewayManagementApiClientBuilder.standard()
-            .withEndpointConfiguration(
-                new AwsClientBuilder.EndpointConfiguration(apiEndpoint, region))
+        ApiGatewayManagementApiClient.builder()
+            .endpointOverride(URI.create(apiEndpoint)) // Use endpointOverride for v2
+            .region(Region.of(region))
+            .httpClientBuilder(ApacheHttpClient.builder())
             .build();
   }
 
+  public SocketEmitter() {}
+
   public void sendMessage(String connectionId, String message) {
+    try {
+      PostToConnectionRequest request =
+          PostToConnectionRequest.builder()
+              .connectionId(connectionId)
+              .data(SdkBytes.fromUtf8String(message))
+              .build();
 
-    PostToConnectionRequest request =
-        new PostToConnectionRequest()
-            .withConnectionId(connectionId)
-            .withData(ByteBuffer.wrap(message.getBytes()));
-
-    apiClient.postToConnection(request);
+      apiClient.postToConnection(request);
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
   }
 
   public void sendMessages(String connectionId, String secondConnectionId, String message) {
-
     try {
-      PostToConnectionRequest request1 =
-          new PostToConnectionRequest()
-              .withConnectionId(connectionId)
-              .withData(ByteBuffer.wrap(message.getBytes()));
-      apiClient.postToConnection(request1);
+      sendMessage(connectionId, message);
     } catch (Exception e) {
       System.err.println(e.getMessage());
     }
 
     try {
-      PostToConnectionRequest request2 =
-          new PostToConnectionRequest()
-              .withConnectionId(secondConnectionId)
-              .withData(ByteBuffer.wrap(message.getBytes()));
-      apiClient.postToConnection(request2);
+      sendMessage(secondConnectionId, message);
     } catch (Exception e) {
       System.err.println(e.getMessage());
     }

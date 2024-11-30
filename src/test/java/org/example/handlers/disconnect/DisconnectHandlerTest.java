@@ -1,15 +1,14 @@
 package org.example.handlers.disconnect;
 
+import static org.example.utils.WebsocketTestUtils.getResponse;
+import static org.example.utils.WebsocketTestUtils.makeRoutelessRequestContext;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.connection.Connection;
 import org.example.handlers.websocket.disconnect.DisconnectHandler;
-import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -37,19 +36,13 @@ public class DisconnectHandlerTest {
     assertTrue(connection.isPresent());
 
     assertEquals(connection.get().toString(), username + " " + id);
-    DisconnectHandler disconnectHandler = new DisconnectHandler();
 
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new DisconnectHandler(),
+        "",
+        makeRoutelessRequestContext(id)
+    );
 
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-    requestContext.setConnectionId(id);
-
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = disconnectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
     Optional<Connection> previousRecord = utility.get(id);

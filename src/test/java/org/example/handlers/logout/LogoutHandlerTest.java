@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import java.util.HashMap;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGameDbService;
@@ -33,8 +32,7 @@ public class LogoutHandlerTest {
   private static GameDbService gameUtility;
   private static StatsDbService statsUtility;
   private static UserDbService usersUtility;
-  private static final ArchivedGameDbService archivedGameDbService =
-      ArchivedGameDbService.builder().build();
+  private static ArchivedGameDbService archivedGameDbService;
   private static LogoutHandler logoutHandler;
 
   private static final String gameId = "super-extreme-duper-fake-game-id";
@@ -48,7 +46,7 @@ public class LogoutHandlerTest {
   @BeforeAll
   public static void setUp() {
     sessionUtility = new SessionDbService();
-
+    archivedGameDbService = ArchivedGameDbService.builder().build();
     gameUtility = new GameDbService();
     statsUtility = new StatsDbService();
     usersUtility = new UserDbService();
@@ -80,36 +78,26 @@ public class LogoutHandlerTest {
   @Test
   @Order(1)
   void userCanLogout() {
-    Map<String, String> headers = new HashMap<>();
-    headers.put("Authorization", sessionToken1);
-    headers.put("userid", userId);
-
     Session userOneSession = Session.builder().id(sessionToken1).userId(userId).build();
     sessionUtility.createSession(userOneSession);
 
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(headers);
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of(
+            "Authorization", sessionToken1,
+            "userid", userId))
+        .build();
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
-
     assertEquals(StatusCodes.OK, response.getStatusCode());
-    try {
-      sessionUtility.get(sessionToken1);
-    } catch (NotFound e) {
-      return;
-    }
 
-    fail("Session " + sessionToken1 + " was not deleted");
+    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken1));
   }
 
   @DisplayName("BadRequest - Missing Headers 🔀")
   @Test
   @Order(2)
   void returnBadRequest() {
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
-
+    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(new APIGatewayV2HTTPEvent(), new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
@@ -117,7 +105,6 @@ public class LogoutHandlerTest {
   @Test
   @Order(3)
   void successfulLogoutForfeitsGame() {
-
     Player player = Player.builder().playerId(userId).username("userone").build();
 
     Game newGame = new Game(TimeControl.BLITZ_5, player);
@@ -143,28 +130,20 @@ public class LogoutHandlerTest {
 
     gameUtility.post(newGame);
 
-    Map<String, String> headers = new HashMap<>();
-    headers.put("Authorization", sessionToken2);
-    headers.put("userid", userId);
-
     Session userOneSession = Session.builder().id(sessionToken2).userId(userId).build();
     sessionUtility.createSession(userOneSession);
 
-    APIGatewayV2HTTPEvent event = new APIGatewayV2HTTPEvent();
-    event.setHeaders(headers);
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
+        .withHeaders(Map.of(
+            "Authorization", sessionToken2,
+            "userid", userId))
+        .build();
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
-
-    try {
-      archivedGameDbService.getArchivedGame(gameId);
-    } catch (NotFound e) {
-      fail("archived game not found");
-      return;
-    }
-    assertThrows(NotFound.class, () -> gameUtility.get(gameId));
-
-    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken2));
-
     assertEquals(StatusCodes.OK, response.getStatusCode());
+
+    assertDoesNotThrow(() -> archivedGameDbService.getArchivedGame(gameId));
+    assertThrows(NotFound.class, () -> gameUtility.get(gameId));
+    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken2));
   }
 }

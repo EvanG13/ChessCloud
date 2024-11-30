@@ -1,10 +1,9 @@
 package org.example.handlers.connect;
 
+import static org.example.utils.WebsocketTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.connect.ConnectHandler;
-import org.example.utils.MockContext;
 import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
@@ -58,24 +56,16 @@ public class ConnectHandlerTest {
   @Test
   @Order(1)
   public void returnSuccess() {
-    ConnectHandler connectHandler = new ConnectHandler();
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId);
 
-    event.setQueryStringParameters(queryStrings);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new ConnectHandler(),
+        "",
+        queryStrings,
+        makeRoutelessRequestContext(connectId)
+    );
 
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-
-    requestContext.setConnectionId(connectId);
-
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
   }
 
@@ -83,24 +73,16 @@ public class ConnectHandlerTest {
   @Test
   @Order(2)
   public void updateSuccessful() {
-    ConnectHandler connectHandler = new ConnectHandler();
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId);
 
-    event.setQueryStringParameters(queryStrings);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new ConnectHandler(),
+        "",
+        queryStrings,
+        makeRequestContext("", newConnId)
+    );
 
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-
-    requestContext.setConnectionId(newConnId);
-
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
     Optional<Game> oGame = utility.get(gameId);
@@ -114,24 +96,16 @@ public class ConnectHandlerTest {
   @Test
   @Order(3)
   public void updateSecondPlayerSuccessful() {
-    ConnectHandler connectHandler = new ConnectHandler();
-
-    APIGatewayV2WebSocketEvent event = new APIGatewayV2WebSocketEvent();
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId2);
 
-    event.setQueryStringParameters(queryStrings);
+    APIGatewayV2WebSocketResponse response = getResponse(
+        new ConnectHandler(),
+        "",
+        queryStrings,
+        makeRequestContext("", connectId)
+    );
 
-    Context context = new MockContext();
-
-    APIGatewayV2WebSocketEvent.RequestContext requestContext =
-        new APIGatewayV2WebSocketEvent.RequestContext();
-
-    requestContext.setConnectionId(connectId);
-
-    event.setRequestContext(requestContext);
-
-    APIGatewayV2WebSocketResponse response = connectHandler.handleRequest(event, context);
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
     Optional<Game> oGame = utility.get(gameId);
