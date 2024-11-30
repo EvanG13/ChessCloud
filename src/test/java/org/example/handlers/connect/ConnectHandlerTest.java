@@ -63,7 +63,7 @@ public class ConnectHandlerTest {
         new ConnectHandler(),
         "",
         queryStrings,
-        makeRequestContext("", connectId)
+        makeRoutelessRequestContext(connectId)
     );
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);

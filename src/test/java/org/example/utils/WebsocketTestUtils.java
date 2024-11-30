@@ -14,6 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WebsocketTestUtils {
   private static final Gson gson = new Gson();
 
+  public static APIGatewayV2WebSocketEvent.RequestContext makeRoutelessRequestContext(String connectionId) {
+    return makeRequestContext("", connectionId, System.currentTimeMillis());
+  }
+
   public static APIGatewayV2WebSocketEvent.RequestContext makeRequestContext(String route, String connectionId) {
     return makeRequestContext(route, connectionId, System.currentTimeMillis());
   }
