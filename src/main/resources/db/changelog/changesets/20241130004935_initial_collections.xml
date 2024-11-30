@@ -1,0 +1,31 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb
+    http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+    
+    <!-- https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ -->
+    <!-- https://docs.liquibase.com/change-types/mongodb/home.html -->
+
+    <changeSet id="1732927811998-1" author="CaiminRO">
+        <mongodb:createCollection collectionName="users" />
+        <mongodb:createCollection collectionName="stats" />
+        <mongodb:createCollection collectionName="sessions" />
+        <mongodb:createCollection collectionName="connections" />
+        <mongodb:createCollection collectionName="games" />
+        <mongodb:createCollection collectionName="archived_games" />
+
+        <rollback>
+            <mongodb:dropCollection collectionName="archived_games" />
+            <mongodb:dropCollection collectionName="games" />
+            <mongodb:dropCollection collectionName="connections" />
+            <mongodb:dropCollection collectionName="sessions" />
+            <mongodb:dropCollection collectionName="stats" />
+            <mongodb:dropCollection collectionName="users" />
+        </rollback>
+    </changeSet>
+    
+</databaseChangeLog>
