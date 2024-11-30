@@ -113,6 +113,7 @@
                 <version>4.28.0</version>
                 <configuration>
                     <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/resources/db/changelog/master-changelog.xml</changeLogFile>
                 </configuration>
             </plugin>
 
