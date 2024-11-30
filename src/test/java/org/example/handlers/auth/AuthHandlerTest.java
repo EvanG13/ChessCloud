@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2CustomAuthorizerEvent;
 import com.amazonaws.services.lambda.runtime.events.IamPolicyResponse;
-import java.util.HashMap;
 import java.util.Map;
 import org.example.entities.session.Session;
 import org.example.entities.user.User;
@@ -14,13 +13,9 @@ import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class AuthHandlerTest {
-
   static AuthHandler authHandler;
+
   static MongoDBUtility<User> userUtility;
-
-  static APIGatewayV2CustomAuthorizerEvent event;
-  static Map<String, String> headers;
-
   static MongoDBUtility<Session> sessionUtility;
 
   static String validSessionToken;
@@ -28,16 +23,6 @@ public class AuthHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-    event = new APIGatewayV2CustomAuthorizerEvent();
-
-    APIGatewayV2CustomAuthorizerEvent.RequestContext mockRequestContext =
-        new APIGatewayV2CustomAuthorizerEvent.RequestContext();
-    mockRequestContext.setAccountId("123456789012");
-    mockRequestContext.setApiId("abcdef1234");
-
-    event.setRequestContext(mockRequestContext);
-    headers = new HashMap<>();
-
     authHandler = new AuthHandler();
 
     userUtility = new MongoDBUtility<>("users", User.class);
@@ -61,17 +46,20 @@ public class AuthHandlerTest {
 
   @Test
   public void canAllowPolicy() {
-    headers.put("Authorization", validSessionToken);
-    headers.put("userid", validUserId);
+    APIGatewayV2CustomAuthorizerEvent.Http http = APIGatewayV2CustomAuthorizerEvent.Http.builder()
+        .withMethod("GET")
+        .build();
 
-    APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext =
-        new APIGatewayV2CustomAuthorizerEvent.RequestContext();
-    APIGatewayV2CustomAuthorizerEvent.Http http = new APIGatewayV2CustomAuthorizerEvent.Http();
-    http.setMethod("GET");
-    requestContext.setHttp(http);
+    APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext = APIGatewayV2CustomAuthorizerEvent.RequestContext.builder()
+        .withHttp(http)
+        .build();
 
-    event.setHeaders(headers);
-    event.setRequestContext(requestContext);
+    APIGatewayV2CustomAuthorizerEvent event = APIGatewayV2CustomAuthorizerEvent.builder()
+        .withHeaders(Map.of(
+            "Authorization", validSessionToken,
+            "userid", validUserId))
+        .withRequestContext(requestContext)
+        .build();
 
     IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
@@ -91,10 +79,17 @@ public class AuthHandlerTest {
 
   @Test
   public void canDenyPolicy() {
-    headers.put("Authorization", "7a897393-4167-43fe-a618-9bdb65b53529");
-    headers.put("userid", "fakeUserId");
+    APIGatewayV2CustomAuthorizerEvent.RequestContext mockRequestContext = APIGatewayV2CustomAuthorizerEvent.RequestContext.builder()
+        .withAccountId("123456789012")
+        .withApiId("abcdef1234")
+        .build();
 
-    event.setHeaders(headers);
+    APIGatewayV2CustomAuthorizerEvent event = APIGatewayV2CustomAuthorizerEvent.builder()
+        .withHeaders(Map.of(
+            "Authorization", "7a897393-4167-43fe-a618-9bdb65b53529",
+            "userid", "fakeUserId"))
+        .withRequestContext(mockRequestContext)
+        .build();
 
     IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
