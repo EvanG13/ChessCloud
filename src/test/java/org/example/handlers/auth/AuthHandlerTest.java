@@ -46,20 +46,20 @@ public class AuthHandlerTest {
 
   @Test
   public void canAllowPolicy() {
-    APIGatewayV2CustomAuthorizerEvent.Http http = APIGatewayV2CustomAuthorizerEvent.Http.builder()
-        .withMethod("GET")
-        .build();
+    APIGatewayV2CustomAuthorizerEvent.Http http =
+        APIGatewayV2CustomAuthorizerEvent.Http.builder().withMethod("GET").build();
 
-    APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext = APIGatewayV2CustomAuthorizerEvent.RequestContext.builder()
-        .withHttp(http)
-        .build();
+    APIGatewayV2CustomAuthorizerEvent.RequestContext requestContext =
+        APIGatewayV2CustomAuthorizerEvent.RequestContext.builder().withHttp(http).build();
 
-    APIGatewayV2CustomAuthorizerEvent event = APIGatewayV2CustomAuthorizerEvent.builder()
-        .withHeaders(Map.of(
-            "Authorization", validSessionToken,
-            "userid", validUserId))
-        .withRequestContext(requestContext)
-        .build();
+    APIGatewayV2CustomAuthorizerEvent event =
+        APIGatewayV2CustomAuthorizerEvent.builder()
+            .withHeaders(
+                Map.of(
+                    "Authorization", validSessionToken,
+                    "userid", validUserId))
+            .withRequestContext(requestContext)
+            .build();
 
     IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);
@@ -79,17 +79,20 @@ public class AuthHandlerTest {
 
   @Test
   public void canDenyPolicy() {
-    APIGatewayV2CustomAuthorizerEvent.RequestContext mockRequestContext = APIGatewayV2CustomAuthorizerEvent.RequestContext.builder()
-        .withAccountId("123456789012")
-        .withApiId("abcdef1234")
-        .build();
+    APIGatewayV2CustomAuthorizerEvent.RequestContext mockRequestContext =
+        APIGatewayV2CustomAuthorizerEvent.RequestContext.builder()
+            .withAccountId("123456789012")
+            .withApiId("abcdef1234")
+            .build();
 
-    APIGatewayV2CustomAuthorizerEvent event = APIGatewayV2CustomAuthorizerEvent.builder()
-        .withHeaders(Map.of(
-            "Authorization", "7a897393-4167-43fe-a618-9bdb65b53529",
-            "userid", "fakeUserId"))
-        .withRequestContext(mockRequestContext)
-        .build();
+    APIGatewayV2CustomAuthorizerEvent event =
+        APIGatewayV2CustomAuthorizerEvent.builder()
+            .withHeaders(
+                Map.of(
+                    "Authorization", "7a897393-4167-43fe-a618-9bdb65b53529",
+                    "userid", "fakeUserId"))
+            .withRequestContext(mockRequestContext)
+            .build();
 
     IamPolicyResponse response = authHandler.handleRequest(event, new MockContext());
     assertNotNull(response);

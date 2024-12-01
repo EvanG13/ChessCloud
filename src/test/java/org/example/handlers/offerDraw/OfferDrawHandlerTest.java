@@ -65,11 +65,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
@@ -90,11 +90,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
@@ -115,11 +115,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
@@ -140,11 +140,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -166,11 +166,11 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
@@ -192,11 +192,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.CANCEL),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -221,11 +221,11 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -247,11 +247,11 @@ public class OfferDrawHandlerTest {
     // Player 2
     String offeringPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
@@ -280,11 +280,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String denyingPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
-        makeRequestContext("offerDraw", denyingPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.DENY),
+            makeRequestContext("offerDraw", denyingPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -313,11 +313,11 @@ public class OfferDrawHandlerTest {
     // Player 1
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.OFFER),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -339,11 +339,11 @@ public class OfferDrawHandlerTest {
     // Player 2
     String acceptingPlayerConnectionId = game.getPlayers().getLast().getConnectionId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
-        makeRequestContext("offerDraw", acceptingPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest(game.getId(), OfferDrawAction.ACCEPT),
+            makeRequestContext("offerDraw", acceptingPlayerConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -367,11 +367,11 @@ public class OfferDrawHandlerTest {
   public void checksValidBody() {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        Map.of("nonsense", "nonexistinggame"),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            Map.of("nonsense", "nonexistinggame"),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
@@ -380,11 +380,11 @@ public class OfferDrawHandlerTest {
   public void checksThatGameExists() {
     String offeringPlayerConnectionId = game.getPlayers().getFirst().getPlayerId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER),
-        makeRequestContext("offerDraw", offeringPlayerConnectionId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new OfferDrawRequest("nonexistinggame", OfferDrawAction.OFFER),
+            makeRequestContext("offerDraw", offeringPlayerConnectionId));
 
     assertEquals(StatusCodes.NOT_FOUND, response.getStatusCode());
   }

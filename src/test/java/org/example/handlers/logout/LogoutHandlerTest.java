@@ -81,11 +81,13 @@ public class LogoutHandlerTest {
     Session userOneSession = Session.builder().id(sessionToken1).userId(userId).build();
     sessionUtility.createSession(userOneSession);
 
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withHeaders(Map.of(
-            "Authorization", sessionToken1,
-            "userid", userId))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withHeaders(
+                Map.of(
+                    "Authorization", sessionToken1,
+                    "userid", userId))
+            .build();
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
@@ -97,7 +99,8 @@ public class LogoutHandlerTest {
   @Test
   @Order(2)
   void returnBadRequest() {
-    APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(new APIGatewayV2HTTPEvent(), new MockContext());
+    APIGatewayV2HTTPResponse response =
+        logoutHandler.handleRequest(new APIGatewayV2HTTPEvent(), new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
   }
 
@@ -133,11 +136,13 @@ public class LogoutHandlerTest {
     Session userOneSession = Session.builder().id(sessionToken2).userId(userId).build();
     sessionUtility.createSession(userOneSession);
 
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withHeaders(Map.of(
-            "Authorization", sessionToken2,
-            "userid", userId))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withHeaders(
+                Map.of(
+                    "Authorization", sessionToken2,
+                    "userid", userId))
+            .build();
 
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());

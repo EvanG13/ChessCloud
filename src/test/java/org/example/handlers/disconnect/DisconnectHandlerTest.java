@@ -37,11 +37,8 @@ public class DisconnectHandlerTest {
 
     assertEquals(connection.get().toString(), username + " " + id);
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new DisconnectHandler(),
-        "",
-        makeRoutelessRequestContext(id)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(new DisconnectHandler(), "", makeRoutelessRequestContext(id));
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 

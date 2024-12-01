@@ -66,10 +66,11 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void canGetArchivedGamesWithoutTimeControl() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("username", "user1"))
-        .withHeaders(Map.of("userid", "id1"))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withPathParameters(Map.of("username", "user1"))
+            .withHeaders(Map.of("userid", "id1"))
+            .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, expectedWithTwoGames.toJSON());
@@ -77,10 +78,11 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void canGetArchivedGamesWithTimeControl() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("username", "user1"))
-        .withQueryStringParameters(Map.of("timeControl", String.valueOf(TimeControl.BLITZ_5)))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withPathParameters(Map.of("username", "user1"))
+            .withQueryStringParameters(Map.of("timeControl", String.valueOf(TimeControl.BLITZ_5)))
+            .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, expectedWithOneGame.toJSON());
@@ -88,9 +90,8 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void missingPathParamsSendsBADREQUEST() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withHeaders(Map.of("userid", "id2"))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder().withHeaders(Map.of("userid", "id2")).build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
@@ -98,10 +99,11 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void userWithNoArchivedGamesReturnsEmpty() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("username", "user3"))
-        .withHeaders(Map.of("userid", "new-user"))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withPathParameters(Map.of("username", "user3"))
+            .withHeaders(Map.of("userid", "new-user"))
+            .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, "{\"archivedGames\":[]}");
@@ -109,13 +111,15 @@ public class ListArchivedGamesHandlerTest {
 
   @Test
   public void invalidQueryParams() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("username", "user1"))
-        .withHeaders(Map.of("userid", "id1"))
-        .withQueryStringParameters(Map.of("fdsaf", "invalid-queryParamKey!"))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withPathParameters(Map.of("username", "user1"))
+            .withHeaders(Map.of("userid", "id1"))
+            .withQueryStringParameters(Map.of("fdsaf", "invalid-queryParamKey!"))
+            .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
-    assertResponse(response, StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or timeControl");
+    assertResponse(
+        response, StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or timeControl");
   }
 }

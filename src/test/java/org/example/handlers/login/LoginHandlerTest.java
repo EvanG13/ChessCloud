@@ -60,9 +60,10 @@ public class LoginHandlerTest {
   @DisplayName("OK")
   @Test
   public void canLogin() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(gson.toJson(new LoginRequest("it-test@gmail.com", "testPassword")))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withBody(gson.toJson(new LoginRequest("it-test@gmail.com", "testPassword")))
+            .build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
     assertEquals(StatusCodes.OK, response.getStatusCode());
@@ -70,7 +71,7 @@ public class LoginHandlerTest {
     assertTrue(response.getBody().contains("user"));
     assertCorsHeaders(response.getHeaders());
 
-    LoginResponseBody body =  gson.fromJson(response.getBody(), LoginResponseBody.class);
+    LoginResponseBody body = gson.fromJson(response.getBody(), LoginResponseBody.class);
 
     User user = body.getUser();
     assertNotNull(user.getId());
@@ -83,9 +84,7 @@ public class LoginHandlerTest {
   @Test
   public void returnsUnauthorized() {
     String body = gson.toJson(new LoginRequest("super-fake-email@gmail.com", "testPassword"));
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(body)
-        .build();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder().withBody(body).build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
     assertCorsHeaders(response.getHeaders());
@@ -104,9 +103,7 @@ public class LoginHandlerTest {
   @Test
   public void nullArgumentBadRequest() {
     String body = gson.toJson(new LoginRequest("super-fake-email@gmail.com", null));
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(body)
-        .build();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder().withBody(body).build();
 
     APIGatewayV2HTTPResponse response = loginHandler.handleRequest(event, context);
     assertCorsHeaders(response.getHeaders());

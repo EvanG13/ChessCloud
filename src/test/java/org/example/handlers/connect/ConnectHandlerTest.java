@@ -59,12 +59,8 @@ public class ConnectHandlerTest {
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId);
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new ConnectHandler(),
-        "",
-        queryStrings,
-        makeRoutelessRequestContext(connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(new ConnectHandler(), "", queryStrings, makeRoutelessRequestContext(connectId));
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
   }
@@ -76,12 +72,8 @@ public class ConnectHandlerTest {
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId);
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new ConnectHandler(),
-        "",
-        queryStrings,
-        makeRequestContext("", newConnId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(new ConnectHandler(), "", queryStrings, makeRequestContext("", newConnId));
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
@@ -99,12 +91,8 @@ public class ConnectHandlerTest {
     Map<String, String> queryStrings = new HashMap<>();
     queryStrings.put("userid", userId2);
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new ConnectHandler(),
-        "",
-        queryStrings,
-        makeRequestContext("", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(new ConnectHandler(), "", queryStrings, makeRequestContext("", connectId));
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 

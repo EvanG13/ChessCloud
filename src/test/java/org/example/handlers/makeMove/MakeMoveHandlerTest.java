@@ -155,11 +155,11 @@ public class MakeMoveHandlerTest {
   @Test
   @Order(1)
   public void returnGameCreated() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        joinGameHandler,
-        new JoinGameRequest(userId, timeControl),
-        makeRequestContext("joinGame", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            joinGameHandler,
+            new JoinGameRequest(userId, timeControl),
+            makeRequestContext("joinGame", connectId));
 
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
   }
@@ -168,11 +168,11 @@ public class MakeMoveHandlerTest {
   @DisplayName("GAME STARTED")
   @Order(2)
   public void returnGameStarted() throws NotFound {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        joinGameHandler,
-        new JoinGameRequest(userId2, timeControl),
-        makeRequestContext("joinGame", connectId2)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            joinGameHandler,
+            new JoinGameRequest(userId2, timeControl),
+            makeRequestContext("joinGame", connectId2));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -207,11 +207,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(wrongUserId).move(firstMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertResponse(response, StatusCodes.UNAUTHORIZED, "User is not in this Game");
   }
@@ -223,11 +223,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(invalidMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertResponse(response, StatusCodes.BAD_REQUEST, "Illegal Move: " + invalidMove);
   }
@@ -239,11 +239,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(firstMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -273,11 +273,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondInvalidMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId2)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId2));
 
     assertResponse(response, StatusCodes.BAD_REQUEST, "Illegal Move: " + secondInvalidMove);
   }
@@ -289,11 +289,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertResponse(response, StatusCodes.FORBIDDEN, "It is not your turn.");
   }
@@ -305,11 +305,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId2).move(secondMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId2)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId2));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -347,11 +347,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -407,11 +407,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(checkmateMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertResponse(response, StatusCodes.OK, "checkmate");
 
@@ -436,11 +436,11 @@ public class MakeMoveHandlerTest {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId2).playerId(userId).move(stalemateMove).build();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new MakeMoveHandler(makeMoveService, socketLogger),
-        request,
-        makeRequestContext("makeMove", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new MakeMoveHandler(makeMoveService, socketLogger),
+            request,
+            makeRequestContext("makeMove", connectId));
 
     assertResponse(response, StatusCodes.OK, "draw");
   }
