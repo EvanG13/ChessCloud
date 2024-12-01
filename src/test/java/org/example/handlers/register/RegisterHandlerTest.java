@@ -75,9 +75,7 @@ public class RegisterHandlerTest {
   @Test
   void returnSuccess() {
     String body = gson.toJson(new RegisterRequest("test3@gmail.com", "testuser3", "test"));
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(body)
-        .build();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder().withBody(body).build();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());
@@ -96,9 +94,7 @@ public class RegisterHandlerTest {
   @Test
   void returnBadRequestMissingArgs() {
     String body = gson.toJson(new RegisterRequest("reg-it-test@gmail.com", null, "test"));
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(body)
-        .build();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder().withBody(body).build();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());
@@ -109,9 +105,7 @@ public class RegisterHandlerTest {
   @Test
   void returnConflict() {
     String body = gson.toJson(new RegisterRequest("reg-it-test@gmail.com", "testuser", "test"));
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withBody(body)
-        .build();
+    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder().withBody(body).build();
 
     APIGatewayV2HTTPResponse response = registerHandler.handleRequest(event, new MockContext());
     assertCorsHeaders(response.getHeaders());

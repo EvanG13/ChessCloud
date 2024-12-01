@@ -49,9 +49,8 @@ public class GetArchivedGameHandlerTest {
 
   @Test
   public void canGetArchivedGame() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("gameId", gameId))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder().withPathParameters(Map.of("gameId", gameId)).build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.OK, expected.toResponseJson());
@@ -66,9 +65,10 @@ public class GetArchivedGameHandlerTest {
 
   @Test
   public void missingGameIdFromQueryParams() {
-    APIGatewayV2HTTPEvent event = APIGatewayV2HTTPEvent.builder()
-        .withPathParameters(Map.of("userid", "not-a-game-id!"))
-        .build();
+    APIGatewayV2HTTPEvent event =
+        APIGatewayV2HTTPEvent.builder()
+            .withPathParameters(Map.of("userid", "not-a-game-id!"))
+            .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(response, StatusCodes.BAD_REQUEST, "Missing gameId from path params");

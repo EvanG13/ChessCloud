@@ -315,7 +315,7 @@ paths:
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
                 application/json: {}
-  /stats:
+  /stats/{username}:
     get:
       summary: stats
       description: post win/loss/draw/rating
@@ -331,10 +331,16 @@ paths:
         required: true
         schema:
           type: string
-      - name: gamemode
+      - name: timeControl
         in: query
         description: Specific game mode to retrieve stats for (optional)
         required: false
+        schema:
+          type: string
+      - name: username
+        in: path
+        description: username
+        required: true
         schema:
           type: string
       responses:

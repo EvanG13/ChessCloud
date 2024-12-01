@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.List;
 import java.util.Map;
-
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameDbService;
@@ -59,13 +58,14 @@ public class ResignGameHandlerTest {
   @Test
   @Order(1)
   public void checkNonPlayerUserTriedResigning() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new ResignRequest(game.getId()),
-        makeRequestContext("resign", "some-other-guy")
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler,
+            new ResignRequest(game.getId()),
+            makeRequestContext("resign", "some-other-guy"));
 
-    assertResponse(response, StatusCodes.UNAUTHORIZED, "Your connection ID is not bound to this game");
+    assertResponse(
+        response, StatusCodes.UNAUTHORIZED, "Your connection ID is not bound to this game");
   }
 
   @Test
@@ -75,11 +75,9 @@ public class ResignGameHandlerTest {
 
     String winningPlayerId = players.getLast().getPlayerId();
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new ResignRequest(game.getId()),
-        makeRequestContext("resign", "foo-id")
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            handler, new ResignRequest(game.getId()), makeRequestContext("resign", "foo-id"));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -100,11 +98,8 @@ public class ResignGameHandlerTest {
 
   @Test
   public void checksForMissingBody() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        Map.of("foo", "fooagain"),
-        makeRequestContext("resign", "foo-id")
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(handler, Map.of("foo", "fooagain"), makeRequestContext("resign", "foo-id"));
 
     assertResponse(response, StatusCodes.BAD_REQUEST, "Missing argument(s)");
   }
@@ -114,11 +109,8 @@ public class ResignGameHandlerTest {
     String fakeID = "fake";
     String expectedBody = "No Game found with id " + fakeID;
 
-    APIGatewayV2WebSocketResponse response = getResponse(
-        handler,
-        new ResignRequest(fakeID),
-        makeRequestContext("resign", "foo-id")
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(handler, new ResignRequest(fakeID), makeRequestContext("resign", "foo-id"));
 
     assertResponse(response, StatusCodes.NOT_FOUND, expectedBody);
   }

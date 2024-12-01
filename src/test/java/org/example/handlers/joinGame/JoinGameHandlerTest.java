@@ -93,11 +93,11 @@ public class JoinGameHandlerTest {
   @Test
   @Order(1)
   public void playerOneCreatesNewGame() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new JoinGameHandler(joinGameService, socketLogger),
-        new JoinGameRequest(userId, timeControl),
-        makeRequestContext("joinGame", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new JoinGameHandler(joinGameService, socketLogger),
+            new JoinGameRequest(userId, timeControl),
+            makeRequestContext("joinGame", connectId));
 
     assertEquals(StatusCodes.CREATED, response.getStatusCode());
     String gameJson = response.getBody();
@@ -115,11 +115,11 @@ public class JoinGameHandlerTest {
   @DisplayName("Player Two joins the game")
   @Order(2)
   public void playerTwoJoinsGame() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new JoinGameHandler(joinGameService, socketLogger),
-        new JoinGameRequest(userId2, timeControl),
-        makeRequestContext("joinGame", connectId2)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new JoinGameHandler(joinGameService, socketLogger),
+            new JoinGameRequest(userId2, timeControl),
+            makeRequestContext("joinGame", connectId2));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
@@ -151,11 +151,11 @@ public class JoinGameHandlerTest {
   @DisplayName("No user matches userId")
   @Order(3)
   public void returnUnauthorized() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new JoinGameHandler(joinGameService, socketLogger),
-        new JoinGameRequest("nonexistentUserId12321321", timeControl),
-        makeRequestContext("joinGame", connectId2)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new JoinGameHandler(joinGameService, socketLogger),
+            new JoinGameRequest("nonexistentUserId12321321", timeControl),
+            makeRequestContext("joinGame", connectId2));
 
     assertEquals(StatusCodes.UNAUTHORIZED, response.getStatusCode());
   }
@@ -164,11 +164,11 @@ public class JoinGameHandlerTest {
   @DisplayName("Can only play one game at a time")
   @Order(4)
   public void returnForbidden() {
-    APIGatewayV2WebSocketResponse response = getResponse(
-        new JoinGameHandler(joinGameService, socketLogger),
-        new JoinGameRequest(userId2, timeControl),
-        makeRequestContext("joinGame", connectId)
-    );
+    APIGatewayV2WebSocketResponse response =
+        getResponse(
+            new JoinGameHandler(joinGameService, socketLogger),
+            new JoinGameRequest(userId2, timeControl),
+            makeRequestContext("joinGame", connectId));
 
     assertEquals(StatusCodes.FORBIDDEN, response.getStatusCode());
   }

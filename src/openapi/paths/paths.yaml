@@ -40,7 +40,7 @@ paths:
     $ref: '../resources/logout.yaml'
   /register:
     $ref: '../resources/register.yaml'
-  /stats:
+  /stats/{username}:
     $ref: '../resources/stats.yaml'
   /gameState:
     $ref: '../resources/gameState.yaml'

@@ -11,11 +11,17 @@ get:
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/authHeader"
     - $ref: "../parameters/AuthEndpointParams.yaml#/components/parameters/userId"
     - in: query
-      name: gamemode
+      name: timeControl
       schema:
         type: string
       required: false
       description: Specific game mode to retrieve stats for (optional)
+    - in: path
+      name: username
+      schema:
+        type: string
+      required: true
+      description: username
   responses:
     200:
       description: Post Stats Successful
