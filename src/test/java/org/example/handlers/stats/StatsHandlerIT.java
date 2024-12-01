@@ -20,8 +20,9 @@ import org.junit.jupiter.api.*;
 
 @Tag("Integration")
 public class StatsHandlerIT extends BaseTest {
-  private static final String endpoint = "/stats";
+  private static final String endpoint = "/stats/{username}";
   private static Map<String, String> authHeaders;
+  private static Map<String, String> pathParams;
 
   private static UserDbService userDbService;
   private static StatsDbService statsDbService;
@@ -39,15 +40,12 @@ public class StatsHandlerIT extends BaseTest {
     statsDbService = new StatsDbService();
     sessionDbService = new SessionDbService();
 
-    userId = "test-Id";
-
     User testUser =
-        User.builder()
-            .id(userId)
-            .email("test@gmail.com")
-            .password("1223")
-            .username("test-username")
-            .build();
+        User.builder().email("test@gmail.com").password("1223").username("test-username").build();
+
+    userId = testUser.getId();
+    String username = testUser.getUsername();
+
     userDbService.createUser(testUser);
     String sessionToken = sessionDbService.createSession(new SessionRequest(userId));
 
@@ -55,6 +53,8 @@ public class StatsHandlerIT extends BaseTest {
         Map.of(
             "userid", userId,
             "Authorization", sessionToken);
+
+    pathParams = Map.of("username", username);
 
     Stats testUserStats = new Stats(userId);
     statsDbService.post(testUserStats);
@@ -73,7 +73,7 @@ public class StatsHandlerIT extends BaseTest {
   @DisplayName("No Query")
   @Test
   public void returnNoQuery() {
-    Response response = testUtils.get(authHeaders, endpoint, StatusCodes.OK);
+    Response response = testUtils.get(authHeaders, endpoint, pathParams, StatusCodes.OK);
 
     JsonObject expectedStats = gson.fromJson((new Stats(userId)).toJSON(), JsonObject.class);
     JsonObject actualStats = gson.fromJson(response.asPrettyString(), JsonObject.class);
@@ -81,12 +81,13 @@ public class StatsHandlerIT extends BaseTest {
     assertEquals(expectedStats.toString(), actualStats.toString());
   }
 
-  @DisplayName("Query \"gamemode=bullet\" (valid)")
+  @DisplayName("Query \"timeCategory=bullet\" (valid)")
   @Test
   public void returnQueryBullet() {
-    Map<String, String> queryStrings = Map.of("gamemode", "bullet");
+    Map<String, String> queryStrings = Map.of("timeCategory", "bullet");
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.OK);
+    Response response =
+        testUtils.get(authHeaders, endpoint, pathParams, queryStrings, StatusCodes.OK);
 
     JsonObject expectedStats =
         gson.fromJson((new Stats(userId)).toJSON(GameMode.BULLET), JsonObject.class);
@@ -95,15 +96,16 @@ public class StatsHandlerIT extends BaseTest {
     assertEquals(expectedStats.toString(), actualStats.toString());
   }
 
-  @DisplayName("Query \"gamemode=invalidgamemode\" (invalid)")
+  @DisplayName("Query \"timeCategory=invalidgamemode\" (invalid)")
   @Test
-  public void returnQueryInvalidGamemode() {
-    Map<String, String> queryStrings = Map.of("gamemode", "invalidgamemode");
+  public void returnQueryInvalidGameCategory() {
+    Map<String, String> queryStrings = Map.of("timeCategory", "invalidgamemode");
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
+    Response response =
+        testUtils.get(authHeaders, endpoint, pathParams, queryStrings, StatusCodes.BAD_REQUEST);
 
     assertEquals(
-        "Query parameter \"gamemode\" had an invalid value: invalidgamemode",
+        "Query parameter \"timeCategory\" had an invalid value: invalidgamemode",
         response.asPrettyString());
   }
 
@@ -112,18 +114,21 @@ public class StatsHandlerIT extends BaseTest {
   public void returnInvalidQueryParameter() {
     Map<String, String> queryStrings = Map.of("param", "bullet");
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
+    Response response =
+        testUtils.get(authHeaders, endpoint, pathParams, queryStrings, StatusCodes.BAD_REQUEST);
 
     assertEquals(
-        "Query defined, but query parameter \"gamemode\" was missing", response.asPrettyString());
+        "Query defined, but query parameter \"timeCategory\" was missing",
+        response.asPrettyString());
   }
 
-  @DisplayName("Query \"gamemode=\" (invalid)")
+  @DisplayName("Query \"timeCategory=\" (invalid)")
   @Test
-  public void returnQueryBlankGamemode() {
-    Map<String, String> queryStrings = Map.of("gamemode", "");
+  public void returnQueryBlankGameCategory() {
+    Map<String, String> queryStrings = Map.of("timeCategory", "");
 
-    Response response = testUtils.get(authHeaders, queryStrings, endpoint, StatusCodes.BAD_REQUEST);
-    assertEquals("Query parameter \"gamemode\" was missing a value", response.asPrettyString());
+    Response response =
+        testUtils.get(authHeaders, endpoint, pathParams, queryStrings, StatusCodes.BAD_REQUEST);
+    assertEquals("Query parameter \"timeCategory\" was missing a value", response.asPrettyString());
   }
 }

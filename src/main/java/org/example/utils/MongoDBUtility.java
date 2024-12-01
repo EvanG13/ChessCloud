@@ -79,6 +79,10 @@ public class MongoDBUtility<T extends DataTransferObject> {
     return Optional.ofNullable(getCollection().find(filter).first());
   }
 
+  public Optional<T> get(Bson filter, Bson projection) {
+    return Optional.ofNullable(getCollection().find(filter).projection(projection).first());
+  }
+
   public void post(T object) {
     getCollection().insertOne(object);
   }
