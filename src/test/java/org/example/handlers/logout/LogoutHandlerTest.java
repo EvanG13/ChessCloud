@@ -113,8 +113,18 @@ public class LogoutHandlerTest {
     Game newGame = new Game(TimeControl.BLITZ_5, player);
     newGame.setId(gameId);
 
-    User user1 = User.builder().id(userId).username("userone").build();
-    User user2 = User.builder().id(user2id).username("usertwo").build();
+    User user1 =
+        User.builder()
+            .id(userId)
+            .username("userone")
+            .email("successfulLogoutForfeitsGame1@email.com")
+            .build();
+    User user2 =
+        User.builder()
+            .id(user2id)
+            .username("usertwo")
+            .email("successfulLogoutForfeitsGame2@email.com")
+            .build();
     usersUtility.createUser(user1);
     usersUtility.createUser(user2);
 
