@@ -1,0 +1,89 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb
+    http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <!-- https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ -->
+    <!-- https://docs.liquibase.com/change-types/mongodb/home.html -->
+
+    <changeSet id="1733111482753-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="games">
+            <mongodb:keys>
+                { timeControl: 1, gameStatus: 1, rating: 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_games_timeControl_gameStatus_rating" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="games">
+                <mongodb:keys>
+                    { timeControl: 1, gameStatus: 1, rating: 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111486558-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="games">
+            <mongodb:keys>
+                { "players.playerId": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_games_playersPlayerId" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="games">
+                <mongodb:keys>
+                    { "players.playerId": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111491010-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="games">
+            <mongodb:keys>
+                { "players.username": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_games_playersUsername" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="games">
+                <mongodb:keys>
+                    { "players.username": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111515813-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="games">
+            <mongodb:keys>
+                { "players.connectionId": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_games_playersConnectionId" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="games">
+                <mongodb:keys>
+                    { "players.connectionId": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

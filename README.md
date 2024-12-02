@@ -53,6 +53,8 @@ You can create a new changeset file from the template using:
 
 You can apply all existing (and not yet applied) changesets using the command: ``mvn liquibase:update``
 
+You can rollback changesets using the command (may need to run in CMD.exe): ``mvn liquibase:rollback -Dliquibase.rollbackCount=1``
+
 ## Testing
 
 This project utilizes **[REST Assured](https://rest-assured.io/)** for Integration Tests and

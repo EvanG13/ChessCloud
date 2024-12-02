@@ -1,0 +1,51 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb
+    http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <!-- https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ -->
+    <!-- https://docs.liquibase.com/change-types/mongodb/home.html -->
+
+    <changeSet id="1733111460668-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="users">
+            <mongodb:keys>
+                { username: 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { unique: true, name: "ui_users_username" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="users">
+                <mongodb:keys>
+                    { username: 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111464993-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="users">
+            <mongodb:keys>
+                { email: 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { unique: true, name: "ui_users_email" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="users">
+                <mongodb:keys>
+                    { email: 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,89 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb
+    http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <!-- https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ -->
+    <!-- https://docs.liquibase.com/change-types/mongodb/home.html -->
+
+    <changeSet id="1733111598426-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="archived_games">
+            <mongodb:keys>
+                { "players.username": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_ag_playersUsername" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="archived_games">
+                <mongodb:keys>
+                    { "players.username": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111735827-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="archived_games">
+            <mongodb:keys>
+                { "players.playerId": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_ag_playersPlayerId" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="archived_games">
+                <mongodb:keys>
+                    { "players.playerId": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111739174-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="archived_games">
+            <mongodb:keys>
+                { "timeControl": 1, "players.username": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_ag_timeControl_playersUsername" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="archived_games">
+                <mongodb:keys>
+                    { "timeControl": 1, "players.username": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1733111808918-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="archived_games">
+            <mongodb:keys>
+                { "timeControl": 1, "players.playerId": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_ag_timeControl_playersPlayerId" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="archived_games">
+                <mongodb:keys>
+                    { "timeControl": 1, "players.playerId": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

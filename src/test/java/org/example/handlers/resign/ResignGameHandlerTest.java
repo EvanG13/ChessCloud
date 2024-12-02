@@ -74,10 +74,11 @@ public class ResignGameHandlerTest {
     List<Player> players = game.getPlayers();
 
     String winningPlayerId = players.getLast().getPlayerId();
+    String losingConnectionId = players.getFirst().getConnectionId();
 
     APIGatewayV2WebSocketResponse response =
         getResponse(
-            handler, new ResignRequest(game.getId()), makeRequestContext("resign", "foo-id"));
+            handler, new ResignRequest(game.getId()), makeRequestContext("resign", losingConnectionId));
 
     assertEquals(StatusCodes.OK, response.getStatusCode());
 

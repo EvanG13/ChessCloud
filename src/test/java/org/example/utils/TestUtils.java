@@ -3,6 +3,7 @@ package org.example.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
+import java.util.Random;
 import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
@@ -56,20 +57,30 @@ public class TestUtils {
 
   public static Game validGame(TimeControl timeControl, User playerOne, User playerTwo)
       throws Exception {
+    Random random = new Random();
+
     Game game =
         new Game(
             timeControl,
-            playerDbService.toPlayer(playerOne, ChessConstants.BASE_RATING, "foo-id", false));
+            playerDbService.toPlayer(
+                playerOne, ChessConstants.BASE_RATING, "foo-id-" + random.nextInt(), false));
 
     game.setup(
-        playerDbService.toPlayer(playerTwo, ChessConstants.BASE_RATING, "foo-id-again", false));
+        playerDbService.toPlayer(
+            playerTwo, ChessConstants.BASE_RATING, "foo-id-again-" + random.nextInt(), false));
 
     return game;
   }
 
   public static User validUser() {
+    int randomInt = new Random().nextInt();
+
     User user =
-        User.builder().email("foo-email").username("foo-username").password("foo-password").build();
+        User.builder()
+            .email("foo-email-" + randomInt)
+            .username("foo-username-" + randomInt)
+            .password("foo-password")
+            .build();
 
     Stats stats = new Stats(user.getId());
 
