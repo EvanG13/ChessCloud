@@ -1,0 +1,32 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb
+    http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+    
+    <!-- https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ -->
+    <!-- https://docs.liquibase.com/change-types/mongodb/home.html -->
+
+    <changeSet id="1733112544577-1" author="CaiminRO">
+        <mongodb:createIndex collectionName="connections">
+            <mongodb:keys>
+                { "username": 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_conn_username" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <rollback>
+            <mongodb:dropIndex collectionName="connections">
+                <mongodb:keys>
+                    { "username": 1 }
+                </mongodb:keys>
+            </mongodb:dropIndex>
+        </rollback>
+    </changeSet>
+    
+</databaseChangeLog>
