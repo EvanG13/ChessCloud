@@ -343,7 +343,7 @@ public class MakeMoveHandlerTest {
   @Test
   @DisplayName("M3: White - successful move")
   @Order(9)
-  public void returnSuccessfulThirdMove() throws NotFound {
+  public void returnSuccessfulThirdMove() {
     MakeMoveRequest request =
         MakeMoveRequest.builder().gameId(gameId).playerId(userId).move(thirdMove).build();
 

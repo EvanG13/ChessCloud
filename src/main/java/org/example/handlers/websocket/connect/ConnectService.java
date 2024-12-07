@@ -26,8 +26,8 @@ public class ConnectService {
     }
     Game game = optionalGame.get();
     List<Player> playerList = game.getPlayers();
-    if (playerList.get(0).getPlayerId().equals(userId)) {
-      playerList.get(0).setConnectionId(connectionId);
+    if (playerList.getFirst().getPlayerId().equals(userId)) {
+      playerList.getFirst().setConnectionId(connectionId);
     } else {
       playerList.get(1).setConnectionId(connectionId);
     }

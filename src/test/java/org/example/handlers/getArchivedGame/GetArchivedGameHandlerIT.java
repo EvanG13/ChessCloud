@@ -4,7 +4,6 @@ import static org.example.utils.TestUtils.validGame;
 
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
 import org.example.entities.session.SessionUtility;
