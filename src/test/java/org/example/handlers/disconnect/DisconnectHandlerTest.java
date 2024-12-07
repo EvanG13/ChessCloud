@@ -8,8 +8,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.connection.Connection;
+import org.example.entities.connection.ConnectionUtility;
 import org.example.handlers.websocket.disconnect.DisconnectHandler;
-import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,22 +17,22 @@ import org.junit.jupiter.api.Test;
 public class DisconnectHandlerTest {
   public static String username;
   public static String id;
-  public static MongoDBUtility<Connection> utility;
+  public static ConnectionUtility connectionUtility;
 
   @BeforeAll
   public static void setUp() {
     username = "foo-username";
     id = "connection-id";
 
-    utility = new MongoDBUtility<>("connections", Connection.class);
+    connectionUtility = new ConnectionUtility();
 
-    utility.post(Connection.builder().id(id).username(username).build());
+    connectionUtility.post(Connection.builder().id(id).username(username).build());
   }
 
   @DisplayName("OK ✅")
   @Test
   public void returnSuccess() {
-    Optional<Connection> connection = utility.get(id);
+    Optional<Connection> connection = connectionUtility.get(id);
     assertTrue(connection.isPresent());
 
     assertEquals(connection.get().toString(), username + " " + id);
@@ -42,7 +42,7 @@ public class DisconnectHandlerTest {
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
-    Optional<Connection> previousRecord = utility.get(id);
+    Optional<Connection> previousRecord = connectionUtility.get(id);
     assertTrue(previousRecord.isEmpty());
   }
 }

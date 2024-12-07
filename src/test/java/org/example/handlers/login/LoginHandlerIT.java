@@ -3,9 +3,9 @@ package org.example.handlers.login;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.models.requests.LoginRequest;
 import org.example.models.responses.rest.LoginResponseBody;
 import org.example.utils.BaseTest;
@@ -19,15 +19,15 @@ public class LoginHandlerIT extends BaseTest {
 
   private static IntegrationTestUtils<LoginResponseBody> testUtils;
 
-  private static UserDbService userDbService;
-  private static SessionDbService sessionDbService;
+  private static UserUtility userUtility;
+  private static SessionUtility sessionUtility;
 
   private static User expectedUser;
 
   @BeforeAll
   public static void setUp() {
-    sessionDbService = new SessionDbService();
-    userDbService = new UserDbService();
+    sessionUtility = new SessionUtility();
+    userUtility = new UserUtility();
     expectedUser =
         User.builder()
             .email("it-test@gmail.com")
@@ -35,15 +35,15 @@ public class LoginHandlerIT extends BaseTest {
             .username("TestUsername")
             .build();
 
-    userDbService.createUser(expectedUser);
+    userUtility.post(expectedUser);
 
     testUtils = new IntegrationTestUtils<>();
   }
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(expectedUser.getId());
-    sessionDbService.deleteByUserId(expectedUser.getId());
+    userUtility.delete(expectedUser.getId());
+    sessionUtility.deleteByUserId(expectedUser.getId());
   }
 
   @DisplayName("OK")

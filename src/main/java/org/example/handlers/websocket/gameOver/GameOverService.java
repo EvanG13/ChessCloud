@@ -5,13 +5,11 @@ import com.mongodb.client.model.Updates;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.entities.game.ArchivedGameDbService;
-import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.*;
 import org.example.entities.player.Player;
 import org.example.entities.stats.GameModeStats;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
@@ -20,7 +18,6 @@ import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
 import org.example.models.responses.websocket.GameOverMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketMessenger;
 
 @AllArgsConstructor
@@ -37,11 +34,11 @@ public class GameOverService {
   private String winningPlayerUsername;
   private Game game;
   private SocketMessenger socketMessenger;
-  private GameDbService gameDbService;
-  private StatsDbService statsDbService;
+  private GameUtility gameUtility;
+  private StatsUtility statsUtility;
   private Stats losingPlayerStats;
   private Stats winningPlayerStats;
-  private ArchivedGameDbService archiveService;
+  private ArchivedGameUtility archivedGameUtility;
 
   /**
    * finds a game based on the losingPlayerId if the game is not found then throws NotFound
@@ -51,17 +48,17 @@ public class GameOverService {
   public GameOverService(
       ResultReason resultReason, String losingPlayerId, SocketMessenger messenger)
       throws NotFound, InternalServerError {
-    this.gameDbService = new GameDbService();
-    this.game = gameDbService.getGameFromUserID(losingPlayerId);
+    this.gameUtility = new GameUtility();
+    this.game = gameUtility.getGameFromUserId(losingPlayerId);
 
     if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
-      gameDbService.deleteGame(game.getId());
+      gameUtility.delete(game.getId());
       return;
     }
-    this.archiveService = ArchivedGameDbService.builder().build();
+    this.archivedGameUtility = new ArchivedGameUtility();
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
-    this.statsDbService = new StatsDbService();
+    this.statsUtility = new StatsUtility();
     this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
@@ -76,25 +73,25 @@ public class GameOverService {
       this.losingPlayerUsername = player2.getUsername();
     }
 
-    this.winningPlayerStats = statsDbService.getStatsByUserID(winningPlayerId);
-    this.losingPlayerStats = statsDbService.getStatsByUserID(losingPlayerId);
+    this.winningPlayerStats = statsUtility.getStatsByUserID(winningPlayerId);
+    this.losingPlayerStats = statsUtility.getStatsByUserID(losingPlayerId);
   }
 
   public GameOverService(
       ResultReason resultReason, Game game, String losingPlayerId, SocketMessenger messenger)
       throws InternalServerError {
-    this.gameDbService = new GameDbService();
+    this.gameUtility = new GameUtility();
     this.game = game;
 
     if (this.game.getGameStatus().equals(GameStatus.PENDING)) {
-      gameDbService.deleteGame(game.getId());
+      gameUtility.delete(game.getId());
       return;
     }
 
-    this.archiveService = ArchivedGameDbService.builder().build();
+    this.archivedGameUtility = new ArchivedGameUtility();
     this.resultReason = resultReason;
     this.losingPlayerId = losingPlayerId;
-    this.statsDbService = new StatsDbService();
+    this.statsUtility = new StatsUtility();
     this.socketMessenger = messenger;
 
     Player player1 = game.getPlayers().get(0);
@@ -109,8 +106,8 @@ public class GameOverService {
       this.losingPlayerUsername = player2.getUsername();
     }
 
-    this.winningPlayerStats = statsDbService.getStatsByUserID(winningPlayerId);
-    this.losingPlayerStats = statsDbService.getStatsByUserID(losingPlayerId);
+    this.winningPlayerStats = statsUtility.getStatsByUserID(winningPlayerId);
+    this.losingPlayerStats = statsUtility.getStatsByUserID(losingPlayerId);
   }
 
   public void endGame() throws InternalServerError {
@@ -143,13 +140,12 @@ public class GameOverService {
   }
 
   public void archiveGame() {
-    gameDbService.deleteGame(this.game.getId());
-    archiveService.archiveGame(this.game, winningPlayerUsername, resultReason);
+    gameUtility.delete(this.game.getId());
+    archivedGameUtility.archiveGame(this.game, winningPlayerUsername, resultReason);
   }
 
   // TODO : Send this game to a finished game collection
   public void updateGame() {
-    MongoDBUtility<Game> gameUtility = new MongoDBUtility<>("games", Game.class);
     gameUtility.patch(game.getId(), Updates.set("gameStatus", GameStatus.FINISHED.toString()));
   }
 
@@ -178,7 +174,7 @@ public class GameOverService {
       default -> throw new InternalServerError("Unsupported ResultReason: " + resultReason);
     }
 
-    statsDbService.put(winningPlayerId, winningPlayerStats);
-    statsDbService.put(losingPlayerId, losingPlayerStats);
+    statsUtility.put(winningPlayerId, winningPlayerStats);
+    statsUtility.put(losingPlayerId, losingPlayerStats);
   }
 }

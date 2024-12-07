@@ -9,13 +9,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGame;
-import org.example.entities.game.ArchivedGameDbService;
-import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.game.*;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.OfferDrawAction;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
@@ -29,10 +26,10 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OfferDrawHandlerTest {
-  private static UserDbService userDbService;
-  private static StatsDbService statsDbService;
-  private static GameDbService gameDbService;
-  private static ArchivedGameDbService archivedGameDbService;
+  private static UserUtility userUtility;
+  private static StatsUtility statsUtility;
+  private static GameUtility gameUtility;
+  private static ArchivedGameUtility archivedGameUtility;
 
   private static OfferDrawHandler handler;
   private static Game game;
@@ -46,16 +43,16 @@ public class OfferDrawHandlerTest {
 
     handler = new OfferDrawHandler(offerDrawService, messenger);
 
-    gameDbService = new GameDbService();
-    userDbService = new UserDbService();
-    statsDbService = new StatsDbService();
-    archivedGameDbService = ArchivedGameDbService.builder().build();
+    gameUtility = new GameUtility();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
+    archivedGameUtility = new ArchivedGameUtility();
 
     userOne = validUser();
     userTwo = validUser();
 
     game = validGame(TimeControl.BLITZ_5, userOne, userTwo);
-    gameDbService.post(game);
+    gameUtility.post(game);
   }
 
   @Test
@@ -74,7 +71,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
       assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
@@ -99,7 +96,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
       assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
@@ -124,7 +121,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: nothing
       assertFalse(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: nothing
@@ -149,7 +146,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered to draw
       assertFalse(
@@ -175,7 +172,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered to draw
       assertFalse(
@@ -201,7 +198,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertFalse(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: canceled offer
       assertFalse(
@@ -230,7 +227,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertTrue(gameActual.getPlayers().getLast().getWantsDraw()); // Player 2: made offer to draw
       assertFalse(
@@ -256,7 +253,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.BAD_REQUEST, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertTrue(
           gameActual
@@ -289,7 +286,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertFalse(
           gameActual
@@ -322,7 +319,7 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     try {
-      Game gameActual = gameDbService.get(game.getId());
+      Game gameActual = gameUtility.getGame(game.getId());
 
       assertTrue(gameActual.getPlayers().getFirst().getWantsDraw()); // Player 1: offered
       assertFalse(
@@ -348,12 +345,12 @@ public class OfferDrawHandlerTest {
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
     // Assert game got deleted
-    assertThrowsExactly(NotFound.class, () -> gameDbService.get(game.getId()));
+    assertThrowsExactly(NotFound.class, () -> gameUtility.getGame(game.getId()));
 
     // Get the archived game
     ArchivedGame archivedGame;
     try {
-      archivedGame = archivedGameDbService.getArchivedGame(game.getId());
+      archivedGame = archivedGameUtility.getGame(game.getId());
     } catch (Exception e) {
       fail("Game was not successfully archived");
       return;
@@ -391,13 +388,13 @@ public class OfferDrawHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userOne.getId());
-    userDbService.deleteUser(userTwo.getId());
+    userUtility.delete(userOne.getId());
+    userUtility.delete(userTwo.getId());
 
-    statsDbService.deleteStats(userOne.getId());
-    statsDbService.deleteStats(userTwo.getId());
+    statsUtility.delete(userOne.getId());
+    statsUtility.delete(userTwo.getId());
 
-    gameDbService.deleteGame(game.getId()); // if tests error midway
-    archivedGameDbService.deleteArchivedGame(game.getId()); // if tests didn't error
+    gameUtility.delete(game.getId()); // if tests error midway
+    archivedGameUtility.delete(game.getId()); // if tests didn't error
   }
 }

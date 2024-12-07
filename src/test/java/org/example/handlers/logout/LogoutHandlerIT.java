@@ -3,11 +3,11 @@ package org.example.handlers.logout;
 import io.restassured.response.Response;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.models.requests.SessionRequest;
 import org.example.utils.BaseTest;
 import org.example.utils.EncryptPassword;
@@ -17,8 +17,8 @@ import org.junit.jupiter.api.*;
 public class LogoutHandlerIT extends BaseTest {
   private static final String endpoint = "/logout";
 
-  private static UserDbService userDbService;
-  private static StatsDbService statsDbService;
+  private static UserUtility userUtility;
+  private static StatsUtility statsUtility;
 
   private static IntegrationTestUtils<Response> testUtils;
 
@@ -30,9 +30,9 @@ public class LogoutHandlerIT extends BaseTest {
   public static void setUp() {
     testUtils = new IntegrationTestUtils<>();
 
-    userDbService = new UserDbService();
-    statsDbService = new StatsDbService();
-    SessionDbService sessionDbService = new SessionDbService();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
+    SessionUtility sessionUtility = new SessionUtility();
 
     User user =
         User.builder()
@@ -46,15 +46,15 @@ public class LogoutHandlerIT extends BaseTest {
     userId = user.getId();
     statsId = stats.getId();
 
-    userDbService.createUser(user);
-    statsDbService.post(stats);
-    sessionId = sessionDbService.createSession(new SessionRequest(userId));
+    userUtility.post(user);
+    statsUtility.post(stats);
+    sessionId = sessionUtility.createSession(new SessionRequest(userId));
   }
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userId);
-    statsDbService.deleteStats(statsId);
+    userUtility.delete(userId);
+    statsUtility.delete(statsId);
   }
 
   @Test

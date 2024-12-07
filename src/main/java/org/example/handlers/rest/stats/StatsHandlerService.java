@@ -1,29 +1,29 @@
 package org.example.handlers.rest.stats;
 
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.exceptions.NotFound;
 
 public class StatsHandlerService {
-  private final StatsDbService statsDbService;
+  private final StatsUtility statsUtility;
 
-  public StatsHandlerService(StatsDbService statsDbService) {
-    this.statsDbService = statsDbService;
+  public StatsHandlerService(StatsUtility statsUtility) {
+    this.statsUtility = statsUtility;
   }
 
   public StatsHandlerService() {
-    this.statsDbService = new StatsDbService();
+    this.statsUtility = new StatsUtility();
   }
 
   public boolean doesCategoryExist(String category) {
-    return statsDbService.doesCategoryExist(category);
+    return statsUtility.doesGameModeExist(category);
   }
 
   public Stats getStatsByUsername(String username) throws NotFound {
-    return statsDbService.getStatsByUsername(username);
+    return statsUtility.getStatsByUsername(username);
   }
 
   public Stats getStatsByUsernameAndCategory(String username, String category) throws NotFound {
-    return statsDbService.getStatsByUsernameAndCategory(username, category);
+    return statsUtility.getStatsByUsernameAndCategory(username, category);
   }
 }

@@ -12,25 +12,26 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.example.constants.StatusCodes;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.handlers.rest.register.RegisterHandler;
 import org.example.handlers.rest.register.RegisterService;
 import org.example.models.requests.RegisterRequest;
 import org.example.utils.EncryptPassword;
 import org.example.utils.MockContext;
-import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class RegisterHandlerTest {
   private static RegisterHandler registerHandler;
-  private static MongoDBUtility<User> userDbUtility;
-  private static MongoDBUtility<Stats> statsUtility;
+  private static UserUtility userDbUtility;
+  private static StatsUtility statsUtility;
   private static Gson gson;
 
   @BeforeAll
   public static void setUp() {
-    userDbUtility = new MongoDBUtility<>("users", User.class);
-    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    userDbUtility = new UserUtility();
+    statsUtility = new StatsUtility();
     gson = new Gson();
     User newUser =
         User.builder()

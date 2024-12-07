@@ -11,7 +11,6 @@ import org.example.constants.StatusCodes;
 
 public class ConnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
-
   private final ConnectService service;
 
   public ConnectHandler() {

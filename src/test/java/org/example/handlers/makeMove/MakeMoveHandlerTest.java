@@ -11,13 +11,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGameDbService;
+import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.move.Move;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.enums.TimeControl;
 import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.NotFound;
@@ -30,7 +32,6 @@ import org.example.models.requests.MakeMoveRequest;
 import org.example.models.responses.websocket.GameStartedMessageData;
 import org.example.models.responses.websocket.MakeMoveMessageData;
 import org.example.models.responses.websocket.SocketResponseBody;
-import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
@@ -38,9 +39,9 @@ import org.junit.jupiter.api.*;
 public class MakeMoveHandlerTest {
   public static SocketSystemLogger socketLogger;
 
-  public static GameDbService gameUtility;
-  public static MongoDBUtility<User> userUtility;
-  public static MongoDBUtility<Stats> statsUtility;
+  public static GameUtility gameUtility;
+  public static UserUtility userUtility;
+  public static StatsUtility statsUtility;
 
   public static JoinGameHandler joinGameHandler;
   public static MakeMoveService makeMoveService;
@@ -81,9 +82,9 @@ public class MakeMoveHandlerTest {
   public static void setUp() {
     socketLogger = new SocketSystemLogger();
 
-    gameUtility = new GameDbService();
-    userUtility = new MongoDBUtility<>("users", User.class);
-    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    gameUtility = new GameUtility();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
 
     makeMoveService = new MakeMoveService(gameUtility);
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
@@ -136,9 +137,8 @@ public class MakeMoveHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-
-    gameUtility.deleteGame(gameId);
-    gameUtility.deleteGame(gameId2);
+    gameUtility.delete(gameId);
+    gameUtility.delete(gameId2);
 
     userUtility.delete(userId);
     userUtility.delete(userId2);
@@ -146,9 +146,9 @@ public class MakeMoveHandlerTest {
     statsUtility.delete(userId);
     statsUtility.delete(userId2);
 
-    ArchivedGameDbService archivedService = ArchivedGameDbService.builder().build();
-    archivedService.deleteArchivedGame(gameId);
-    archivedService.deleteArchivedGame(gameId2);
+    ArchivedGameUtility archivedGameUtility = new ArchivedGameUtility();
+    archivedGameUtility.delete(gameId);
+    archivedGameUtility.delete(gameId2);
   }
 
   @DisplayName("GAME CREATED ✅")
@@ -184,7 +184,7 @@ public class MakeMoveHandlerTest {
 
     gameId = data.getGameId();
 
-    Game game = gameUtility.get(gameId);
+    Game game = gameUtility.getGame(gameId);
     List<Player> playerList = game.getPlayers();
     assertEquals(2, playerList.size());
 
@@ -397,7 +397,7 @@ public class MakeMoveHandlerTest {
   @Order(10)
   public void returnSuccessAndHandleCheckmate() throws NotFound {
     // setup board for a checkmate
-    Game game = gameUtility.get(gameId);
+    Game game = gameUtility.getGame(gameId);
     game.setGameStateAsFen(checkmateInOneFEN);
     game.setMoveList(new ArrayList<>());
     game.setIsWhitesTurn(true);
@@ -427,7 +427,7 @@ public class MakeMoveHandlerTest {
   public void returnSuccessAndHandleStalemate() throws NotFound {
 
     // setup board for a stalemate
-    Game game = gameUtility.get(gameId2);
+    Game game = gameUtility.getGame(gameId2);
     game.setIsWhitesTurn(true);
     game.setGameStateAsFen(stalemateInOneFEN);
 

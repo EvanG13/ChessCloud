@@ -8,7 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.user.User;
 import org.example.exceptions.Unauthorized;
 import org.example.models.requests.LoginRequest;
@@ -49,9 +49,9 @@ public class LoginHandler
       return e.makeHttpResponse();
     }
 
-    SessionDbService sessionDbService = new SessionDbService();
+    SessionUtility sessionUtility = new SessionUtility();
 
-    String sessionToken = sessionDbService.createSession(new SessionRequest(user.getId()));
+    String sessionToken = sessionUtility.createSession(new SessionRequest(user.getId()));
 
     LoginResponseBody response = new LoginResponseBody(sessionToken, user);
 

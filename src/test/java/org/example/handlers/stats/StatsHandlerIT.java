@@ -7,11 +7,11 @@ import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameMode;
 import org.example.models.requests.SessionRequest;
 import org.example.utils.BaseTest;
@@ -24,9 +24,9 @@ public class StatsHandlerIT extends BaseTest {
   private static Map<String, String> authHeaders;
   private static Map<String, String> pathParams;
 
-  private static UserDbService userDbService;
-  private static StatsDbService statsDbService;
-  private static SessionDbService sessionDbService;
+  private static UserUtility userUtility;
+  private static StatsUtility statsUtility;
+  private static SessionUtility sessionUtility;
 
   private static String userId;
 
@@ -36,9 +36,9 @@ public class StatsHandlerIT extends BaseTest {
 
   @BeforeAll
   public static void setUp() {
-    userDbService = new UserDbService();
-    statsDbService = new StatsDbService();
-    sessionDbService = new SessionDbService();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
+    sessionUtility = new SessionUtility();
 
     User testUser =
         User.builder().email("test@gmail.com").password("1223").username("test-username").build();
@@ -46,8 +46,8 @@ public class StatsHandlerIT extends BaseTest {
     userId = testUser.getId();
     String username = testUser.getUsername();
 
-    userDbService.createUser(testUser);
-    String sessionToken = sessionDbService.createSession(new SessionRequest(userId));
+    userUtility.post(testUser);
+    String sessionToken = sessionUtility.createSession(new SessionRequest(userId));
 
     authHeaders =
         Map.of(
@@ -57,7 +57,7 @@ public class StatsHandlerIT extends BaseTest {
     pathParams = Map.of("username", username);
 
     Stats testUserStats = new Stats(userId);
-    statsDbService.post(testUserStats);
+    statsUtility.post(testUserStats);
 
     testUtils = new IntegrationTestUtils<>();
     gson = new Gson();
@@ -65,9 +65,9 @@ public class StatsHandlerIT extends BaseTest {
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userId);
-    statsDbService.deleteStats(userId);
-    sessionDbService.deleteByUserId(userId);
+    userUtility.delete(userId);
+    statsUtility.delete(userId);
+    sessionUtility.deleteByUserId(userId);
   }
 
   @DisplayName("No Query")

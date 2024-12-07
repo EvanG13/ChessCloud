@@ -1,25 +1,26 @@
 package org.example.handlers.rest.getGameState;
 
-import com.mongodb.client.model.Filters;
-import org.bson.conversions.Bson;
+import static com.mongodb.client.model.Filters.elemMatch;
+import static com.mongodb.client.model.Filters.eq;
+
 import org.example.entities.game.Game;
+import org.example.entities.game.GameUtility;
 import org.example.exceptions.NotFound;
-import org.example.utils.MongoDBUtility;
 
 public class GameStateService {
-  MongoDBUtility<Game> gameDBUtility;
+  private final GameUtility gameUtility;
 
   public GameStateService() {
-    gameDBUtility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new GameUtility();
   }
 
-  public GameStateService(MongoDBUtility<Game> gameDBUtility) {
-    this.gameDBUtility = gameDBUtility;
+  public GameStateService(GameUtility gameUtility) {
+    this.gameUtility = gameUtility;
   }
 
   public Game getGameFromUserID(String userId) throws NotFound {
-    Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
-
-    return gameDBUtility.get(filter).orElseThrow(() -> new NotFound("No game found for player"));
+    return gameUtility
+        .get(elemMatch("players", eq("playerId", userId)))
+        .orElseThrow(() -> new NotFound("No game found for player"));
   }
 }

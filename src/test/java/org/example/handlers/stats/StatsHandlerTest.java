@@ -7,16 +7,16 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.handlers.rest.stats.StatsHandler;
 import org.example.utils.MockContext;
 import org.junit.jupiter.api.*;
 
 public class StatsHandlerTest {
-  public static UserDbService userDbService;
-  public static StatsDbService statsDbService;
+  public static UserUtility userUtility;
+  public static StatsUtility statsUtility;
 
   public static StatsHandler statsHandler;
 
@@ -25,8 +25,8 @@ public class StatsHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-    userDbService = new UserDbService();
-    statsDbService = new StatsDbService();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
 
     User testUser =
         User.builder().email("test@gmail.com").password("1223").username("test-username").build();
@@ -34,18 +34,18 @@ public class StatsHandlerTest {
     userId = testUser.getId();
     username = testUser.getUsername();
 
-    userDbService.createUser(testUser);
+    userUtility.post(testUser);
 
     Stats testUserStats = new Stats(testUser.getId());
-    statsDbService.post(testUserStats);
+    statsUtility.post(testUserStats);
 
     statsHandler = new StatsHandler();
   }
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userId);
-    statsDbService.deleteStats(userId);
+    userUtility.delete(userId);
+    statsUtility.delete(userId);
   }
 
   @DisplayName("No Query")

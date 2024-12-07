@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
-import org.example.entities.game.ArchivedGameDbService;
+import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
 import org.example.models.requests.SessionRequest;
@@ -33,11 +33,11 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
 
   private static IntegrationTestUtils<ListArchivedGamesResponse> testUtils;
 
-  private static ArchivedGameDbService archivedGameDbService;
+  private static ArchivedGameUtility archivedGameUtility;
 
-  private static UserDbService userDbService;
-  private static SessionDbService sessionDbService;
-  private static StatsDbService statsDbService;
+  private static UserUtility userUtility;
+  private static SessionUtility sessionUtility;
+  private static StatsUtility statsUtility;
 
   private static String userId;
   private static String gameId;
@@ -45,10 +45,10 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    userDbService = new UserDbService();
-    sessionDbService = new SessionDbService();
-    statsDbService = new StatsDbService();
-    archivedGameDbService = ArchivedGameDbService.builder().build();
+    userUtility = new UserUtility();
+    sessionUtility = new SessionUtility();
+    statsUtility = new StatsUtility();
+    archivedGameUtility = new ArchivedGameUtility();
     testUtils = new IntegrationTestUtils<>();
 
     User testUser =
@@ -58,16 +58,16 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
     User testUserTwo =
         User.builder().email("test2@gmail.com").password("1223").username("test-username2").build();
 
-    userDbService.createUser(testUser);
-    String sessionToken = sessionDbService.createSession(new SessionRequest(userId));
+    userUtility.post(testUser);
+    String sessionToken = sessionUtility.createSession(new SessionRequest(userId));
 
     Game one = validGame(TimeControl.BLITZ_5, testUser, testUserTwo);
     gameId = one.getId();
-    archivedGameDbService.archiveGame(one, testUser.getUsername(), ResultReason.CHECKMATE);
+    archivedGameUtility.archiveGame(one, testUser.getUsername(), ResultReason.CHECKMATE);
 
     Game two = validGame(TimeControl.BULLET_3, testUser, testUserTwo);
     gameId2 = two.getId();
-    archivedGameDbService.archiveGame(two, testUserTwo.getUsername(), ResultReason.FORFEIT);
+    archivedGameUtility.archiveGame(two, testUserTwo.getUsername(), ResultReason.FORFEIT);
 
     authHeaders =
         Map.of(
@@ -76,16 +76,16 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
     pathParams = Map.of("username", testUser.getUsername());
 
     Stats testUserStats = new Stats(userId);
-    statsDbService.post(testUserStats);
+    statsUtility.post(testUserStats);
   }
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userId);
-    sessionDbService.deleteByUserId(userId);
-    statsDbService.deleteStats(userId);
-    archivedGameDbService.deleteArchivedGame(gameId);
-    archivedGameDbService.deleteArchivedGame(gameId2);
+    userUtility.delete(userId);
+    sessionUtility.deleteByUserId(userId);
+    statsUtility.delete(userId);
+    archivedGameUtility.delete(gameId);
+    archivedGameUtility.delete(gameId2);
   }
 
   @Test

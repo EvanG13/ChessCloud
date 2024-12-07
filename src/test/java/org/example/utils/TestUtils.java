@@ -8,18 +8,17 @@ import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
-import org.example.entities.player.PlayerDbService;
+import org.example.entities.player.PlayerUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.TimeControl;
 
 public class TestUtils {
 
-  private static final UserDbService userDbService = new UserDbService();
-  private static final StatsDbService statsDbService = new StatsDbService();
-  private static final PlayerDbService playerDbService = new PlayerDbService();
+  private static final UserUtility userUtility = new UserUtility();
+  private static final StatsUtility statsUtility = new StatsUtility();
 
   public static void assertCorsHeaders(Map<String, String> headers) {
     assertEquals(
@@ -62,11 +61,11 @@ public class TestUtils {
     Game game =
         new Game(
             timeControl,
-            playerDbService.toPlayer(
+            PlayerUtility.toPlayer(
                 playerOne, ChessConstants.BASE_RATING, "foo-id-" + random.nextInt(), false));
 
     game.setup(
-        playerDbService.toPlayer(
+        PlayerUtility.toPlayer(
             playerTwo, ChessConstants.BASE_RATING, "foo-id-again-" + random.nextInt(), false));
 
     return game;
@@ -84,8 +83,8 @@ public class TestUtils {
 
     Stats stats = new Stats(user.getId());
 
-    userDbService.createUser(user);
-    statsDbService.post(stats);
+    userUtility.post(user);
+    statsUtility.post(stats);
 
     return user;
   }

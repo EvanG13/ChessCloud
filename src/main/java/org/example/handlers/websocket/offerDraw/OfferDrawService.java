@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
 import org.example.enums.OfferDrawAction;
 import org.example.enums.ResultReason;
@@ -26,7 +26,7 @@ import org.example.utils.socketMessenger.SocketMessenger;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfferDrawService {
-  @Builder.Default private final GameDbService gameDbService = new GameDbService();
+  @Builder.Default private final GameUtility gameUtility = new GameUtility();
   @Builder.Default private final SocketMessenger messenger = new SocketEmitter();
 
   private void offerDraw(Game game, String playerOfferingDrawConnectionId) throws BadRequest {
@@ -49,7 +49,7 @@ public class OfferDrawService {
     }
 
     // Update game
-    gameDbService.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
 
     // Send draw offer to other player
     OfferDrawMessageData messageData = new OfferDrawMessageData();
@@ -80,7 +80,7 @@ public class OfferDrawService {
 
     // Update game
     playerCanceling.setWantsDraw(false);
-    gameDbService.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
 
     // Inform the other person offer was canceled
     CancelDrawMessageData messageData = new CancelDrawMessageData();
@@ -111,7 +111,7 @@ public class OfferDrawService {
     }
 
     // Update game
-    gameDbService.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
 
     // Send draw deny response to other player
     DenyDrawMessageData messageData = new DenyDrawMessageData();
@@ -146,7 +146,7 @@ public class OfferDrawService {
     String responseMessage;
 
     // Check game with ID=gameId exists
-    Game game = gameDbService.get(gameId);
+    Game game = gameUtility.getGame(gameId);
 
     // Check connection ID is part of the game
     if (!game.containsConnectionId(connectionId))

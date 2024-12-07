@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.constants.StatusCodes;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameMode;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
@@ -20,8 +20,8 @@ import org.junit.jupiter.api.*;
 public class RegisterHandlerIT extends BaseTest {
   private static final String endpoint = "/register";
 
-  private static UserDbService userDbService;
-  private static StatsDbService statsDbService;
+  private static UserUtility userUtility;
+  private static StatsUtility statsUtility;
 
   private static IntegrationTestUtils<String> testUtils;
 
@@ -33,8 +33,8 @@ public class RegisterHandlerIT extends BaseTest {
 
   @BeforeAll
   public static void setUp() {
-    userDbService = new UserDbService();
-    statsDbService = new StatsDbService();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
 
     expectedUser =
         User.builder()
@@ -50,8 +50,8 @@ public class RegisterHandlerIT extends BaseTest {
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(registeredUserId);
-    statsDbService.deleteStats(registeredUserStatsId);
+    userUtility.delete(registeredUserId);
+    statsUtility.delete(registeredUserStatsId);
   }
 
   @DisplayName("OK 👍")
@@ -66,7 +66,7 @@ public class RegisterHandlerIT extends BaseTest {
 
     User actualUser;
     try {
-      actualUser = userDbService.getByEmail(expectedUser.getEmail());
+      actualUser = userUtility.getByEmail(expectedUser.getEmail());
     } catch (NotFound e) {
       fail("User was not successfully registered");
       return;
@@ -79,7 +79,7 @@ public class RegisterHandlerIT extends BaseTest {
 
     Stats actualStats;
     try {
-      actualStats = statsDbService.getStatsByUserID(actualUser.getId());
+      actualStats = statsUtility.getStatsByUserID(actualUser.getId());
     } catch (InternalServerError e) {
       fail("Registered User " + actualUser.getEmail() + " is missing stats");
       return;

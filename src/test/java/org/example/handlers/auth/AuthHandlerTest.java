@@ -6,17 +6,18 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2CustomAuthorizer
 import com.amazonaws.services.lambda.runtime.events.IamPolicyResponse;
 import java.util.Map;
 import org.example.entities.session.Session;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.handlers.rest.auth.AuthHandler;
 import org.example.utils.MockContext;
-import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 public class AuthHandlerTest {
   static AuthHandler authHandler;
 
-  static MongoDBUtility<User> userUtility;
-  static MongoDBUtility<Session> sessionUtility;
+  static UserUtility userUtility;
+  static SessionUtility sessionUtility;
 
   static String validSessionToken;
   static String validUserId;
@@ -25,8 +26,8 @@ public class AuthHandlerTest {
   public static void setUp() {
     authHandler = new AuthHandler();
 
-    userUtility = new MongoDBUtility<>("users", User.class);
-    sessionUtility = new MongoDBUtility<>("sessions", Session.class);
+    userUtility = new UserUtility();
+    sessionUtility = new SessionUtility();
 
     validSessionToken = "231420d4-f162-406e-8eaa-5652afb0c43d";
     validUserId = "auth-test";

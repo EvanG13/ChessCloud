@@ -6,16 +6,14 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGameDbService;
-import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.*;
 import org.example.entities.player.Player;
 import org.example.entities.session.Session;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.rest.getGameState.GameStateService;
@@ -28,11 +26,11 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LogoutHandlerTest {
 
-  private static SessionDbService sessionUtility;
-  private static GameDbService gameUtility;
-  private static StatsDbService statsUtility;
-  private static UserDbService usersUtility;
-  private static ArchivedGameDbService archivedGameDbService;
+  private static SessionUtility sessionUtility;
+  private static GameUtility gameUtility;
+  private static StatsUtility statsUtility;
+  private static UserUtility userUtility;
+  private static ArchivedGameUtility archivedGameUtility;
   private static LogoutHandler logoutHandler;
 
   private static final String gameId = "super-extreme-duper-fake-game-id";
@@ -45,16 +43,16 @@ public class LogoutHandlerTest {
 
   @BeforeAll
   public static void setUp() {
-    sessionUtility = new SessionDbService();
-    archivedGameDbService = ArchivedGameDbService.builder().build();
-    gameUtility = new GameDbService();
-    statsUtility = new StatsDbService();
-    usersUtility = new UserDbService();
+    sessionUtility = new SessionUtility();
+    archivedGameUtility = new ArchivedGameUtility();
+    gameUtility = new GameUtility();
+    statsUtility = new StatsUtility();
+    userUtility = new UserUtility();
 
     LogoutService service =
         LogoutService.builder()
             .gameService(new GameStateService())
-            .sessionDbService(sessionUtility)
+            .sessionUtility(sessionUtility)
             .socketMessenger(new SocketSystemLogger())
             .build();
 
@@ -63,15 +61,15 @@ public class LogoutHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    gameUtility.deleteGame(gameId);
+    gameUtility.delete(gameId);
 
-    statsUtility.deleteStats(userId);
-    statsUtility.deleteStats(user2id);
+    statsUtility.delete(userId);
+    statsUtility.delete(user2id);
 
-    usersUtility.deleteUser(userId);
-    usersUtility.deleteUser(user2id);
+    userUtility.delete(userId);
+    userUtility.delete(user2id);
 
-    archivedGameDbService.deleteArchivedGame(gameId);
+    archivedGameUtility.delete(gameId);
   }
 
   @DisplayName("User can logout 🔀")
@@ -79,7 +77,7 @@ public class LogoutHandlerTest {
   @Order(1)
   void userCanLogout() {
     Session userOneSession = Session.builder().id(sessionToken1).userId(userId).build();
-    sessionUtility.createSession(userOneSession);
+    sessionUtility.post(userOneSession);
 
     APIGatewayV2HTTPEvent event =
         APIGatewayV2HTTPEvent.builder()
@@ -92,7 +90,7 @@ public class LogoutHandlerTest {
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken1));
+    assertThrows(NotFound.class, () -> sessionUtility.getSession(sessionToken1));
   }
 
   @DisplayName("BadRequest - Missing Headers 🔀")
@@ -125,8 +123,8 @@ public class LogoutHandlerTest {
             .username("usertwo")
             .email("successfulLogoutForfeitsGame2@email.com")
             .build();
-    usersUtility.createUser(user1);
-    usersUtility.createUser(user2);
+    userUtility.post(user1);
+    userUtility.post(user2);
 
     Stats user1Stats = new Stats(userId);
     Stats user2Stats = new Stats(user2id);
@@ -144,7 +142,7 @@ public class LogoutHandlerTest {
     gameUtility.post(newGame);
 
     Session userOneSession = Session.builder().id(sessionToken2).userId(userId).build();
-    sessionUtility.createSession(userOneSession);
+    sessionUtility.post(userOneSession);
 
     APIGatewayV2HTTPEvent event =
         APIGatewayV2HTTPEvent.builder()
@@ -157,8 +155,8 @@ public class LogoutHandlerTest {
     APIGatewayV2HTTPResponse response = logoutHandler.handleRequest(event, new MockContext());
     assertEquals(StatusCodes.OK, response.getStatusCode());
 
-    assertDoesNotThrow(() -> archivedGameDbService.getArchivedGame(gameId));
-    assertThrows(NotFound.class, () -> gameUtility.get(gameId));
-    assertThrows(NotFound.class, () -> sessionUtility.get(sessionToken2));
+    assertDoesNotThrow(() -> archivedGameUtility.getGame(gameId));
+    assertThrows(NotFound.class, () -> gameUtility.getGame(gameId));
+    assertThrows(NotFound.class, () -> sessionUtility.getSession(sessionToken2));
   }
 }

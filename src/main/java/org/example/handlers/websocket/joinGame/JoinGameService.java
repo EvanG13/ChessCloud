@@ -5,32 +5,32 @@ import static com.mongodb.client.model.Filters.*;
 import com.mongodb.client.model.Filters;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.bson.conversions.Bson;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
-import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
 public class JoinGameService {
-  private final GameDbService gameDBUtility;
-  private final MongoDBUtility<User> userDBUtility;
-  private final MongoDBUtility<Stats> statsDBUtility;
+  private final GameUtility gameUtility;
+  private final UserUtility userUtility;
+  private final StatsUtility statsUtility;
 
   public JoinGameService() {
-    this.gameDBUtility = new GameDbService();
-    this.userDBUtility = new MongoDBUtility<>("users", User.class);
-    this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
+    this.gameUtility = new GameUtility();
+    this.userUtility = new UserUtility();
+    this.statsUtility = new StatsUtility();
   }
 
   public Game getPendingGame(TimeControl timeControl, int rating) throws NotFound {
-    return gameDBUtility.get(
-        Filters.and(
+    return gameUtility.getGame(
+        and(
             eq("timeControl", timeControl),
             eq("gameStatus", GameStatus.PENDING),
             gte("rating", rating - ChessConstants.RATING_MARGIN),
@@ -38,9 +38,8 @@ public class JoinGameService {
   }
 
   public boolean isInGame(String userId) {
-    Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
     try {
-      gameDBUtility.get(filter);
+      gameUtility.getGame(elemMatch("players", Filters.eq("playerId", userId)));
     } catch (NotFound e) {
       return false;
     }
@@ -49,15 +48,15 @@ public class JoinGameService {
   }
 
   public void createGame(Game game) {
-    gameDBUtility.post(game);
+    gameUtility.post(game);
   }
 
   public void updateGame(Game game) {
-    gameDBUtility.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
   }
 
   public Optional<User> getUser(String userId) {
-    Optional<User> user = userDBUtility.get(userId);
+    Optional<User> user = userUtility.get(userId);
     if (user.isEmpty()) {
       return Optional.empty();
     }
@@ -65,7 +64,7 @@ public class JoinGameService {
   }
 
   public Optional<Stats> getUserStats(String userId) {
-    Optional<Stats> stats = statsDBUtility.get(userId);
+    Optional<Stats> stats = statsUtility.get(userId);
     if (stats.isEmpty()) {
       return Optional.empty();
     }
