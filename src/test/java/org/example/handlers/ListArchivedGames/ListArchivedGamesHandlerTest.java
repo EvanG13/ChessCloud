@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
-import org.example.entities.game.ArchivedGameDbService;
+import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.enums.GameStatus;
@@ -23,7 +23,7 @@ import org.example.utils.MockContext;
 import org.junit.jupiter.api.*;
 
 public class ListArchivedGamesHandlerTest {
-  private static ArchivedGameDbService archivedGameDbService;
+  private static ArchivedGameUtility archivedGameUtility;
   private static ListArchivedGamesResponse expectedWithOneGame;
   private static ListArchivedGamesResponse expectedWithTwoGames;
   private static ListArchivedGamesHandler handler;
@@ -32,7 +32,7 @@ public class ListArchivedGamesHandlerTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    archivedGameDbService = ArchivedGameDbService.builder().build();
+    archivedGameUtility = new ArchivedGameUtility();
     Game game = validGame(TimeControl.BLITZ_5);
     Game game2 = validGame(TimeControl.BLITZ_10);
     gameId = game.getId();
@@ -44,8 +44,8 @@ public class ListArchivedGamesHandlerTest {
     players.add(Player.builder().playerId("id2").username("user2").build());
     game.setPlayers(players);
     game2.setPlayers(players);
-    ArchivedGame ar1 = archivedGameDbService.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
-    ArchivedGame ar2 = archivedGameDbService.toArchivedGame(game2, "user2", ResultReason.ABORTED);
+    ArchivedGame ar1 = archivedGameUtility.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
+    ArchivedGame ar2 = archivedGameUtility.toArchivedGame(game2, "user2", ResultReason.ABORTED);
     handler = new ListArchivedGamesHandler();
     List<ArchivedGame> archivedGameList = new ArrayList<>();
     List<ArchivedGame> archivedGameList2 = new ArrayList<>();
@@ -54,14 +54,14 @@ public class ListArchivedGamesHandlerTest {
     archivedGameList2.add(ar1);
     archivedGameList2.add(ar2);
     expectedWithTwoGames = new ListArchivedGamesResponse(archivedGameList2);
-    archivedGameDbService.archiveGame(ar1);
-    archivedGameDbService.archiveGame(ar2);
+    archivedGameUtility.post(ar1);
+    archivedGameUtility.post(ar2);
   }
 
   @AfterAll
   public static void tearDown() {
-    archivedGameDbService.deleteArchivedGame(gameId);
-    archivedGameDbService.deleteArchivedGame(gameId2);
+    archivedGameUtility.delete(gameId);
+    archivedGameUtility.delete(gameId2);
   }
 
   @Test

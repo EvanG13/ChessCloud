@@ -3,7 +3,7 @@ package org.example.handlers.rest.logout;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
@@ -16,7 +16,7 @@ import org.example.utils.socketMessenger.SocketMessenger;
 @Builder
 @NoArgsConstructor
 public class LogoutService {
-  private final @Builder.Default SessionDbService sessionDbService = new SessionDbService();
+  private final @Builder.Default SessionUtility sessionUtility = new SessionUtility();
   private final @Builder.Default GameStateService gameService = new GameStateService();
   private final @Builder.Default SocketMessenger socketMessenger = new SocketEmitter();
 
@@ -25,12 +25,11 @@ public class LogoutService {
     try {
       gameOverService = new GameOverService(ResultReason.FORFEIT, userId, socketMessenger);
       gameOverService.endGame();
-    } catch (NotFound e) {
-      return;
+    } catch (NotFound ignored) {
     }
   }
 
   public void logout(String sessionToken) {
-    sessionDbService.delete(sessionToken);
+    sessionUtility.delete(sessionToken);
   }
 }

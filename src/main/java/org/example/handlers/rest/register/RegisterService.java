@@ -5,29 +5,30 @@ import static com.mongodb.client.model.Filters.eq;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.models.requests.RegisterRequest;
 import org.example.utils.EncryptPassword;
-import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
 public class RegisterService {
-  private final MongoDBUtility<User> userDBUtility;
-  private final MongoDBUtility<Stats> statsDBUtility;
+  private final UserUtility userUtility;
+  private final StatsUtility statsUtility;
 
   public RegisterService() {
-    this.userDBUtility = new MongoDBUtility<>("users", User.class);
-    this.statsDBUtility = new MongoDBUtility<>("stats", Stats.class);
+    this.userUtility = new UserUtility();
+    this.statsUtility = new StatsUtility();
   }
 
   public boolean doesEmailExist(String email) {
-    Optional<User> user = userDBUtility.get(eq("email", email));
+    Optional<User> user = userUtility.get(eq("email", email));
 
     return user.isPresent();
   }
 
   public boolean doesUsernameExist(String username) {
-    Optional<User> user = userDBUtility.get(eq("username", username));
+    Optional<User> user = userUtility.get(eq("username", username));
 
     return user.isPresent();
   }
@@ -39,9 +40,9 @@ public class RegisterService {
             .password(EncryptPassword.encrypt(data.password()))
             .username(data.username())
             .build();
-    userDBUtility.post(newUser);
+    userUtility.post(newUser);
 
     Stats newStats = new Stats(newUser.getId());
-    statsDBUtility.post(newStats);
+    statsUtility.post(newStats);
   }
 }

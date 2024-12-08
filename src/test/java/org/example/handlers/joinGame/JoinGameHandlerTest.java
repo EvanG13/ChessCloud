@@ -9,17 +9,18 @@ import com.google.gson.Gson;
 import java.util.List;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameStatus;
 import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.joinGame.JoinGameHandler;
 import org.example.handlers.websocket.joinGame.JoinGameService;
 import org.example.models.requests.JoinGameRequest;
-import org.example.utils.MongoDBUtility;
 import org.example.utils.socketMessenger.SocketSystemLogger;
 import org.junit.jupiter.api.*;
 
@@ -42,9 +43,9 @@ public class JoinGameHandlerTest {
   public static String email2;
   public static String password;
   public static String password2;
-  public static GameDbService gameUtility;
-  public static MongoDBUtility<User> userUtility;
-  public static MongoDBUtility<Stats> statsUtility;
+  public static GameUtility gameUtility;
+  public static UserUtility userUtility;
+  public static StatsUtility statsUtility;
 
   public static SocketSystemLogger socketLogger;
 
@@ -63,9 +64,9 @@ public class JoinGameHandlerTest {
     password = "1223";
     password2 = "123";
     timeControl = TimeControl.BLITZ_5;
-    gameUtility = new GameDbService();
-    userUtility = new MongoDBUtility<>("users", User.class);
-    statsUtility = new MongoDBUtility<>("stats", Stats.class);
+    gameUtility = new GameUtility();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
     joinGameService = new JoinGameService(gameUtility, userUtility, statsUtility);
     User testUser =
         User.builder().id(userId).email(email).password(password).username(username).build();
@@ -81,7 +82,7 @@ public class JoinGameHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    gameUtility.deleteGame(gameId);
+    gameUtility.delete(gameId);
 
     userUtility.delete(userId);
     userUtility.delete(userId2);
@@ -105,7 +106,7 @@ public class JoinGameHandlerTest {
     gameId = gson.fromJson(gameJson, Game.class).getId();
 
     try {
-      game = gameUtility.get(gameId);
+      game = gameUtility.getGame(gameId);
     } catch (NotFound e) {
       fail("Game was never created");
     }
@@ -125,7 +126,7 @@ public class JoinGameHandlerTest {
 
     Game game;
     try {
-      game = gameUtility.get(gameId);
+      game = gameUtility.getGame(gameId);
     } catch (NotFound e) {
       assertFalse(false, "Game does not exist");
       return;

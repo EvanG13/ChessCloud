@@ -7,20 +7,19 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import org.example.constants.StatusCodes;
-import org.example.entities.connection.Connection;
-import org.example.utils.MongoDBUtility;
+import org.example.entities.connection.ConnectionUtility;
 
 public class DisconnectHandler
     implements RequestHandler<APIGatewayV2WebSocketEvent, APIGatewayV2WebSocketResponse> {
 
-  MongoDBUtility<Connection> utility;
+  private final ConnectionUtility connectionUtility;
 
   public DisconnectHandler() {
-    this.utility = new MongoDBUtility<>("connections", Connection.class);
+    this.connectionUtility = new ConnectionUtility();
   }
 
-  public DisconnectHandler(MongoDBUtility<Connection> utility) {
-    this.utility = utility;
+  public DisconnectHandler(ConnectionUtility connectionUtility) {
+    this.connectionUtility = connectionUtility;
   }
 
   @Override
@@ -28,7 +27,7 @@ public class DisconnectHandler
       APIGatewayV2WebSocketEvent event, Context context) {
     String connectionId = event.getRequestContext().getConnectionId();
 
-    utility.delete(connectionId);
+    connectionUtility.delete(connectionId);
 
     return makeWebsocketResponse(StatusCodes.OK, "Successfully disconnected");
   }

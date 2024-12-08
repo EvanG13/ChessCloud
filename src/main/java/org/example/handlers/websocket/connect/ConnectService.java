@@ -6,33 +6,32 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.bson.conversions.Bson;
 import org.example.entities.game.Game;
+import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
-import org.example.utils.MongoDBUtility;
 
 @AllArgsConstructor
 public class ConnectService {
-
-  private final MongoDBUtility<Game> gameMongoDBUtility;
+  private final GameUtility gameUtility;
 
   public ConnectService() {
-    this.gameMongoDBUtility = new MongoDBUtility<>("games", Game.class);
+    this.gameUtility = new GameUtility();
   }
 
   public void updateConnectionId(String userId, String connectionId) {
     // find out if user is in a game
     Bson filter = Filters.elemMatch("players", Filters.eq("playerId", userId));
-    Optional<Game> optionalGame = gameMongoDBUtility.get(filter);
+    Optional<Game> optionalGame = gameUtility.get(filter);
     if (optionalGame.isEmpty()) {
       return;
     }
     Game game = optionalGame.get();
     List<Player> playerList = game.getPlayers();
-    if (playerList.get(0).getPlayerId().equals(userId)) {
-      playerList.get(0).setConnectionId(connectionId);
+    if (playerList.getFirst().getPlayerId().equals(userId)) {
+      playerList.getFirst().setConnectionId(connectionId);
     } else {
       playerList.get(1).setConnectionId(connectionId);
     }
     game.setPlayers(playerList);
-    gameMongoDBUtility.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
   }
 }

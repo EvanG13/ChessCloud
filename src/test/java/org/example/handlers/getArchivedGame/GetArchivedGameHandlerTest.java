@@ -8,7 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
-import org.example.entities.game.ArchivedGameDbService;
+import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class GetArchivedGameHandlerTest {
-  private static ArchivedGameDbService archivedGameDbService;
+  private static ArchivedGameUtility archivedGameUtility;
   private static ArchivedGame expected;
   private static GetArchivedGameHandler handler;
 
@@ -28,7 +28,7 @@ public class GetArchivedGameHandlerTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    archivedGameDbService = ArchivedGameDbService.builder().build();
+    archivedGameUtility = new ArchivedGameUtility();
 
     Game game = validGame(TimeControl.BLITZ_5);
 
@@ -36,15 +36,15 @@ public class GetArchivedGameHandlerTest {
 
     game.setGameStatus(GameStatus.FINISHED);
 
-    expected = archivedGameDbService.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
+    expected = archivedGameUtility.toArchivedGame(game, "user1", ResultReason.CHECKMATE);
     handler = new GetArchivedGameHandler();
 
-    archivedGameDbService.archiveGame(expected);
+    archivedGameUtility.post(expected);
   }
 
   @AfterAll
   public static void tearDown() {
-    archivedGameDbService.deleteArchivedGame(gameId);
+    archivedGameUtility.delete(gameId);
   }
 
   @Test

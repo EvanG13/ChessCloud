@@ -4,13 +4,13 @@ import static org.example.utils.TestUtils.validGame;
 
 import java.util.Map;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGameDbService;
+import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
-import org.example.entities.session.SessionDbService;
+import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
@@ -26,10 +26,10 @@ public class GetArchivedGameHandlerIT extends BaseTest {
   private static final String endpoint = "/archivedGame/{gameId}";
   private static Map<String, String> authHeaders;
 
-  private static UserDbService userDbService;
-  private static SessionDbService sessionDbService;
-  private static ArchivedGameDbService archivedGameDbService;
-  private static StatsDbService statsDbService;
+  private static UserUtility userUtility;
+  private static SessionUtility sessionUtility;
+  private static ArchivedGameUtility archivedGameUtility;
+  private static StatsUtility statsUtility;
 
   private static String userId;
   private static String gameId;
@@ -38,16 +38,16 @@ public class GetArchivedGameHandlerIT extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    userDbService = new UserDbService();
-    sessionDbService = new SessionDbService();
-    statsDbService = new StatsDbService();
-    archivedGameDbService = ArchivedGameDbService.builder().build();
+    userUtility = new UserUtility();
+    sessionUtility = new SessionUtility();
+    statsUtility = new StatsUtility();
+    archivedGameUtility = new ArchivedGameUtility();
 
     User testUser =
         User.builder().email("test1@gmail.com").password("1223").username("test-username1").build();
     userId = testUser.getId();
-    userDbService.createUser(testUser);
-    String sessionToken = sessionDbService.createSession(new SessionRequest(userId));
+    userUtility.post(testUser);
+    String sessionToken = sessionUtility.createSession(new SessionRequest(userId));
 
     authHeaders =
         Map.of(
@@ -55,22 +55,23 @@ public class GetArchivedGameHandlerIT extends BaseTest {
             "Authorization", sessionToken);
 
     Stats testUserStats = new Stats(userId);
-    statsDbService.post(testUserStats);
+    statsUtility.post(testUserStats);
 
     testUtils = new IntegrationTestUtils<>();
     Game game = validGame(TimeControl.BLITZ_5);
     game.setGameStatus(GameStatus.FINISHED);
 
     gameId = game.getId();
-    archivedGameDbService.archiveGame(game, testUser.getUsername(), ResultReason.CHECKMATE);
+
+    archivedGameUtility.archiveGame(game, testUser.getUsername(), ResultReason.CHECKMATE);
   }
 
   @AfterAll
   public static void tearDown() {
-    userDbService.deleteUser(userId);
-    sessionDbService.deleteByUserId(userId);
-    statsDbService.deleteStats(userId);
-    archivedGameDbService.deleteArchivedGame(gameId);
+    userUtility.delete(userId);
+    sessionUtility.deleteByUserId(userId);
+    statsUtility.delete(userId);
+    archivedGameUtility.delete(gameId);
   }
 
   @Test

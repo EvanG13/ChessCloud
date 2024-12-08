@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
+import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
 import org.example.enums.TimeControl;
 import org.example.handlers.websocket.connect.ConnectHandler;
-import org.example.utils.MongoDBUtility;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -25,7 +25,7 @@ public class ConnectHandlerTest {
   public static String connectId2;
   public static String newConnId;
   public static String gameId;
-  public static MongoDBUtility<Game> utility;
+  public static GameUtility gameUtility;
 
   @BeforeAll
   public static void setUp() {
@@ -34,7 +34,7 @@ public class ConnectHandlerTest {
     connectId = "connection-id";
     connectId2 = "second-connection-id";
     newConnId = "connection-id2";
-    utility = new MongoDBUtility<>("games", Game.class);
+    gameUtility = new GameUtility();
     Player player = Player.builder().playerId(userId).connectionId(connectId).build();
     Player player2 = Player.builder().playerId(userId2).connectionId(connectId2).build();
     Game newGame = new Game(TimeControl.BLITZ_5, player);
@@ -44,12 +44,12 @@ public class ConnectHandlerTest {
       System.out.println(e.getMessage());
     }
     gameId = newGame.getId();
-    utility.post(newGame);
+    gameUtility.post(newGame);
   }
 
   @AfterAll
   public static void tearDown() {
-    utility.delete(gameId);
+    gameUtility.delete(gameId);
   }
 
   @DisplayName("OK ✅")
@@ -77,7 +77,7 @@ public class ConnectHandlerTest {
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
-    Optional<Game> oGame = utility.get(gameId);
+    Optional<Game> oGame = gameUtility.get(gameId);
     assertFalse(oGame.isEmpty());
     Game game = oGame.get();
     assertEquals(newConnId, game.getPlayers().get(0).getConnectionId());
@@ -96,7 +96,7 @@ public class ConnectHandlerTest {
 
     assertEquals(response.getStatusCode(), StatusCodes.OK);
 
-    Optional<Game> oGame = utility.get(gameId);
+    Optional<Game> oGame = gameUtility.get(gameId);
     assertFalse(oGame.isEmpty());
     Game game = oGame.get();
     assertEquals(newConnId, game.getPlayers().get(0).getConnectionId());

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.move.Move;
 import org.example.entities.player.Player;
 import org.example.enums.ResultReason;
@@ -21,16 +21,16 @@ import org.example.utils.socketMessenger.SocketMessenger;
 @AllArgsConstructor
 public class MakeMoveService {
 
-  private GameDbService gameDbService;
+  private GameUtility gameUtility;
 
   private Board board;
 
   public MakeMoveService() {
-    gameDbService = new GameDbService();
+    gameUtility = new GameUtility();
   }
 
-  public MakeMoveService(GameDbService gameDbService) {
-    this.gameDbService = gameDbService;
+  public MakeMoveService(GameUtility gameUtility) {
+    this.gameUtility = gameUtility;
   }
 
   private boolean isMoveLegal(String move) {
@@ -45,7 +45,7 @@ public class MakeMoveService {
 
   public Game loadGame(String gameId, String connectionId, String playerId)
       throws NotFound, Unauthorized, InternalServerError {
-    Game game = gameDbService.get(gameId);
+    Game game = gameUtility.getGame(gameId);
 
     List<Player> players = game.getPlayers();
     Player player1 = players.get(0);
@@ -125,7 +125,7 @@ public class MakeMoveService {
     }
     activePlayer.setRemainingTime(activePlayer.getRemainingTime() - move.getDuration());
     String updatedGameFen = board.toStandardFEN();
-    gameDbService.patch(
+    gameUtility.patch(
         game.getId(),
         Updates.combine(
             Updates.set("gameStateAsFen", updatedGameFen),

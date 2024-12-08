@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
 import org.example.enums.ResultReason;
 import org.example.exceptions.InternalServerError;
@@ -17,13 +17,13 @@ import org.example.utils.socketMessenger.SocketMessenger;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResignGameService {
-  @Builder.Default private final GameDbService gameDbService = new GameDbService();
+  @Builder.Default private final GameUtility gameUtility = new GameUtility();
 
   public void resign(String gameId, String connectionId, SocketMessenger messenger)
       throws NotFound, InternalServerError, Unauthorized {
     Game game;
     try {
-      game = gameDbService.get(gameId);
+      game = gameUtility.getGame(gameId);
     } catch (NotFound e) {
       throw new NotFound("No Game found with id " + gameId);
     }

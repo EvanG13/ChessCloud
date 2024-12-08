@@ -12,16 +12,13 @@ import java.util.List;
 import java.util.Map;
 import org.example.constants.ChessConstants;
 import org.example.constants.StatusCodes;
-import org.example.entities.game.ArchivedGame;
-import org.example.entities.game.ArchivedGameDbService;
-import org.example.entities.game.Game;
-import org.example.entities.game.GameDbService;
+import org.example.entities.game.*;
 import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
-import org.example.entities.player.PlayerDbService;
-import org.example.entities.stats.StatsDbService;
+import org.example.entities.player.PlayerUtility;
+import org.example.entities.stats.StatsUtility;
 import org.example.entities.user.User;
-import org.example.entities.user.UserDbService;
+import org.example.entities.user.UserUtility;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
 import org.example.enums.TimeControl;
@@ -34,10 +31,10 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TimeoutHandlerTest {
-  private static ArchivedGameDbService archivedGameDbService;
-  private static GameDbService gameDbService;
-  private static UserDbService userDbService;
-  private static StatsDbService statsDbService;
+  private static ArchivedGameUtility archivedGameUtility;
+  private static GameUtility gameUtility;
+  private static UserUtility userUtility;
+  private static StatsUtility statsUtility;
   private static TimeoutHandler handler;
   private static Game game;
   private static User userOne;
@@ -48,18 +45,17 @@ public class TimeoutHandlerTest {
   public static void setUp() throws Exception {
     handler = new TimeoutHandler(new TimeoutService(), new SocketSystemLogger());
 
-    archivedGameDbService = ArchivedGameDbService.builder().build();
-    gameDbService = new GameDbService();
-    userDbService = new UserDbService();
-    PlayerDbService playerDbService = new PlayerDbService();
-    statsDbService = new StatsDbService();
+    archivedGameUtility = new ArchivedGameUtility();
+    gameUtility = new GameUtility();
+    userUtility = new UserUtility();
+    statsUtility = new StatsUtility();
     userOne = validUser();
     userTwo = validUser();
 
     Player playerOne =
-        playerDbService.toPlayer(userOne, ChessConstants.BASE_RATING, "whatever", true);
+        PlayerUtility.toPlayer(userOne, ChessConstants.BASE_RATING, "whatever", true);
     Player playerTwo =
-        playerDbService.toPlayer(userTwo, ChessConstants.BASE_RATING, "secondWhatever", false);
+        PlayerUtility.toPlayer(userTwo, ChessConstants.BASE_RATING, "secondWhatever", false);
     playerOne.setRemainingTime(100);
     playerTwo.setRemainingTime(12);
 
@@ -72,7 +68,7 @@ public class TimeoutHandlerTest {
             .lastModified(new Date())
             .isWhitesTurn(true)
             .build();
-    gameDbService.post(game);
+    gameUtility.post(game);
 
     game2 =
         Game.builder()
@@ -83,7 +79,7 @@ public class TimeoutHandlerTest {
             .lastModified(new Date())
             .isWhitesTurn(true)
             .build();
-    gameDbService.post(game2);
+    gameUtility.post(game2);
   }
 
   @Test
@@ -115,7 +111,7 @@ public class TimeoutHandlerTest {
     List<Player> players = game.getPlayers();
     players.getFirst().setRemainingTime(-1);
     players.getLast().setRemainingTime(21);
-    gameDbService.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
 
     String winningPlayerId = players.getLast().getPlayerId();
 
@@ -127,7 +123,7 @@ public class TimeoutHandlerTest {
 
     ArchivedGame archivedGame;
     try {
-      archivedGame = archivedGameDbService.getArchivedGame(game.getId());
+      archivedGame = archivedGameUtility.getGame(game.getId());
     } catch (NotFound e) {
       fail("Game was not successfully archived");
       return;
@@ -146,7 +142,7 @@ public class TimeoutHandlerTest {
     List<Player> players = game.getPlayers();
     players.getFirst().setRemainingTime(-1);
     players.getLast().setRemainingTime(0);
-    gameDbService.put(game.getId(), game);
+    gameUtility.put(game.getId(), game);
 
     APIGatewayV2WebSocketResponse response =
         getResponse(
@@ -162,7 +158,7 @@ public class TimeoutHandlerTest {
     players.getFirst().setRemainingTime(100); // winning player
     players.getLast().setRemainingTime(0); // losing player
 
-    gameDbService.put(game2.getId(), game2);
+    gameUtility.put(game2.getId(), game2);
 
     String winningPlayerId = players.getFirst().getPlayerId();
 
@@ -174,7 +170,7 @@ public class TimeoutHandlerTest {
 
     ArchivedGame archivedGame;
     try {
-      archivedGame = archivedGameDbService.getArchivedGame(game2.getId());
+      archivedGame = archivedGameUtility.getGame(game2.getId());
     } catch (NotFound e) {
       fail("Game was not successfully archived");
       return;
@@ -209,13 +205,13 @@ public class TimeoutHandlerTest {
 
   @AfterAll
   public static void tearDown() {
-    archivedGameDbService.deleteArchivedGame(game.getId());
-    archivedGameDbService.deleteArchivedGame(game2.getId());
+    archivedGameUtility.delete(game.getId());
+    archivedGameUtility.delete(game2.getId());
 
-    userDbService.deleteUser(userOne.getId());
-    userDbService.deleteUser(userTwo.getId());
+    userUtility.delete(userOne.getId());
+    userUtility.delete(userTwo.getId());
 
-    statsDbService.deleteStats(userOne.getId());
-    statsDbService.deleteStats(userTwo.getId());
+    statsUtility.delete(userOne.getId());
+    statsUtility.delete(userTwo.getId());
   }
 }
