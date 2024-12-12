@@ -13,7 +13,7 @@ import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
 import org.example.entities.player.Player;
 import org.example.enums.GameStatus;
-import org.example.enums.TimeControl;
+import org.example.entities.timeControl.TimeControl;
 
 @Getter
 @Setter
@@ -59,8 +59,8 @@ public class Game extends BaseGame<Player> {
 
     Player player1 = players.getFirst();
 
-    player1.setRemainingTime(timeControl.getTimeInSeconds());
-    player2.setRemainingTime(timeControl.getTimeInSeconds());
+    player1.setRemainingTime(timeControl.getBase());
+    player2.setRemainingTime(timeControl.getBase());
 
     Random rand = new Random();
     int randInt = rand.nextInt(2);
