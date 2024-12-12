@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameUtility;
-import org.example.enums.TimeControl;
+import org.example.enums.GameMode;
 import org.example.exceptions.NotFound;
 
 @Builder
@@ -20,8 +20,8 @@ public class GetArchivedGameService {
     return archivedGameUtility.getGame(gameId);
   }
 
-  List<ArchivedGame> getArchivedGames(String username, TimeControl timeControl) {
-    return archivedGameUtility.listArchivedGames(username, timeControl);
+  List<ArchivedGame> getArchivedGames(String username, GameMode gameMode) {
+    return archivedGameUtility.listArchivedGames(username, gameMode);
   }
 
   List<ArchivedGame> getArchivedGames(String username) {

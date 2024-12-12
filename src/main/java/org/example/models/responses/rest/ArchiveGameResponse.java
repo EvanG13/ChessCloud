@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.entities.move.Move;
 import org.example.entities.player.ArchivedPlayer;
+import org.example.entities.timeControl.TimeControl;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 
 @Getter
 @NoArgsConstructor

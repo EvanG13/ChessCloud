@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
-import org.example.enums.TimeControl;
+import org.example.enums.GameMode;
 import org.example.models.responses.rest.ListArchivedGamesResponse;
 
 public class ListArchivedGamesHandler
@@ -36,27 +36,27 @@ public class ListArchivedGamesHandler
       return makeHttpResponse(StatusCodes.BAD_REQUEST, "Bad path param. Expected username");
     }
 
-    TimeControl timeControl = null;
+    GameMode gameMode = null;
 
     if (queryMap != null && !queryMap.isEmpty()) {
-      if (!queryMap.containsKey("timeControl")) {
+      if (!queryMap.containsKey("gameMode")) {
 
         return makeHttpResponse(
-            StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or timeControl");
+            StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or gameMode");
       }
       try {
-        timeControl = TimeControl.valueOf(queryMap.get("timeControl"));
+        gameMode = GameMode.valueOf(queryMap.get("gameMode"));
       } catch (IllegalArgumentException e) {
         return makeHttpResponse(
-            StatusCodes.BAD_REQUEST, "unsupported time control: " + queryMap.get("timeControl"));
+            StatusCodes.BAD_REQUEST, "Unsupported game mode: " + queryMap.get("gameMode"));
       }
     }
 
     List<ArchivedGame> archivedGames;
-    if (timeControl == null) {
+    if (gameMode == null) {
       archivedGames = service.getArchivedGames(username);
     } else {
-      archivedGames = service.getArchivedGames(username, timeControl);
+      archivedGames = service.getArchivedGames(username, gameMode);
     }
     ListArchivedGamesResponse res = new ListArchivedGamesResponse(archivedGames);
     return makeHttpResponse(StatusCodes.OK, res.toJSON());
