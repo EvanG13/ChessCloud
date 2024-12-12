@@ -10,10 +10,11 @@ import org.example.entities.game.Game;
 import org.example.entities.game.GameUtility;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
+import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 
 @AllArgsConstructor
@@ -28,10 +29,12 @@ public class JoinGameService {
     this.statsUtility = new StatsUtility();
   }
 
-  public Game getPendingGame(TimeControl timeControl, int rating) throws NotFound {
+  public Game getPendingGame(GameMode gameMode, TimeControl timeControl, int rating) throws NotFound {
     return gameUtility.getGame(
         and(
-            eq("timeControl", timeControl),
+            eq("gameMode", gameMode),
+            eq("timeControl.base", timeControl.getBase()),
+            eq("timeControl.increment", timeControl.getIncrement()),
             eq("gameStatus", GameStatus.PENDING),
             gte("rating", rating - ChessConstants.RATING_MARGIN),
             lte("rating", rating + ChessConstants.RATING_MARGIN)));
@@ -69,5 +72,9 @@ public class JoinGameService {
       return Optional.empty();
     }
     return stats;
+  }
+
+  public GameMode determineGameMode(TimeControl timeControl) throws NotFound {
+    return GameMode.fromTime(timeControl.getBase());
   }
 }

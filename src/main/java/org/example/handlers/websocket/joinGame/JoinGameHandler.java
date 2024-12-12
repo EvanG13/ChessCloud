@@ -12,6 +12,7 @@ import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.enums.GameMode;
 import org.example.enums.WebsocketResponseAction;
@@ -55,8 +56,26 @@ public class JoinGameHandler
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
 
     String userId = joinRequestData.userId();
-    Optional<User> optionalUser = service.getUser(userId);
 
+    TimeControl timeControl = joinRequestData.timeControl();
+    GameMode gameMode;
+    try {
+      gameMode = service.determineGameMode(joinRequestData.timeControl());
+    } catch (NotFound e) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder()
+              .isSuccess(false)
+              .message("No valid game mode type allowing base time of: " + timeControl.getBase())
+              .build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
+
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "No valid game mode type allowing base time of: " + timeControl.getBase());
+    }
+
+
+    Optional<User> optionalUser = service.getUser(userId);
     if (optionalUser.isEmpty()) {
       GameStartedMessageData data =
           GameStartedMessageData.builder()
@@ -101,7 +120,6 @@ public class JoinGameHandler
 
     User user = optionalUser.get();
     Stats stats = optionalStats.get();
-    GameMode gameMode = joinRequestData.timeControl().getGameMode();
 
     Player newPlayer =
         Player.builder()
@@ -113,7 +131,7 @@ public class JoinGameHandler
 
     Game game;
     try {
-      game = service.getPendingGame(joinRequestData.timeControl(), stats.getRating(gameMode));
+      game = service.getPendingGame(gameMode, joinRequestData.timeControl(), stats.getRating(gameMode));
     } catch (NotFound e) {
       game = null;
     }
