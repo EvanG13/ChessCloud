@@ -1,9 +1,21 @@
 package org.example.enums;
 
+import lombok.Getter;
+import org.example.exceptions.NotFound;
+
+@Getter
 public enum GameMode {
-  BULLET,
-  BLITZ,
-  RAPID;
+  BULLET(0, 3),
+  BLITZ(3, 10),
+  RAPID(10, 30);
+
+  private final int timeMin; // exclusive
+  private final int timeMax; // inclusive
+
+  GameMode(int timeMin, int timeMax) {
+    this.timeMin = timeMin;
+    this.timeMax = timeMax;
+  }
 
   public String asKey() {
     return name().toLowerCase();
@@ -13,5 +25,12 @@ public enum GameMode {
     for (GameMode mode : GameMode.values()) if (mode.name().equalsIgnoreCase(key)) return mode;
 
     return null;
+  }
+
+  public static GameMode fromTime(int time) throws NotFound {
+    for (GameMode mode : GameMode.values())
+      if (mode.timeMin < time && time <= mode.timeMax) return mode;
+
+    throw new NotFound("Game mode not found");
   }
 }
