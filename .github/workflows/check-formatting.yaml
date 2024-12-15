@@ -1,0 +1,23 @@
+name: Check Formatting
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Amazon Corretto 21 JDK with Maven dependency caching
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Check code formatting
+        run: mvn com.spotify.fmt:fmt-maven-plugin:check -DskipTests=true --batch-mode
