@@ -28,8 +28,7 @@ public class ArchivedGameUtility extends MongoDBUtility<ArchivedGame> {
   }
 
   public List<ArchivedGame> listArchivedGames(String username, GameMode gameMode) {
-    return list(
-        and(eq("gameMode", gameMode), elemMatch("players", eq("username", username))));
+    return list(and(eq("gameMode", gameMode), elemMatch("players", eq("username", username))));
   }
 
   public List<ArchivedGame> listArchivedGames(String username) {
@@ -53,6 +52,7 @@ public class ArchivedGameUtility extends MongoDBUtility<ArchivedGame> {
         .rating(game.getRating())
         .numMoves(game.getMoveList().size())
         .resultReason(resultReason)
+        .gameMode(game.getGameMode())
         .build();
   }
 

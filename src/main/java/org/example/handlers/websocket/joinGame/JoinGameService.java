@@ -3,7 +3,6 @@ package org.example.handlers.websocket.joinGame;
 import static com.mongodb.client.model.Filters.*;
 
 import com.mongodb.client.model.Filters;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.constants.ChessConstants;
 import org.example.entities.game.Game;
@@ -15,7 +14,9 @@ import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
 import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
+import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
+import org.example.exceptions.Unauthorized;
 
 @AllArgsConstructor
 public class JoinGameService {
@@ -29,7 +30,8 @@ public class JoinGameService {
     this.statsUtility = new StatsUtility();
   }
 
-  public Game getPendingGame(GameMode gameMode, TimeControl timeControl, int rating) throws NotFound {
+  public Game getPendingGame(GameMode gameMode, TimeControl timeControl, int rating)
+      throws NotFound {
     return gameUtility.getGame(
         and(
             eq("gameMode", gameMode),
@@ -58,20 +60,14 @@ public class JoinGameService {
     gameUtility.put(game.getId(), game);
   }
 
-  public Optional<User> getUser(String userId) {
-    Optional<User> user = userUtility.get(userId);
-    if (user.isEmpty()) {
-      return Optional.empty();
-    }
-    return user;
+  public User getUser(String userId) throws Unauthorized {
+    return userUtility.get(userId).orElseThrow(() -> new Unauthorized("No user matches userId"));
   }
 
-  public Optional<Stats> getUserStats(String userId) {
-    Optional<Stats> stats = statsUtility.get(userId);
-    if (stats.isEmpty()) {
-      return Optional.empty();
-    }
-    return stats;
+  public Stats getUserStats(String userId) throws InternalServerError {
+    return statsUtility
+        .get(userId)
+        .orElseThrow(() -> new InternalServerError("User doesn't have entry in Stats collection"));
   }
 
   public GameMode determineGameMode(TimeControl timeControl) throws NotFound {

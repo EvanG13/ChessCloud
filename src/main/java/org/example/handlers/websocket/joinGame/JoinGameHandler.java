@@ -1,13 +1,13 @@
 package org.example.handlers.websocket.joinGame;
 
 import static org.example.utils.APIGatewayResponseBuilder.makeWebsocketResponse;
+import static org.example.utils.ValidateObject.isAnyFieldInObjectNull;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketResponse;
 import com.google.gson.Gson;
-import java.util.Optional;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
@@ -16,7 +16,9 @@ import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.enums.GameMode;
 import org.example.enums.WebsocketResponseAction;
+import org.example.exceptions.InternalServerError;
 import org.example.exceptions.NotFound;
+import org.example.exceptions.Unauthorized;
 import org.example.models.requests.JoinGameRequest;
 import org.example.models.responses.websocket.GameCreatedMessageData;
 import org.example.models.responses.websocket.GameStartedMessageData;
@@ -44,23 +46,46 @@ public class JoinGameHandler
   public APIGatewayV2WebSocketResponse handleRequest(
       APIGatewayV2WebSocketEvent event, Context context) {
     APIGatewayV2WebSocketEvent.RequestContext requestContext = event.getRequestContext();
-
-    if (requestContext == null || requestContext.getConnectionId() == null) {
-      return makeWebsocketResponse(
-          StatusCodes.BAD_REQUEST, "Invalid event: missing requestContext or connectionId");
-    }
-
     String connectionId = requestContext.getConnectionId();
 
     Gson gson = new Gson();
     JoinGameRequest joinRequestData = gson.fromJson(event.getBody(), JoinGameRequest.class);
+    if (isAnyFieldInObjectNull(joinRequestData)) {
+      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "Missing params");
+    }
 
     String userId = joinRequestData.userId();
-
     TimeControl timeControl = joinRequestData.timeControl();
+
+    User user;
+    try {
+      user = service.getUser(userId);
+    } catch (Unauthorized e) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+
+      return e.makeWebsocketResponse();
+    }
+
+    Stats stats;
+    try {
+      stats = service.getUserStats(userId);
+    } catch (InternalServerError e) {
+      GameStartedMessageData data =
+          GameStartedMessageData.builder().isSuccess(false).message(e.getMessage()).build();
+      SocketResponseBody<GameStartedMessageData> responseBody =
+          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
+      emitter.sendMessage(connectionId, responseBody.toJSON());
+
+      return e.makeWebsocketResponse();
+    }
+
     GameMode gameMode;
     try {
-      gameMode = service.determineGameMode(joinRequestData.timeControl());
+      gameMode = service.determineGameMode(timeControl);
     } catch (NotFound e) {
       GameStartedMessageData data =
           GameStartedMessageData.builder()
@@ -71,37 +96,9 @@ public class JoinGameHandler
           new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
 
       emitter.sendMessage(connectionId, responseBody.toJSON());
-      return makeWebsocketResponse(StatusCodes.BAD_REQUEST, "No valid game mode type allowing base time of: " + timeControl.getBase());
-    }
-
-
-    Optional<User> optionalUser = service.getUser(userId);
-    if (optionalUser.isEmpty()) {
-      GameStartedMessageData data =
-          GameStartedMessageData.builder()
-              .isSuccess(false)
-              .message("No user matches userId")
-              .build();
-      SocketResponseBody<GameStartedMessageData> responseBody =
-          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
-      emitter.sendMessage(connectionId, responseBody.toJSON());
-
-      return makeWebsocketResponse(StatusCodes.UNAUTHORIZED, "No user matches userId");
-    }
-
-    Optional<Stats> optionalStats = service.getUserStats(userId);
-    if (optionalStats.isEmpty()) {
-      GameStartedMessageData data =
-          GameStartedMessageData.builder()
-              .isSuccess(false)
-              .message("User doesn't have entry in Stats collection")
-              .build();
-      SocketResponseBody<GameStartedMessageData> responseBody =
-          new SocketResponseBody<>(WebsocketResponseAction.GAME_CREATED, data);
-      emitter.sendMessage(connectionId, responseBody.toJSON());
-
       return makeWebsocketResponse(
-          StatusCodes.INTERNAL_SERVER_ERROR, "User doesn't have entry in Stats collection");
+          StatusCodes.BAD_REQUEST,
+          "No valid game mode type allowing base time of: " + timeControl.getBase());
     }
 
     if (service.isInGame(userId)) {
@@ -118,9 +115,6 @@ public class JoinGameHandler
       return makeWebsocketResponse(StatusCodes.FORBIDDEN, "You are already in 1 game.");
     }
 
-    User user = optionalUser.get();
-    Stats stats = optionalStats.get();
-
     Player newPlayer =
         Player.builder()
             .playerId(userId)
@@ -131,7 +125,9 @@ public class JoinGameHandler
 
     Game game;
     try {
-      game = service.getPendingGame(gameMode, joinRequestData.timeControl(), stats.getRating(gameMode));
+      game =
+          service.getPendingGame(
+              gameMode, joinRequestData.timeControl(), stats.getRating(gameMode));
     } catch (NotFound e) {
       game = null;
     }
@@ -142,7 +138,12 @@ public class JoinGameHandler
       // No pending game for the requested time control
       // Create new game with requested time control
 
-      Game newGame = new Game(joinRequestData.timeControl(), newPlayer);
+      Game newGame = null;
+      try {
+        newGame = new Game(joinRequestData.timeControl(), newPlayer);
+      } catch (NotFound e) {
+        return e.makeWebsocketResponse();
+      }
       service.createGame(newGame);
 
       statusCode = StatusCodes.CREATED;

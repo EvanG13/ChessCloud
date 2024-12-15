@@ -37,7 +37,6 @@ public class ListArchivedGamesHandler
     }
 
     GameMode gameMode = null;
-
     if (queryMap != null && !queryMap.isEmpty()) {
       if (!queryMap.containsKey("gameMode")) {
 
@@ -45,7 +44,7 @@ public class ListArchivedGamesHandler
             StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or gameMode");
       }
       try {
-        gameMode = GameMode.valueOf(queryMap.get("gameMode"));
+        gameMode = GameMode.fromKey(queryMap.get("gameMode"));
       } catch (IllegalArgumentException e) {
         return makeHttpResponse(
             StatusCodes.BAD_REQUEST, "Unsupported game mode: " + queryMap.get("gameMode"));
@@ -56,7 +55,7 @@ public class ListArchivedGamesHandler
     if (gameMode == null) {
       archivedGames = service.getArchivedGames(username);
     } else {
-      archivedGames = service.getArchivedGames(username, gameMode);
+      archivedGames=service.getArchivedGames(username, gameMode);
     }
     ListArchivedGamesResponse res = new ListArchivedGamesResponse(archivedGames);
     return makeHttpResponse(StatusCodes.OK, res.toJSON());
