@@ -55,7 +55,7 @@ public class ListArchivedGamesHandler
     if (gameMode == null) {
       archivedGames = service.getArchivedGames(username);
     } else {
-      archivedGames=service.getArchivedGames(username, gameMode);
+      archivedGames = service.getArchivedGames(username, gameMode);
     }
     ListArchivedGamesResponse res = new ListArchivedGamesResponse(archivedGames);
     return makeHttpResponse(StatusCodes.OK, res.toJSON());
