@@ -12,7 +12,8 @@ import org.example.constants.StatusCodes;
 import org.example.entities.game.Game;
 import org.example.entities.game.GameUtility;
 import org.example.entities.player.Player;
-import org.example.enums.TimeControl;
+import org.example.entities.timeControl.TimeControl;
+import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.connect.ConnectHandler;
 import org.junit.jupiter.api.*;
 
@@ -28,7 +29,7 @@ public class ConnectHandlerTest {
   public static GameUtility gameUtility;
 
   @BeforeAll
-  public static void setUp() {
+  public static void setUp() throws NotFound {
     userId = "test-connection";
     userId2 = "user2";
     connectId = "connection-id";
@@ -37,7 +38,7 @@ public class ConnectHandlerTest {
     gameUtility = new GameUtility();
     Player player = Player.builder().playerId(userId).connectionId(connectId).build();
     Player player2 = Player.builder().playerId(userId2).connectionId(connectId2).build();
-    Game newGame = new Game(TimeControl.BLITZ_5, player);
+    Game newGame = new Game(new TimeControl(300, 0), player);
     try {
       newGame.setup(player2);
     } catch (Exception e) {
@@ -62,7 +63,7 @@ public class ConnectHandlerTest {
     APIGatewayV2WebSocketResponse response =
         getResponse(new ConnectHandler(), "", queryStrings, makeRoutelessRequestContext(connectId));
 
-    assertEquals(response.getStatusCode(), StatusCodes.OK);
+    assertEquals(StatusCodes.OK, response.getStatusCode());
   }
 
   @DisplayName("Updated ConnectionId 😘😘")
@@ -75,7 +76,7 @@ public class ConnectHandlerTest {
     APIGatewayV2WebSocketResponse response =
         getResponse(new ConnectHandler(), "", queryStrings, makeRequestContext("", newConnId));
 
-    assertEquals(response.getStatusCode(), StatusCodes.OK);
+    assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Optional<Game> oGame = gameUtility.get(gameId);
     assertFalse(oGame.isEmpty());
@@ -94,7 +95,7 @@ public class ConnectHandlerTest {
     APIGatewayV2WebSocketResponse response =
         getResponse(new ConnectHandler(), "", queryStrings, makeRequestContext("", connectId));
 
-    assertEquals(response.getStatusCode(), StatusCodes.OK);
+    assertEquals(StatusCodes.OK, response.getStatusCode());
 
     Optional<Game> oGame = gameUtility.get(gameId);
     assertFalse(oGame.isEmpty());

@@ -12,9 +12,9 @@ import org.example.entities.session.Session;
 import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.rest.getGameState.GameStateService;
 import org.example.handlers.rest.logout.LogoutHandler;
@@ -105,10 +105,10 @@ public class LogoutHandlerTest {
   @DisplayName("Logout and Forfeit Game 🔀")
   @Test
   @Order(3)
-  void successfulLogoutForfeitsGame() {
+  void successfulLogoutForfeitsGame() throws NotFound {
     Player player = Player.builder().playerId(userId).username("userone").build();
 
-    Game newGame = new Game(TimeControl.BLITZ_5, player);
+    Game newGame = new Game(new TimeControl(300, 0), player);
     newGame.setId(gameId);
 
     User user1 =

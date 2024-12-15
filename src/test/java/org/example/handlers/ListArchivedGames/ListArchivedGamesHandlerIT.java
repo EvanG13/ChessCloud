@@ -14,10 +14,10 @@ import org.example.entities.game.Game;
 import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.models.requests.SessionRequest;
 import org.example.models.responses.rest.ListArchivedGamesResponse;
 import org.example.utils.BaseTest;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ListArchivedGamesHandlerIT extends BaseTest {
-  final String endpoint = "/archivedGames/{username}";
+  final String endpoint = "/games/{username}";
   private static Map<String, String> authHeaders;
   private static Map<String, String> pathParams;
 
@@ -61,11 +61,11 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
     userUtility.post(testUser);
     String sessionToken = sessionUtility.createSession(new SessionRequest(userId));
 
-    Game one = validGame(TimeControl.BLITZ_5, testUser, testUserTwo);
+    Game one = validGame(new TimeControl(300, 0), testUser, testUserTwo);
     gameId = one.getId();
     archivedGameUtility.archiveGame(one, testUser.getUsername(), ResultReason.CHECKMATE);
 
-    Game two = validGame(TimeControl.BULLET_3, testUser, testUserTwo);
+    Game two = validGame(new TimeControl(60, 0), testUser, testUserTwo);
     gameId2 = two.getId();
     archivedGameUtility.archiveGame(two, testUserTwo.getUsername(), ResultReason.FORFEIT);
 
@@ -102,8 +102,7 @@ public class ListArchivedGamesHandlerIT extends BaseTest {
 
   @Test
   public void canGetArchivedGamesWithTimeControlFilter() {
-    Map<String, String> timeControlFilter =
-        Map.of("timeControl", String.valueOf(TimeControl.BLITZ_5));
+    Map<String, String> timeControlFilter = Map.of("gameMode", "blitz");
     Response response =
         testUtils.get(authHeaders, endpoint, pathParams, timeControlFilter, StatusCodes.OK);
 

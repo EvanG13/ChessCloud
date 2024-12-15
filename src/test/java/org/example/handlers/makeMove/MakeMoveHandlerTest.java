@@ -18,9 +18,9 @@ import org.example.entities.move.Move;
 import org.example.entities.player.Player;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
-import org.example.enums.TimeControl;
 import org.example.enums.WebsocketResponseAction;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.joinGame.JoinGameHandler;
@@ -109,7 +109,7 @@ public class MakeMoveHandlerTest {
     userId2 = "test-Id2";
     wrongUserId = "this-user-is-not-in-a-game";
 
-    timeControl = TimeControl.BLITZ_5;
+    timeControl = new TimeControl(300, 0);
     connectId = "fake-connection-id";
     connectId2 = "fake-connection-id2";
 

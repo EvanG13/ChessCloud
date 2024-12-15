@@ -9,11 +9,11 @@ import org.example.entities.game.Game;
 import org.example.entities.session.SessionUtility;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.models.requests.SessionRequest;
 import org.example.models.responses.rest.ArchiveGameResponse;
 import org.example.utils.BaseTest;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class GetArchivedGameHandlerIT extends BaseTest {
-  private static final String endpoint = "/archivedGame/{gameId}";
+  private static final String endpoint = "/game/{gameId}";
   private static Map<String, String> authHeaders;
 
   private static UserUtility userUtility;
@@ -58,7 +58,7 @@ public class GetArchivedGameHandlerIT extends BaseTest {
     statsUtility.post(testUserStats);
 
     testUtils = new IntegrationTestUtils<>();
-    Game game = validGame(TimeControl.BLITZ_5);
+    Game game = validGame(new TimeControl(300, 0));
     game.setGameStatus(GameStatus.FINISHED);
 
     gameId = game.getId();

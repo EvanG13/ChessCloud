@@ -11,11 +11,11 @@ import java.util.Map;
 import org.example.constants.StatusCodes;
 import org.example.entities.game.*;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
 import org.example.enums.OfferDrawAction;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.offerDraw.OfferDrawHandler;
 import org.example.handlers.websocket.offerDraw.OfferDrawService;
@@ -51,7 +51,7 @@ public class OfferDrawHandlerTest {
     userOne = validUser();
     userTwo = validUser();
 
-    game = validGame(TimeControl.BLITZ_5, userOne, userTwo);
+    game = validGame(new TimeControl(300, 0), userOne, userTwo);
     gameUtility.post(game);
   }
 

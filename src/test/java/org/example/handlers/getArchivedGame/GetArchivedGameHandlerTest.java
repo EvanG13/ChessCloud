@@ -10,9 +10,9 @@ import org.example.constants.StatusCodes;
 import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
+import org.example.entities.timeControl.TimeControl;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.handlers.rest.getArchivedGame.GetArchivedGameHandler;
 import org.example.utils.MockContext;
 import org.junit.jupiter.api.AfterAll;
@@ -30,7 +30,7 @@ public class GetArchivedGameHandlerTest {
   public static void setUp() throws Exception {
     archivedGameUtility = new ArchivedGameUtility();
 
-    Game game = validGame(TimeControl.BLITZ_5);
+    Game game = validGame(new TimeControl(300, 0));
 
     gameId = game.getId();
 

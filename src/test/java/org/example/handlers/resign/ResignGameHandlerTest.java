@@ -14,10 +14,10 @@ import org.example.entities.game.*;
 import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.resign.ResignGameHandler;
 import org.example.handlers.websocket.resign.ResignGameService;
@@ -48,7 +48,7 @@ public class ResignGameHandlerTest {
     userOne = validUser();
     userTwo = validUser();
 
-    game = validGame(TimeControl.BLITZ_5, userOne, userTwo);
+    game = validGame(new TimeControl(300, 0), userOne, userTwo);
     gameUtility.post(game);
   }
 

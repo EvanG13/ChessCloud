@@ -14,9 +14,9 @@ import org.example.entities.game.ArchivedGame;
 import org.example.entities.game.ArchivedGameUtility;
 import org.example.entities.game.Game;
 import org.example.entities.player.Player;
+import org.example.entities.timeControl.TimeControl;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.handlers.rest.getArchivedGame.ListArchivedGamesHandler;
 import org.example.models.responses.rest.ListArchivedGamesResponse;
 import org.example.utils.MockContext;
@@ -33,8 +33,8 @@ public class ListArchivedGamesHandlerTest {
   @BeforeAll
   public static void setUp() throws Exception {
     archivedGameUtility = new ArchivedGameUtility();
-    Game game = validGame(TimeControl.BLITZ_5);
-    Game game2 = validGame(TimeControl.BLITZ_10);
+    Game game = validGame(new TimeControl(300, 0));
+    Game game2 = validGame(new TimeControl(600, 0));
     gameId = game.getId();
     gameId2 = game2.getId();
     game.setGameStatus(GameStatus.FINISHED);
@@ -81,7 +81,7 @@ public class ListArchivedGamesHandlerTest {
     APIGatewayV2HTTPEvent event =
         APIGatewayV2HTTPEvent.builder()
             .withPathParameters(Map.of("username", "user1"))
-            .withQueryStringParameters(Map.of("timeControl", String.valueOf(TimeControl.BLITZ_5)))
+            .withQueryStringParameters(Map.of("gameMode", "blitz"))
             .build();
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
@@ -120,6 +120,6 @@ public class ListArchivedGamesHandlerTest {
 
     APIGatewayV2HTTPResponse response = handler.handleRequest(event, new MockContext());
     assertResponse(
-        response, StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or timeControl");
+        response, StatusCodes.BAD_REQUEST, "Bad query param. Expected either none or gameMode");
   }
 }
