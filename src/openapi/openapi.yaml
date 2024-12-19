@@ -533,7 +533,7 @@ paths:
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
                 application/json: {}
-  /archivedGame/{gameId}:
+  /game/{gameId}:
     get:
       summary: Game State
       description: Get Game State
@@ -626,7 +626,7 @@ paths:
               method.response.header.Access-Control-Allow-Origin: '''*'''
               responseTemplates:
                 application/json: {}
-  /archivedGames/{username}:
+  /games/{username}:
     get:
       summary: list archived games
       description: array of archivedGame objects without the moveList field

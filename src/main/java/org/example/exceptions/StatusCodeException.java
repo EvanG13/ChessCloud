@@ -5,8 +5,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2WebSocketRespons
 import org.example.utils.APIGatewayResponseBuilder;
 
 public abstract class StatusCodeException extends Exception {
-  int statusCode;
-  String message;
+  private final int statusCode;
+  private final String message;
 
   public StatusCodeException(int statusCode, String message) {
     this.statusCode = statusCode;
@@ -19,5 +19,10 @@ public abstract class StatusCodeException extends Exception {
 
   public APIGatewayV2WebSocketResponse makeWebsocketResponse() {
     return APIGatewayResponseBuilder.makeWebsocketResponse(statusCode, message);
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
   }
 }

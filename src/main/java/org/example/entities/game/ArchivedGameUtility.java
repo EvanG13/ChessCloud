@@ -9,8 +9,8 @@ import java.util.List;
 import lombok.NonNull;
 import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
+import org.example.enums.GameMode;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.utils.MongoDBUtility;
 
@@ -27,9 +27,8 @@ public class ArchivedGameUtility extends MongoDBUtility<ArchivedGame> {
     return get(id).orElseThrow(() -> new NotFound("No Archived Game found"));
   }
 
-  public List<ArchivedGame> listArchivedGames(String username, TimeControl timeControl) {
-    return list(
-        and(eq("timeControl", timeControl), elemMatch("players", eq("username", username))));
+  public List<ArchivedGame> listArchivedGames(String username, GameMode gameMode) {
+    return list(and(eq("gameMode", gameMode), elemMatch("players", eq("username", username))));
   }
 
   public List<ArchivedGame> listArchivedGames(String username) {
@@ -53,6 +52,7 @@ public class ArchivedGameUtility extends MongoDBUtility<ArchivedGame> {
         .rating(game.getRating())
         .numMoves(game.getMoveList().size())
         .resultReason(resultReason)
+        .gameMode(game.getGameMode())
         .build();
   }
 

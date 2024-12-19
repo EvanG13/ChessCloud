@@ -11,9 +11,9 @@ import org.example.entities.player.Player;
 import org.example.entities.player.PlayerUtility;
 import org.example.entities.stats.Stats;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
-import org.example.enums.TimeControl;
 
 public class TestUtils {
 

@@ -1,9 +1,6 @@
 package org.example.entities.game;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +9,10 @@ import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.example.constants.ChessConstants;
 import org.example.entities.player.Player;
+import org.example.entities.timeControl.TimeControl;
+import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
-import org.example.enums.TimeControl;
+import org.example.exceptions.NotFound;
 
 @Getter
 @Setter
@@ -30,21 +29,18 @@ public class Game extends BaseGame<Player> {
 
   private String gameStateAsFen;
 
-  public Game(TimeControl timeControl, Player player) {
+  public Game(TimeControl timeControl, Player player) throws NotFound {
     this.id = new ObjectId().toString();
 
     this.timeControl = timeControl;
-    // TODO: not omit moveList?
     this.isWhitesTurn = true;
     this.gameStatus = GameStatus.PENDING;
-    this.players =
-        new ArrayList<>() {
-          {
-            add(player);
-          }
-        };
+    this.players = Arrays.asList(new Player[2]);
+    this.players.set(0, player);
     this.rating = player.getRating();
-    // TODO: not omit gameStateAsFen?
+    this.gameStateAsFen = ChessConstants.STARTING_FEN_STRING;
+    this.moveList = new ArrayList<>();
+    this.gameMode = GameMode.fromTime(timeControl.getBase());
   }
 
   /**
@@ -53,14 +49,14 @@ public class Game extends BaseGame<Player> {
    * @param player2 the second player to be added to the game
    */
   public void setup(Player player2) throws Exception {
-    if (this.gameStatus.getStatus() != GameStatus.PENDING.getStatus() || players.size() != 1) {
+    if (this.gameStatus.getStatus() != GameStatus.PENDING.getStatus()) {
       throw new Exception("Game has already started or has finished");
     }
 
     Player player1 = players.getFirst();
 
-    player1.setRemainingTime(timeControl.getTimeInSeconds());
-    player2.setRemainingTime(timeControl.getTimeInSeconds());
+    player1.setRemainingTime(timeControl.getBase());
+    player2.setRemainingTime(timeControl.getBase());
 
     Random rand = new Random();
     int randInt = rand.nextInt(2);
@@ -72,10 +68,8 @@ public class Game extends BaseGame<Player> {
       player2.setIsWhite(false);
     }
 
-    this.moveList = new ArrayList<>();
-    this.gameStateAsFen = ChessConstants.STARTING_FEN_STRING;
     this.gameStatus = GameStatus.ONGOING;
-    this.players.add(player2);
+    this.players.set(1, player2);
     this.lastModified = new Date();
   }
 

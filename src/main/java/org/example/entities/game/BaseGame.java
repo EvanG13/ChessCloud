@@ -11,7 +11,8 @@ import lombok.experimental.SuperBuilder;
 import org.example.entities.DataTransferObject;
 import org.example.entities.move.Move;
 import org.example.entities.player.BasePlayer;
-import org.example.enums.TimeControl;
+import org.example.entities.timeControl.TimeControl;
+import org.example.enums.GameMode;
 
 @SuperBuilder
 @Getter
@@ -19,6 +20,7 @@ import org.example.enums.TimeControl;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class BaseGame<T extends BasePlayer> extends DataTransferObject {
+  protected GameMode gameMode;
   protected TimeControl timeControl;
   protected Date created;
   protected List<Move> moveList;
@@ -31,7 +33,8 @@ public abstract class BaseGame<T extends BasePlayer> extends DataTransferObject 
     if (o == null || getClass() != o.getClass()) return false;
     BaseGame<?> baseGame = (BaseGame<?>) o;
 
-    return timeControl == baseGame.timeControl
+    return gameMode == baseGame.gameMode
+        && Objects.equals(timeControl, baseGame.timeControl)
         && Objects.equals(created, baseGame.created)
         && Objects.equals(moveList, baseGame.moveList)
         && Objects.equals(players, baseGame.players)

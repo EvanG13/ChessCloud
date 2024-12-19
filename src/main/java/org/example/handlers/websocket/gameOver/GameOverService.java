@@ -144,13 +144,12 @@ public class GameOverService {
     archivedGameUtility.archiveGame(this.game, winningPlayerUsername, resultReason);
   }
 
-  // TODO : Send this game to a finished game collection
   public void updateGame() {
     gameUtility.patch(game.getId(), Updates.set("gameStatus", GameStatus.FINISHED.toString()));
   }
 
   public void updateRatings() throws InternalServerError {
-    GameMode gameMode = game.getTimeControl().getGameMode();
+    GameMode gameMode = game.getGameMode();
 
     GameModeStats winningGameModeStats = winningPlayerStats.getGamemodeStats(gameMode);
     GameModeStats losingGameModeStats = losingPlayerStats.getGamemodeStats(gameMode);

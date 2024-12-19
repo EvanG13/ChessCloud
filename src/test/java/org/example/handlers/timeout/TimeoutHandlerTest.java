@@ -17,11 +17,12 @@ import org.example.entities.player.ArchivedPlayer;
 import org.example.entities.player.Player;
 import org.example.entities.player.PlayerUtility;
 import org.example.entities.stats.StatsUtility;
+import org.example.entities.timeControl.TimeControl;
 import org.example.entities.user.User;
 import org.example.entities.user.UserUtility;
+import org.example.enums.GameMode;
 import org.example.enums.GameStatus;
 import org.example.enums.ResultReason;
-import org.example.enums.TimeControl;
 import org.example.exceptions.NotFound;
 import org.example.handlers.websocket.timeout.TimeoutHandler;
 import org.example.handlers.websocket.timeout.TimeoutService;
@@ -59,23 +60,28 @@ public class TimeoutHandlerTest {
     playerOne.setRemainingTime(100);
     playerTwo.setRemainingTime(12);
 
+    TimeControl gameOneTimeControl = new TimeControl(300, 0);
+
     game =
         Game.builder()
             .moveList(new ArrayList<>())
             .players(List.of(playerOne, playerTwo))
             .gameStatus(GameStatus.ONGOING)
-            .timeControl(TimeControl.BLITZ_5)
+            .timeControl(gameOneTimeControl)
+            .gameMode(GameMode.fromTime(gameOneTimeControl.getBase()))
             .lastModified(new Date())
             .isWhitesTurn(true)
             .build();
     gameUtility.post(game);
 
+    TimeControl gameTwoTimeControl = new TimeControl(600, 0);
     game2 =
         Game.builder()
             .moveList(new ArrayList<>())
             .players(List.of(playerOne, playerTwo))
             .gameStatus(GameStatus.ONGOING)
-            .timeControl(TimeControl.BLITZ_10)
+            .timeControl(gameTwoTimeControl)
+            .gameMode(GameMode.fromTime(gameTwoTimeControl.getBase()))
             .lastModified(new Date())
             .isWhitesTurn(true)
             .build();
